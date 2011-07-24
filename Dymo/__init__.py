@@ -2,6 +2,8 @@ from gzip import GzipFile
 from csv import DictReader
 from os.path import splitext
 
+from PIL.ImageFont import truetype
+
 from ModestMaps.Geo import Location
 from ModestMaps.OpenStreetMap import Provider
 from ModestMaps.Core import Point, Coordinate
@@ -42,12 +44,14 @@ def load_places(input_files, zoom):
     
         for row in DictReader(input, dialect=dialect):
             name = row['name']
-            font = row.get('font file', 'fonts/DejaVuSans.ttf')
-            size = int(row.get('font size', 12))
-            diam = int(row.get('point size', 8))
+            radius = int(row.get('point size', 8))
+            
+            fontsize = int(row.get('font size', 12))
+            fontfile = row.get('font file', 'fonts/DejaVuSans.ttf')
+            font = truetype(fontfile, fontsize, encoding='unic')
             
             lat = float(row['latitude'])
             lon = float(row['longitude'])
             location, point = location_point(lat, lon, zoom)
             
-            yield name, font, size, diam, location, point
+            yield name, font, radius, location, point
