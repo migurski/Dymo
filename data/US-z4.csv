@@ -1,0 +1,14 @@
+geonameid,name,asciiname,latitude,longitude,country code,admin1 code,population,point size,font size,font file
+5128581,New York,New York City,40.71427,-74.00597,US,NY,8008278,8,12,fonts/Arial.ttf
+5368361,Los Angeles,Los Angeles,34.05223,-118.24368,US,CA,3694820,8,12,fonts/Arial.ttf
+4887398,Chicago,Chicago,41.85003,-87.65005,US,IL,2841952,8,12,fonts/Arial.ttf
+4699066,Houston,Houston,29.76328,-95.36327,US,TX,2027712,8,12,fonts/Arial.ttf
+4560349,Philadelphia,Philadelphia,39.95234,-75.16379,US,PA,1517550,8,12,fonts/Arial.ttf
+4684888,Dallas,Dallas,32.78306,-96.80667,US,TX,1211704,8,12,fonts/Arial.ttf
+5391959,San Francisco,San Francisco,37.76746,-122.44151,US,CA,732072,8,12,fonts/Arial.ttf
+4930956,Boston,Boston,42.35843,-71.05977,US,MA,589141,8,12,fonts/Arial.ttf
+5809844,Seattle,Seattle,47.60621,-122.33207,US,WA,569369,8,12,fonts/Arial.ttf
+5419384,Denver,Denver,39.73915,-104.9847,US,CO,554636,8,12,fonts/Arial.ttf
+4140963,Washington,Washington,38.89511,-77.03637,US,DC,552433,8,12,fonts/Arial.ttf
+4180439,Atlanta,Atlanta,33.749,-84.38798,US,GA,422908,8,12,fonts/Arial.ttf
+4164138,Miami,Miami,25.77427,-80.19366,US,FL,382894,8,12,fonts/Arial.ttf
