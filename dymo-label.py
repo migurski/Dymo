@@ -17,6 +17,15 @@ optparser.add_option('-m', '--minutes', dest='minutes',
 optparser.add_option('-z', '--zoom', dest='zoom',
                      type='int', help='Map zoom level. Default value is %(zoom)d.' % defaults)
 
+optparser.add_option('--min-temp', dest='temp_min',
+                     type='float', help='Minimum annealing temperature, for more precise control than specifying --minutes.')
+
+optparser.add_option('--max-temp', dest='temp_max',
+                     type='float', help='Maximum annealing temperature, for more precise control than specifying --minutes.')
+
+optparser.add_option('--steps', dest='steps',
+                     type='int', help='Number of annealing steps, for more precise control than specifying --minutes.')
+
 if __name__ == '__main__':
     
     options, args = optparser.parse_args()
@@ -40,8 +49,13 @@ if __name__ == '__main__':
 
     def state_move(places):
         places.move()
+
+    annealer = Annealer(state_energy, state_move)
     
-    places, e = Annealer(state_energy, state_move).auto(places, options.minutes, 50)
+    if options.temp_min and options.temp_max and options.steps:
+        places, e = annealer.anneal(places, options.temp_max, options.temp_min, options.steps, 30)
+    else:
+        places, e = annealer.auto(places, options.minutes, 50)
     
     label_data = {'type': 'FeatureCollection', 'features': []}
     point_data = {'type': 'FeatureCollection', 'features': []}

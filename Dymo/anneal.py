@@ -243,7 +243,7 @@ class Annealer:
 		duration = round_figures(int(60.0 * minutes * step / elapsed), 2)
 		
 		# Perform anneal
-		print 'Annealing from %.2f to %.2f over %i steps:' % (Tmax, Tmin, duration)
+		print 'Annealing from %.6f to %.6f over %i steps:' % (Tmax, Tmin, duration)
 		return self.anneal(state, Tmax, Tmin, duration, 20)
 
 if __name__ == '__main__':
