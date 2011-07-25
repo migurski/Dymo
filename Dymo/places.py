@@ -1,4 +1,5 @@
 from math import pi, sin, cos
+from random import choice
 
 from shapely.geometry import Point, Polygon
 
@@ -13,7 +14,6 @@ class Place:
 
     def __init__(self, name, font, location, position, radius):
         self.name = name
-        self.font = font
         self.location = location
         self.position = position
     
@@ -28,7 +28,7 @@ class Place:
         self._point_shape = None     # point shape for current placement
 
         # fill out the shapes above
-        self._populate_shapes()
+        self._populate_shapes(font)
 
         # label bounds for current placement
         self._label_shape = self._label_shapes[self.placement]
@@ -42,7 +42,7 @@ class Place:
     def __hash__(self):
         return id(self)
     
-    def _populate_shapes(self):
+    def _populate_shapes(self, font):
         """ Set values for self._label_shapes, _footprint_shape, and _footprint_shape_b.
         """
         point = Point(self.position.x, self.position.y)
@@ -50,7 +50,7 @@ class Place:
         self._point_shape = point.buffer(self.radius, 3)
         
         x, y = self.position.x, self.position.y
-        w, h = self.font.getsize(self.name)
+        w, h = font.getsize(self.name)
         
         for placement in placements:
             label_shape = point_label_bounds(x, y, w, h, self.radius, placement)
@@ -146,51 +146,56 @@ def point_label_bounds(x, y, width, height, radius, placement):
 class Places:
 
     def __init__(self):
-        self._places = []
-        self._energy = 0.0
-        self._neighbors = {}
-        self._moveable = []
-        self._indexes = {}
+        self.energy = 0.0
+
+        self._places = []    # core list of places
+        self._neighbors = {} # dictionary of neighbor sets
+        self._moveable = []  # list of only this places that should be moved
+        self._indexes = {}   # dictionary of numeric place indexes
 
     def __iter__(self):
         return iter(self._places)
 
-    def add(self, place, do_neighbors=True):
+    def add(self, place):
         self._neighbors[place] = set()
         self._indexes[place] = len(self._indexes) + 1
     
-        if do_neighbors:
-            for other in self._places:
-                if not place.can_overlap(other):
-                    continue
-    
-                if place.overlaps(other):
-                    pindex, oindex = self._indexes[place], self._indexes[other]
-                    self._energy += min(10.0 / pindex, 10.0 / oindex)
-                
-                self._moveable.append(place)
-                self._neighbors[place].add(other)
-                self._neighbors[other].add(place)
-    
-        self._energy += place.placement_energy()
+        # calculate neighbors
+        for other in self._places:
+            if not place.can_overlap(other):
+                continue
+
+            self.energy += self._overlap_energy(place, other)
+
+            self._moveable.append(place)
+            self._neighbors[place].add(other)
+            self._neighbors[other].add(place)
+
+        self.energy += place.placement_energy()
         self._places.append(place)
         
         return self._neighbors[place]
 
-    def energy(self):
-        return self._energy
+    def _overlap_energy(self, this, that):
+        """ Energy of an overlap between two places, if it exists.
+        """
+        if not this.overlaps(that):
+            return 0.0
+
+        a, b = self._indexes[this], self._indexes[that]
+        return min(10.0 / a, 10.0 / b)
     
     def move(self):
         place = choice(self._moveable)
         
         for other in self._neighbors[place]:
-            self._energy -= place.overlap_energy(other)
+            self.energy -= self._overlap_energy(place, other)
 
-        self._energy -= place.placement_energy()
+        self.energy -= place.placement_energy()
 
         place.move()
         
         for other in self._neighbors[place]:
-            self._energy += place.overlap_energy(other)
+            self.energy += self._overlap_energy(place, other)
 
-        self._energy += place.placement_energy()
+        self.energy += place.placement_energy()

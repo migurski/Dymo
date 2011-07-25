@@ -10,20 +10,37 @@ from ModestMaps.Core import Point, Coordinate
 
 from .places import Place
 
+_osm = Provider()
+
 def location_point(lat, lon, zoom):
     """ Return a point that maps to pixels at the requested zoom level for 2^8 tile size.
     """
     try:
-        osm = Provider()
-    
         location = Location(float(lat), float(lon))
-        coord = osm.locationCoordinate(location).zoomTo(zoom + 8)
+        coord = _osm.locationCoordinate(location).zoomTo(zoom + 8)
         point = Point(coord.column, coord.row)
         
         return location, point
 
     except ValueError:
         raise Exception((lat, lon, zoom))
+
+def label_bbox(shape, zoom):
+    """ Return an envelope in geographic coordinates based on a shape in pixels at a known zoom level.
+    """
+    pass
+
+def point_lonlat(x, y, zoom):
+    """ Return a longitude, latitude tuple from pixels at the requested zoom level.
+    """
+    try:
+        coord = Coordinate(y, x, zoom + 8)
+        location = _osm.coordinateLocation(coord)
+        
+        return location.lon, location.lat
+
+    except ValueError:
+        raise Exception((x, y, zoom))
 
 def load_places(input_files, zoom):
     """
