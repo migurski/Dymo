@@ -8,6 +8,8 @@ from ModestMaps.Geo import Location
 from ModestMaps.OpenStreetMap import Provider
 from ModestMaps.Core import Point, Coordinate
 
+from .places import Place
+
 def location_point(lat, lon, zoom):
     """ Return a point that maps to pixels at the requested zoom level for 2^8 tile size.
     """
@@ -54,4 +56,4 @@ def load_places(input_files, zoom):
             lon = float(row['longitude'])
             location, point = location_point(lat, lon, zoom)
             
-            yield name, font, radius, location, point
+            yield Place(name, font, location, point, radius)

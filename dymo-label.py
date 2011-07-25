@@ -1,6 +1,7 @@
 from optparse import OptionParser
 
 from Dymo.anneal import Annealer
+from Dymo.places import Places
 from Dymo import load_places
 
 optparser = OptionParser(usage="""%prog [options] <label output file> <point output file> <input file 1> [<input file 2>, ...]""")
@@ -27,5 +28,8 @@ if __name__ == '__main__':
         optparser.print_usage()
         exit(1)
 
+    places = Places()
+    
     for place in load_places(input_files, options.zoom):
         print place
+        places.add(place)
