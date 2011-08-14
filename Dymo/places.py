@@ -12,10 +12,11 @@ placements = {NE: 0.000, ENE: 0.070, ESE: 0.100, SE: 0.175, SSE: 0.200,
 
 class Place:
 
-    def __init__(self, name, font, location, position, radius, **extras):
+    def __init__(self, name, font, location, position, radius, rank=1, **extras):
         self.name = name
         self.location = location
         self.position = position
+        self.rank = rank
     
         self.placement = NE
         self.radius = radius
@@ -73,7 +74,7 @@ class Place:
                       _mask_footprint = self._mask_footprint,
                       _point_shape = self._point_shape)
         
-        return Place(self.name, None, self.location, self.position, self.radius, **extras)
+        return Place(self.name, None, self.location, self.position, self.radius, self.rank, **extras)
     
     def _populate_shapes(self, font):
         """ Set values for self._label_shapes, _footprint_shape, and _footprint_shape_b.
@@ -184,14 +185,12 @@ class Places:
         self._places = []    # core list of places
         self._neighbors = {} # dictionary of neighbor sets
         self._moveable = []  # list of only this places that should be moved
-        self._indexes = {}   # dictionary of numeric place indexes
 
     def __iter__(self):
         return iter(self._places)
 
     def add(self, place):
         self._neighbors[place] = set()
-        self._indexes[place] = len(self._indexes) + 1
     
         # calculate neighbors
         for other in self._places:
@@ -218,8 +217,7 @@ class Places:
         if not this.overlaps(that):
             return 0.0
 
-        a, b = self._indexes[this], self._indexes[that]
-        return min(10.0 / a, 10.0 / b)
+        return min(10.0 / this.rank, 10.0 / that.rank)
     
     def move(self):
         place = choice(self._moveable)
