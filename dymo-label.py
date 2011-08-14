@@ -5,7 +5,22 @@ from Dymo.anneal import Annealer
 from Dymo.places import Places
 from Dymo import load_places, point_lonlat
 
-optparser = OptionParser(usage="""%prog [options] <label output file> <point output file> <input file 1> [<input file 2>, ...]""")
+optparser = OptionParser(usage="""%prog [options] <label output file> <point output file> <input file 1> [<input file 2>, ...]
+
+There are two ways to run the label placer. The slow, default way performs a
+test to figure out the best parameters for the simulated annealing algorithm
+before running it. The faster, more advanced way required that you know what
+your minimum and maximum temperatures and appropriate number of steps are before
+you start, which usually means that you've run the annealer once the slow way
+and now want to redo your results on the same data the fast way.
+
+Examples:
+
+  Place U.S. city labels at zoom 6 for two minutes:
+  > python dymo-label.py -z 6 --minutes 2 labels.json points.json data/US-z6.csv.gz
+
+  Place U.S. city labels at zoom 5 over a 10000-iteration 10.0 - 0.01 temperature range:
+  > python dymo-label.py -z 5 --steps 10000 --max-temp 10 --min-temp 0.01 labels.json points.json data/US-z5.csv""")
 
 defaults = dict(minutes=2, zoom=18)
 
@@ -41,7 +56,6 @@ if __name__ == '__main__':
     places = Places()
     
     for place in load_places(input_files, options.zoom):
-        print place
         places.add(place)
     
     def state_energy(places):
@@ -55,7 +69,7 @@ if __name__ == '__main__':
     if options.temp_min and options.temp_max and options.steps:
         places, e = annealer.anneal(places, options.temp_max, options.temp_min, options.steps, 30)
     else:
-        places, e = annealer.auto(places, options.minutes, 50)
+        places, e = annealer.auto(places, options.minutes, 500)
     
     label_data = {'type': 'FeatureCollection', 'features': []}
     point_data = {'type': 'FeatureCollection', 'features': []}
