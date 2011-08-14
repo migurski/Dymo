@@ -203,6 +203,9 @@ class Places:
             self._moveable.append(place)
             self._neighbors[place].add(other)
             self._neighbors[other].add(place)
+            
+            if other not in self._moveable:
+                self._moveable.append(other)
 
         self.energy += place.placement_energy()
         self._places.append(place)
