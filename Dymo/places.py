@@ -12,7 +12,7 @@ placements = {NE: 0.000, ENE: 0.070, ESE: 0.100, SE: 0.175, SSE: 0.200,
 
 class Place:
 
-    def __init__(self, name, font, location, position, radius):
+    def __init__(self, name, font, location, position, radius, **extras):
         self.name = name
         self.location = location
         self.position = position
@@ -26,9 +26,26 @@ class Place:
         self._label_footprint = None # all possible label shapes, together
         self._mask_footprint = None  # all possible mask shapes, together
         self._point_shape = None     # point shape for current placement
+        
+        full_extras = 'placement' in extras \
+                  and '_label_shapes' in extras \
+                  and '_mask_shapes' in extras \
+                  and '_label_footprint' in extras \
+                  and '_mask_footprint' in extras \
+                  and '_point_shape' in extras
+        
+        if full_extras:
+            # use the provided extras
+            self.placement = extras['placement']
+            self._label_shapes = extras['_label_shapes']
+            self._mask_shapes = extras['_mask_shapes']
+            self._label_footprint = extras['_label_footprint']
+            self._mask_footprint = extras['_mask_footprint']
+            self._point_shape = extras['_point_shape']
 
-        # fill out the shapes above
-        self._populate_shapes(font)
+        else:
+            # fill out the shapes above
+            self._populate_shapes(font)
 
         # label bounds for current placement
         self._label_shape = self._label_shapes[self.placement]
@@ -41,6 +58,22 @@ class Place:
     
     def __hash__(self):
         return id(self)
+    
+    def __deepcopy__(self, memo_dict):
+        """ Override deep copy to spend less time copying.
+        
+            Profiling showed that a significant percentage of time was spent
+            deep-copying annealer state from step to step, and testing with
+            z5 U.S. data shows a 4000% speed increase, so yay.
+        """
+        extras = dict(placement = self.placement,
+                      _label_shapes = self._label_shapes,
+                      _mask_shapes = self._mask_shapes,
+                      _label_footprint = self._label_footprint,
+                      _mask_footprint = self._mask_footprint,
+                      _point_shape = self._point_shape)
+        
+        return Place(self.name, None, self.location, self.position, self.radius, **extras)
     
     def _populate_shapes(self, font):
         """ Set values for self._label_shapes, _footprint_shape, and _footprint_shape_b.
