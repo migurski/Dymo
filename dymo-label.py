@@ -74,7 +74,22 @@ if __name__ == '__main__':
     label_data = {'type': 'FeatureCollection', 'features': []}
     point_data = {'type': 'FeatureCollection', 'features': []}
     
+    placed = []
+    
     for place in places:
+    
+        overlaps = False
+    
+        for other in placed:
+            if place.overlaps(other):
+                overlaps = True
+                print place, 'overlaps', other
+                break
+        
+        if overlaps:
+            continue
+        
+        placed.append(place)
     
         lonlat = lambda xy: point_lonlat(xy[0], xy[1], options.zoom)
         label_coords = [map(lonlat, place.label().envelope.exterior.coords)]
