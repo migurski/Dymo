@@ -58,7 +58,7 @@ def load_places(input_files, zoom):
         
         if ext == '.csv':
             dialect = 'excel'
-        elif ext in ('tsv', 'txt'):
+        elif ext in ('.tsv', '.txt'):
             dialect = 'excel-tab'
     
         for row in DictReader(input, dialect=dialect):
