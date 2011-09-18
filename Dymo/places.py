@@ -1,5 +1,6 @@
 from math import pi, sin, cos
 from random import choice
+from copy import deepcopy
 
 from shapely.geometry import Point, Polygon
 
@@ -179,15 +180,42 @@ def point_label_bounds(x, y, width, height, radius, placement):
 
 class Places:
 
-    def __init__(self):
-        self.energy = 0.0
+    def __init__(self, **extras):
+        full_extras = 'energy' in extras \
+                  and 'previous' in extras \
+                  and '_places' in extras \
+                  and '_neighbors' in extras \
+                  and '_moveable' in extras
+        
+        if full_extras:
+            # use the provided extras
+            self.energy = extras['energy']
+            self.previous = extras['previous']
+            self._places = extras['_places']
+            self._neighbors = extras['_neighbors']
+            self._moveable = extras['_moveable']
 
-        self._places = []    # core list of places
-        self._neighbors = {} # dictionary of neighbor sets
-        self._moveable = []  # list of only this places that should be moved
+        else:
+            self.energy = 0.0
+            self.previous = None
+
+            self._places = []    # core list of places
+            self._neighbors = {} # dictionary of neighbor sets
+            self._moveable = []  # list of only this places that should be moved
 
     def __iter__(self):
         return iter(self._places)
+    
+    def __deepcopy__(self, memo_dict):
+        """
+        """
+        extras = dict(energy = self.energy,
+                      previous = self, # link to older state
+                      _places = deepcopy(self._places, memo_dict),
+                      _neighbors = deepcopy(self._neighbors, memo_dict),
+                      _moveable = deepcopy(self._moveable, memo_dict))
+        
+        return Places(**extras)
 
     def add(self, place):
         self._neighbors[place] = set()

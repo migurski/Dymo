@@ -1,5 +1,6 @@
 from optparse import OptionParser
-from json import dump
+import cPickle
+import json
 
 from Dymo.anneal import Annealer
 from Dymo.places import Places
@@ -22,7 +23,7 @@ Examples:
   Place U.S. city labels at zoom 5 over a 10000-iteration 10.0 - 0.01 temperature range:
   > python dymo-label.py -z 5 --steps 10000 --max-temp 10 --min-temp 0.01 labels.json points.json data/US-z5.csv""")
 
-defaults = dict(minutes=2, zoom=18)
+defaults = dict(minutes=2, zoom=18, dump_skip=100)
 
 optparser.set_defaults(**defaults)
 
@@ -40,6 +41,12 @@ optparser.add_option('--max-temp', dest='temp_max',
 
 optparser.add_option('--steps', dest='steps',
                      type='int', help='Number of annealing steps, for more precise control than specifying --minutes.')
+
+optparser.add_option('--dump-file', dest='dump_file',
+                     help='Optional filename for a sequential dump of pickled annealer states.')
+
+optparser.add_option('--dump-skip', dest='dump_skip',
+                     type='int', help='Optional number of states to skip for each state in the dump file.')
 
 if __name__ == '__main__':
     
@@ -83,7 +90,7 @@ if __name__ == '__main__':
         for other in placed:
             if place.overlaps(other):
                 overlaps = True
-                print place, 'overlaps', other
+                print place.name, 'overlaps', other.name
                 break
         
         if overlaps:
@@ -103,5 +110,20 @@ if __name__ == '__main__':
         point_feature['geometry'] = {'type': 'Point', 'coordinates': [place.location.lon, place.location.lat]}
         point_data['features'].append(point_feature)
     
-    dump(label_data, open(label_file, 'w'), indent=2)
-    dump(point_data, open(point_file, 'w'), indent=2)
+    json.dump(label_data, open(label_file, 'w'), indent=2)
+    json.dump(point_data, open(point_file, 'w'), indent=2)
+    
+    if options.dump_file:
+        frames = []
+        
+        while places.previous:
+            current, places = places, places.previous
+            current.previous = None # don't pickle too much per state
+            frames.append(current)
+        
+        frames = [frames[i] for i in range(0, len(frames), options.dump_skip)]
+        frames.reverse()
+        
+        print 'Pickling', len(frames), 'states to', options.dump_file
+        
+        cPickle.dump(frames, open(options.dump_file, 'w'))
