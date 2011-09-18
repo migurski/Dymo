@@ -7,12 +7,14 @@ densely-packed point labels, and results in layouts make your maps look like the
 [touched by a cartographer](http://www.flickr.com/photos/mmigurski/5194528400/sizes/l/in/photostream/).
 
 Dymo uses [Simulated Annealing](http://en.wikipedia.org/wiki/Simulated_annealing)
-to derive an acceptable global label set. See an animation of the process over time
-in these two videos of U.S. and European place names:
+to derive an acceptable global label set, described in Steven Wouderberg’s
+[October 2007 presentation](http://www.cs.uu.nl/docs/vakken/gd/steven2.pdf)
+at Utrecht University. See an animation of the process over time in these two
+videos of U.S. and European place names:
 
 <p>
-    <a href="http://vimeo.com/migurski/dymo-n-america"><img src="https://github.com/migurski/Dymo/blob/master/images/us-video-still.jpg" width="440" height="219">
-    <a href="http://vimeo.com/migurski/dymo-europe"><img src="https://github.com/migurski/Dymo/blob/master/images/europe-video-still.jpg" width="440" height="219">
+    <a href="http://vimeo.com/migurski/dymo-n-america"><img src="https://github.com/migurski/Dymo/raw/master/images/us-video-still.jpg" width="440" height="219">
+    <a href="http://vimeo.com/migurski/dymo-europe"><img src="https://github.com/migurski/Dymo/raw/master/images/europe-video-still.jpg" width="440" height="219">
 </p>
 
 Using Dymo
@@ -23,9 +25,11 @@ information to GeoJSON point and label files suitable for use in geographic
 rendering.
 
 Place U.S. city labels at zoom 6 for two minutes:
+
     python dymo-label.py -z 6 --minutes 2 labels.json points.json data/US-z6.csv.gz
 
 Place U.S. city labels at zoom 5 over a 10000-iteration 10.0 - 0.01 temperature range:
+
     python dymo-label.py -z 5 --steps 10000 --max-temp 10 --min-temp 0.01 labels.json points.json data/US-z5.csv
 
 Both examples will result in a pair of GeoJSON files, ```labels.json``` and
@@ -51,6 +55,7 @@ continent and selected by Justin O’Bierne.
 To prepare your own city lists or modify fonts and font sizes in input lists,
 Use ```dymo-prepare-places.py``` to apply population-specific font choices to
 an in-bound list:
+
     python dymo-prepare-places.py --font 0 fonts/Arial.ttf 10 --font 1000000 fonts/Arial.ttf 12 --zoom 5 data/North-America-all.txt.gz data/North-America-z5.txt
 
 Sample Output
