@@ -35,8 +35,14 @@ if __name__ == '__main__':
     #
     # prepare input/output files
     #
-    input = input.endswith('.gz') and GzipFile(input, 'r') or open(input, 'r')
-    input = DictReader(input, dialect='excel-tab')
+    if input.endswith('.gz'):
+        base = input[:-3]
+        input = GzipFile(input, 'r')
+    else:
+        base = input
+        input = open(input, 'r')
+    
+    input = DictReader(input, dialect=(base.endswith('.txt') and 'excel-tab' or 'excel'))
     
     output = output.endswith('.gz') and GzipFile(output, 'w') or open(output, 'w')
     output = writer(output, dialect='excel-tab')
