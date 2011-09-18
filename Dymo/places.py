@@ -105,6 +105,11 @@ class Place:
         self._label_footprint = reduce(unionize, self._label_shapes.values())
         self._mask_footprint = reduce(unionize, self._mask_shapes.values())
     
+    def text(self):
+        """ Return text content, font file and size.
+        """
+        return self.name, self.fontfile, self.fontsize
+    
     def label(self):
         """ Return a label polygon, the bounds of the current label shape.
         """
