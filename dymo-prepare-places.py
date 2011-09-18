@@ -1,7 +1,12 @@
-""" Convert files with complete city lists to files with zoom-dependent lists.
+from sys import argv
+from gzip import GzipFile
+from os.path import splitext
+from csv import DictReader, writer
+from optparse import OptionParser
 
-Usage:
-  python effectuate-zooms.py <input name> <min. population> <font file> <font size> [<min. population> <font file> <font size> ...] <zoom> <output file>
+optparser = OptionParser(usage="""%prog [options] <input file> <output file>
+
+Convert files with complete city lists to files with zoom-dependent lists.
 
 Input columns must include zoom and population.
 Output columns will omit zoom and add point size, font size, and font file.
@@ -12,11 +17,44 @@ Example input columns:
 
 Example output columns:
   geonameid, name, asciiname, latitude, longitude, country code,
-  capital, admin1 code, population, point size, font size, font file.
-"""
-from sys import argv
-from gzip import GzipFile
-from csv import DictReader, writer
+  capital, admin1 code, population, point size, font size, font file.""")
+
+defaults = dict(fonts=[(-1, 'fonts/DejaVuSans.ttf', 12)], zoom=4)
+
+optparser.set_defaults(**defaults)
+
+optparser.add_option('-z', '--zoom', dest='zoom',
+                     type='int', help='Maximum zoom level. Default value is %(zoom)d.' % defaults)
+
+optparser.add_option('-f', '--font', dest='fonts', action='append', nargs=3,
+                     help='Additional font, in the form of three values: minimum population, font file, font size. Can be specified multiple times.')
+
+def prepare_file(name, mode):
+    """
+    """
+    base, ext = splitext(name)
+    
+    if ext == '.gz':
+        file = GzipFile(name, mode)
+        name = base
+    elif ext in ('.csv', '.txt', '.tsv'):
+        file = open(name, mode)
+    else:
+        raise Exception('Bad extension "%(ext)s" in "%(name)s"' % locals())
+    
+    base, ext = splitext(name)
+    
+    if ext == '.csv':
+        dialect = 'excel'
+    elif ext in ('.txt', '.tsv'):
+        dialect = 'excel-tab'
+    else:
+        raise Exception('Bad extension "%(ext)s" in "%(name)s"' % locals())
+
+    if mode == 'r':
+        return DictReader(file, dialect=dialect)
+    elif mode == 'w':
+        return writer(file, dialect=dialect)
 
 def population(row):
     try:
@@ -25,27 +63,17 @@ def population(row):
         return 0
 
 if __name__ == '__main__':
-    #
-    # parse args
-    #
-    input, fonts, max_zoom, output = argv[1], argv[2:-2], int(argv[-2]), argv[-1]
-    fonts = [(int(fonts[i]), fonts[i+1], fonts[i+2]) for i in range(0, len(fonts), 3)]
+
+    options, (input, output) = optparser.parse_args()
+
+    fonts = [(int(pop), font, size) for (pop, font, size) in options.fonts]
     fonts.sort()
     
     #
     # prepare input/output files
     #
-    if input.endswith('.gz'):
-        base = input[:-3]
-        input = GzipFile(input, 'r')
-    else:
-        base = input
-        input = open(input, 'r')
-    
-    input = DictReader(input, dialect=(base.endswith('.txt') and 'excel-tab' or 'excel'))
-    
-    output = output.endswith('.gz') and GzipFile(output, 'w') or open(output, 'w')
-    output = writer(output, dialect='excel-tab')
+    input = prepare_file(input, 'r')
+    output = prepare_file(output, 'w')
     
     #
     # prepare columns
@@ -65,7 +93,7 @@ if __name__ == '__main__':
     for place in input:
         place['point size'] = '8'
         
-        if int(place['zoom']) > max_zoom:
+        if int(place['zoom']) > options.zoom:
             continue
         
         for (pop, font, size) in fonts:
