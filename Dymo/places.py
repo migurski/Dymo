@@ -2,6 +2,7 @@ from math import pi, sin, cos
 from random import choice
 from copy import deepcopy
 
+from PIL.ImageFont import truetype
 from shapely.geometry import Point, Polygon
 
 NE, ENE, ESE, SE, SSE, S, SW, WSW, WNW, NW, NNW, N, NNE = range(13)
@@ -13,11 +14,14 @@ placements = {NE: 0.000, ENE: 0.070, ESE: 0.100, SE: 0.175, SSE: 0.200,
 
 class Place:
 
-    def __init__(self, name, font, location, position, radius, rank=1, **extras):
+    def __init__(self, name, fontfile, fontsize, location, position, radius, rank=1, **extras):
         self.name = name
         self.location = location
         self.position = position
         self.rank = rank
+        
+        self.fontfile = fontfile
+        self.fontsize = fontsize
     
         self.placement = NE
         self.radius = radius
@@ -47,7 +51,7 @@ class Place:
 
         else:
             # fill out the shapes above
-            self._populate_shapes(font)
+            self._populate_shapes()
 
         # label bounds for current placement
         self._label_shape = self._label_shapes[self.placement]
@@ -75,14 +79,17 @@ class Place:
                       _mask_footprint = self._mask_footprint,
                       _point_shape = self._point_shape)
         
-        return Place(self.name, None, self.location, self.position, self.radius, self.rank, **extras)
+        return Place(self.name, self.fontfile, self.fontsize, self.location,
+                     self.position, self.radius, self.rank, **extras)
     
-    def _populate_shapes(self, font):
+    def _populate_shapes(self):
         """ Set values for self._label_shapes, _footprint_shape, and _footprint_shape_b.
         """
         point = Point(self.position.x, self.position.y)
         point_buffered = point.buffer(self.radius + self.buffer, 3)
         self._point_shape = point.buffer(self.radius, 3)
+        
+        font = truetype(self.fontfile, self.fontsize, encoding='unic')
         
         x, y = self.position.x, self.position.y
         w, h = font.getsize(self.name)
