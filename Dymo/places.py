@@ -2,7 +2,11 @@ from math import pi, sin, cos
 from random import choice
 from copy import deepcopy
 
-from PIL.ImageFont import truetype
+try:
+    from PIL.ImageFont import truetype
+except ImportError:
+    from ImageFont import truetype
+
 from shapely.geometry import Point, Polygon
 
 NE, ENE, ESE, SE, SSE, S, SW, WSW, WNW, NW, NNW, N, NNE = range(13)
