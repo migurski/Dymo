@@ -43,7 +43,7 @@ optparser.add_option('--steps', dest='steps',
                      type='int', help='Number of annealing steps, for more precise control than specifying --minutes.')
 
 optparser.add_option('--dump-file', dest='dump_file',
-                     help='Optional filename for a sequential dump of pickled annealer states.')
+                     help='Optional filename for a sequential dump of pickled annealer states. This all has to be stored in memory, so for a large job specifying this option could use up all available RAM.')
 
 optparser.add_option('--dump-skip', dest='dump_skip',
                      type='int', help='Optional number of states to skip for each state in the dump file.')
@@ -60,7 +60,7 @@ if __name__ == '__main__':
         optparser.print_usage()
         exit(1)
 
-    places = Places()
+    places = Places(bool(options.dump_file))
     
     for place in load_places(input_files, options.zoom):
         places.add(place)

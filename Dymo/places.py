@@ -196,7 +196,9 @@ def point_label_bounds(x, y, width, height, radius, placement):
 
 class Places:
 
-    def __init__(self, **extras):
+    def __init__(self, keep_chain=False, **extras):
+        self.keep_chain = keep_chain
+    
         full_extras = 'energy' in extras \
                   and 'previous' in extras \
                   and '_places' in extras \
@@ -226,12 +228,12 @@ class Places:
         """
         """
         extras = dict(energy = self.energy,
-                      previous = self, # link to older state
+                      previous = (self.keep_chain and self or None),
                       _places = deepcopy(self._places, memo_dict),
                       _neighbors = deepcopy(self._neighbors, memo_dict),
                       _moveable = deepcopy(self._moveable, memo_dict))
         
-        return Places(**extras)
+        return Places(self.keep_chain, **extras)
 
     def add(self, place):
         self._neighbors[place] = set()
