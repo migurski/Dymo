@@ -1,6 +1,7 @@
 from gzip import GzipFile
 from csv import DictReader
 from os.path import splitext
+from re import compile
 
 from ModestMaps.Geo import Location
 from ModestMaps.OpenStreetMap import Provider
@@ -9,6 +10,9 @@ from ModestMaps.Core import Point, Coordinate
 from .places import Place
 
 _osm = Provider()
+
+int_pat = compile(r'^-?\d{1,9}$') # up to nine so we don't cross 2^32
+float_pat = compile(r'^-?\d+(\.\d+)?$')
 
 def location_point(lat, lon, zoom):
     """ Return a point that maps to pixels at the requested zoom level for 2^8 tile size.
@@ -58,9 +62,23 @@ def load_places(input_files, zoom):
             dialect = 'excel'
         elif ext in ('.tsv', '.txt'):
             dialect = 'excel-tab'
-    
-        for row in DictReader(input, dialect=dialect):
-            name = row['name']
+        
+        rows = list(DictReader(input, dialect=dialect))
+        types = dict()
+        
+        for row in rows:
+            for (key, value) in row.items():
+                if int_pat.match(value):
+                    if key not in types:
+                        types[key] = int
+                elif float_pat.match(value):
+                    if key not in types:
+                        types[key] = float
+                else:
+                    types[key] = unicode
+        
+        for row in rows:
+            name = row['name'].decode('utf-8')
             radius = int(row.get('point size', 8))
             
             fontsize = int(row.get('font size', 12))
@@ -70,4 +88,7 @@ def load_places(input_files, zoom):
             lon = float(row['longitude'])
             location, point = location_point(lat, lon, zoom)
             
-            yield Place(name, fontfile, fontsize, location, point, radius)
+            properties = dict([(key, types[key](value)) for (key, value) in row.items()
+                               if key not in ('latitude', 'longitude')])
+            
+            yield Place(name, fontfile, fontsize, location, point, radius, properties)

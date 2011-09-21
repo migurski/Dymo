@@ -101,12 +101,12 @@ if __name__ == '__main__':
         lonlat = lambda xy: point_lonlat(xy[0], xy[1], options.zoom)
         label_coords = [map(lonlat, place.label().envelope.exterior.coords)]
 
-        label_feature = {'type': 'Feature', 'properties': {'name': place.name}}
+        label_feature = {'type': 'Feature', 'properties': place.properties}
         label_feature['geometry'] = {'type': 'Polygon', 'coordinates': label_coords}
 
         label_data['features'].append(label_feature)
 
-        point_feature = {'type': 'Feature', 'properties': {'name': place.name}}
+        point_feature = {'type': 'Feature', 'properties': place.properties}
         point_feature['geometry'] = {'type': 'Point', 'coordinates': [place.location.lon, place.location.lat]}
         point_data['features'].append(point_feature)
     
