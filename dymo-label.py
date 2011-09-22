@@ -3,7 +3,7 @@ import cPickle
 import json
 
 from Dymo.anneal import Annealer
-from Dymo.places import Places
+from Dymo.places import Places, NothingToDo
 from Dymo import load_places, point_lonlat
 
 optparser = OptionParser(usage="""%prog [options] <label output file> <point output file> <input file 1> [<input file 2>, ...]
@@ -71,12 +71,16 @@ if __name__ == '__main__':
     def state_move(places):
         places.move()
 
-    annealer = Annealer(state_energy, state_move)
-    
-    if options.temp_min and options.temp_max and options.steps:
-        places, e = annealer.anneal(places, options.temp_max, options.temp_min, options.steps, 30)
-    else:
-        places, e = annealer.auto(places, options.minutes, 500)
+    try:
+        annealer = Annealer(state_energy, state_move)
+        
+        if options.temp_min and options.temp_max and options.steps:
+            places, e = annealer.anneal(places, options.temp_max, options.temp_min, options.steps, 30)
+        else:
+            places, e = annealer.auto(places, options.minutes, 500)
+
+    except NothingToDo:
+        pass
     
     label_data = {'type': 'FeatureCollection', 'features': []}
     point_data = {'type': 'FeatureCollection', 'features': []}

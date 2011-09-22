@@ -195,6 +195,9 @@ def point_label_bounds(x, y, width, height, radius, placement):
     
     return Polygon(((x1, y1), (x1, y2), (x2, y2), (x2, y1), (x1, y1)))
 
+class NothingToDo (Exception):
+    pass
+
 class Places:
 
     def __init__(self, keep_chain=False, **extras):
@@ -267,6 +270,9 @@ class Places:
         return min(10.0 / this.rank, 10.0 / that.rank)
     
     def move(self):
+        if len(self._moveable) == 0:
+            raise NothingToDo('Zero places')
+    
         place = choice(self._moveable)
         
         for other in self._neighbors[place]:
