@@ -77,7 +77,8 @@ def load_places(input_files, zoom):
                     if key not in types:
                         types[key] = float
                 else:
-                    types[key] = unicode
+                    # it's not really a type, but it's like unicode()
+                    types[key] = lambda s: s.decode('utf-8')
         
         for row in rows:
             name = row['name'].decode('utf-8')
