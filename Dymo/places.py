@@ -94,10 +94,11 @@ class Place:
         point_buffered = point.buffer(self.radius + self.buffer, 3)
         self._point_shape = point.buffer(self.radius, 3)
         
-        font = truetype(self.fontfile, self.fontsize, encoding='unic')
+        font = truetype(self.fontfile, int(self.fontsize * 10), encoding='unic')
         
         x, y = self.position.x, self.position.y
         w, h = font.getsize(self.name)
+        w, h = w/10.0, h/10.0
         
         for placement in placements:
             label_shape = point_label_bounds(x, y, w, h, self.radius, placement)
