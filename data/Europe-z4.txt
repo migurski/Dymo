@@ -1,4 +1,4 @@
-zoom	geonameid	name	asciiname	latitude	longitude	country code	capital	admin1 code	population	point size	font size	font file
+zoom start	geonameid	name	asciiname	latitude	longitude	country code	capital	admin1 code	population	point size	font size	font file
 4	745044	Istanbul	Istanbul	41.01384	28.94966	TR	no		11174257	8	12	fonts/Arial.ttf
 4	2643743	London	London	51.50853	-0.12574	GB	yes		7556900	8	12	fonts/Arial.ttf
 4	2950159	Berlin	Berlin	52.52437	13.41053	DE	yes		3426354	8	12	fonts/Arial.ttf

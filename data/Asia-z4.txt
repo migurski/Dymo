@@ -1,4 +1,4 @@
-zoom	geonameid	name	asciiname	latitude	longitude	country code	capital	admin1 code	population	point size	font size	font file
+zoom start	geonameid	name	asciiname	latitude	longitude	country code	capital	admin1 code	population	point size	font size	font file
 4	1796236	Shanghai	Shanghai	31.22222	121.45806	CN	no		14608512	8	12	fonts/Arial.ttf
 4	1275339	Mumbai	Mumbai	19.01441	72.84794	IN	no		12691836	8	12	fonts/Arial.ttf
 4	1174872	Karachi	Karachi	24.9056	67.0822	PK	no		11624219	8	12	fonts/Arial.ttf

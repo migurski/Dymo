@@ -13,6 +13,7 @@ __version__ = 'N.N.N'
 
 _osm = Provider()
 
+key_pat = compile(r'\W')
 int_pat = compile(r'^-?\d{1,9}$') # up to nine so we don't cross 2^32
 float_pat = compile(r'^-?\d+(\.\d+)?$')
 
@@ -91,7 +92,8 @@ def load_places(input_files, zoom):
             lon = float(row['longitude'])
             location, point = location_point(lat, lon, zoom)
             
-            properties = dict([(key, types[key](value)) for (key, value) in row.items()
+            properties = dict([(key_pat.sub(r'_', key), types[key](value))
+                               for (key, value) in row.items()
                                if key not in ('latitude', 'longitude')])
             
             yield Place(name, fontfile, fontsize, location, point, radius, properties)
