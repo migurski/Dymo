@@ -1,4 +1,4 @@
-zoom	geonameid	name	asciiname	latitude	longitude	country code	capital	admin1 code	population	point size	font size	font file
+zoom start	geonameid	name	asciiname	latitude	longitude	country code	capital	admin1 code	population	point size	font size	font file
 4	3435910	Buenos Aries	Buenos Aires	-34.61315	-58.37723	AR	yes		13076300	8	12	fonts/Arial.ttf
 4	3448439	Sao Paulo	Sao Paulo	-23.5475	-46.63611	BR	no		10021295	8	12	fonts/Arial.ttf
 4	3936456	Lima	Lima	-12.04318	-77.02824	PE	yes		7737002	8	12	fonts/Arial.ttf

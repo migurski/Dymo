@@ -1,4 +1,4 @@
-zoom	geonameid	name	asciiname	latitude	longitude	country code	capital	admin1 code	population	point size	font size	font file
+zoom start	geonameid	name	asciiname	latitude	longitude	country code	capital	admin1 code	population	point size	font size	font file
 4	2147714	Sydney	Sydney	-33.86785	151.20732	AU	no		4394576	8	12	fonts/Arial.ttf
 4	2158177	Melbourne	Melbourne	-37.814	144.96332	AU	no		3730206	8	12	fonts/Arial.ttf
 4	2063523	Perth	Perth	-31.93333	115.83333	AU	no		1446704	8	12	fonts/Arial.ttf

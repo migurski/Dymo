@@ -1,4 +1,4 @@
-zoom	geonameid	name	asciiname	latitude	longitude	country code	capital	admin1 code	population	point size	font size	font file
+zoom start	geonameid	name	asciiname	latitude	longitude	country code	capital	admin1 code	population	point size	font size	font file
 4	2332459	Lagos	Lagos	6.45306	3.39583	NG	no		9000000	8	12	fonts/Arial.ttf
 5	2314302	Kinshasa	Kinshasa	-4.32459	15.32146	CD	yes		7785965	8	12	fonts/Arial.ttf
 4	360630	Cairo	Cairo	30.06263	31.24967	EG	yes		7734614	8	12	fonts/Arial.ttf

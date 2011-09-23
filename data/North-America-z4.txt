@@ -1,4 +1,4 @@
-zoom	geonameid	name	asciiname	latitude	longitude	country code	capital	admin1 code	population	point size	font size	font file
+zoom start	geonameid	name	asciiname	latitude	longitude	country code	capital	admin1 code	population	point size	font size	font file
 4	3530597	Mexico City	Mexico City	19.42847	-99.12766	MX	yes		12294193	8	12	fonts/Arial.ttf
 4	5128581	New York	New York City	40.71427	-74.00597	US	no	NY	8008278	8	12	fonts/Arial.ttf
 4	6167865	Toronto	Toronto	43.70011	-79.4163	CA	no	ON	4612191	8	12	fonts/Arial.ttf
