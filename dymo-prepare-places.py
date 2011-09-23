@@ -9,14 +9,14 @@ optparser = OptionParser(usage="""%prog [options] <input file> <output file>
 Convert files with complete city lists to files with zoom-dependent lists.
 
 Input columns must include zoom and population.
-Output columns will omit zoom and add point size, font size, and font file.
+Output columns will add point size, font size, and font file.
 
 Example input columns:
   zoom, geonameid, name, asciiname, latitude, longitude, country code,
   capital, admin1 code, population.
 
 Example output columns:
-  geonameid, name, asciiname, latitude, longitude, country code,
+  zoom, geonameid, name, asciiname, latitude, longitude, country code,
   capital, admin1 code, population, point size, font size, font file.""")
 
 defaults = dict(fonts=[(-1, 'fonts/DejaVuSans.ttf', 12)], zoom=4)
@@ -80,7 +80,6 @@ if __name__ == '__main__':
     #
     fields = input.fieldnames[:]
     
-    fields.remove('zoom')
     fields.append('point size')
     fields.append('font size')
     fields.append('font file')

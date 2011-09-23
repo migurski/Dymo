@@ -18,7 +18,7 @@ placements = {NE: 0.000, ENE: 0.070, ESE: 0.100, SE: 0.175, SSE: 0.200,
 
 class Place:
 
-    def __init__(self, name, fontfile, fontsize, location, position, radius, rank=1, **extras):
+    def __init__(self, name, fontfile, fontsize, location, position, radius, properties, rank=1, **extras):
         self.name = name
         self.location = location
         self.position = position
@@ -26,6 +26,7 @@ class Place:
         
         self.fontfile = fontfile
         self.fontsize = fontsize
+        self.properties = properties
     
         self.placement = NE
         self.radius = radius
@@ -84,7 +85,7 @@ class Place:
                       _point_shape = self._point_shape)
         
         return Place(self.name, self.fontfile, self.fontsize, self.location,
-                     self.position, self.radius, self.rank, **extras)
+                     self.position, self.radius, self.properties, self.rank, **extras)
     
     def _populate_shapes(self):
         """ Set values for self._label_shapes, _footprint_shape, and _footprint_shape_b.
