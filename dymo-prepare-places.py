@@ -90,7 +90,8 @@ if __name__ == '__main__':
     output.writerow(fields)
     
     for place in input:
-        place['point size'] = '8'
+        if 'point size' not in place:
+            place['point size'] = '8'
         
         if int(place['zoom start']) > options.zoom:
             continue
