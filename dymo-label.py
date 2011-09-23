@@ -1,4 +1,5 @@
 from optparse import OptionParser
+from copy import copy
 import cPickle
 import json
 
@@ -23,7 +24,7 @@ Examples:
   Place U.S. city labels at zoom 5 over a 10000-iteration 10.0 - 0.01 temperature range:
   > python dymo-label.py -z 5 --steps 10000 --max-temp 10 --min-temp 0.01 labels.json points.json data/US-z5.csv""")
 
-defaults = dict(minutes=2, zoom=18, dump_skip=100)
+defaults = dict(minutes=2, zoom=18, dump_skip=100, include_overlaps=False)
 
 optparser.set_defaults(**defaults)
 
@@ -41,6 +42,9 @@ optparser.add_option('--max-temp', dest='temp_max',
 
 optparser.add_option('--steps', dest='steps',
                      type='int', help='Number of annealing steps, for more precise control than specifying --minutes.')
+
+optparser.add_option('--include-overlaps', dest='include_overlaps',
+                     action='store_true', help='Include lower-priority places when they overlap higher-priority places. Default behavior is to skip the overlapping cities.')
 
 optparser.add_option('--dump-file', dest='dump_file',
                      help='Optional filename for a sequential dump of pickled annealer states. This all has to be stored in memory, so for a large job specifying this option could use up all available RAM.')
@@ -88,7 +92,6 @@ if __name__ == '__main__':
     placed = []
     
     for place in places:
-    
         overlaps = False
     
         for other in placed:
@@ -97,7 +100,11 @@ if __name__ == '__main__':
                 print place.name, 'overlaps', other.name
                 break
         
-        if overlaps:
+        properties = copy(place.properties)
+        
+        if options.include_overlaps:
+            properties['overlaps'] = int(overlaps)
+        elif overlaps:
             continue
         
         placed.append(place)
@@ -105,12 +112,12 @@ if __name__ == '__main__':
         lonlat = lambda xy: point_lonlat(xy[0], xy[1], options.zoom)
         label_coords = [map(lonlat, place.label().envelope.exterior.coords)]
 
-        label_feature = {'type': 'Feature', 'properties': place.properties}
+        label_feature = {'type': 'Feature', 'properties': properties}
         label_feature['geometry'] = {'type': 'Polygon', 'coordinates': label_coords}
 
         label_data['features'].append(label_feature)
 
-        point_feature = {'type': 'Feature', 'properties': place.properties}
+        point_feature = {'type': 'Feature', 'properties': properties}
         point_feature['geometry'] = {'type': 'Point', 'coordinates': [place.location.lon, place.location.lat]}
         point_data['features'].append(point_feature)
     

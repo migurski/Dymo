@@ -1,3 +1,7 @@
+VERSION:=$(shell cat VERSION)
+PACKAGE=Dymo-$(VERSION)
+TARBALL=$(PACKAGE).tar.gz
+
 #
 # Fonts here are ordered triplets of min. population, file name, font size.
 #
@@ -12,7 +16,35 @@ FONTS_Z11= --font 0 fonts/Arial.ttf 10   --font 50000 fonts/Arial.ttf 13    --fo
 
 
 
-all: data
+all: $(TARBALL)
+
+$(TARBALL): data
+	mkdir $(PACKAGE)
+	ln setup.py $(PACKAGE)/
+	ln VERSION $(PACKAGE)/
+	ln dymo-*.py $(PACKAGE)/
+
+	mkdir $(PACKAGE)/Dymo
+	ln Dymo/*.py $(PACKAGE)/Dymo/
+
+	rm $(PACKAGE)/Dymo/__init__.py
+	cp Dymo/__init__.py $(PACKAGE)/Dymo/__init__.py
+	perl -pi -e 's#\bN\.N\.N\b#$(VERSION)#' $(PACKAGE)/Dymo/__init__.py
+
+	mkdir $(PACKAGE)/data
+	ln data/Africa-*.* $(PACKAGE)/data/
+	ln data/Asia-*.* $(PACKAGE)/data/
+	ln data/Australia-New-Zealand-*.* $(PACKAGE)/data/
+	ln data/Europe-*.* $(PACKAGE)/data/
+	ln data/North-America-*.* $(PACKAGE)/data/
+	ln data/South-America-*.* $(PACKAGE)/data/
+	ln data/US-*.* $(PACKAGE)/data/
+
+	mkdir $(PACKAGE)/fonts
+	ln fonts/*.ttf $(PACKAGE)/fonts/
+
+	tar -czf $(TARBALL) $(PACKAGE)
+	rm -rf $(PACKAGE)
 
 data: \
 	data/North-America-z4.txt data/North-America-z5.txt \
@@ -36,6 +68,10 @@ data: \
 	data/Australia-New-Zealand-z6.txt.gz data/Australia-New-Zealand-z7.txt.gz \
 	data/Australia-New-Zealand-z8.txt.gz data/Australia-New-Zealand-z9.txt.gz \
 	data/Australia-New-Zealand-z10.txt.gz data/Australia-New-Zealand-z11.txt.gz
+
+clean:
+	find Dymo -name '*.pyc' -delete
+	rm -rf $(TARBALL)
 
 
 

@@ -9,6 +9,8 @@ from ModestMaps.Core import Point, Coordinate
 
 from .places import Place
 
+__version__ = 'N.N.N'
+
 _osm = Provider()
 
 int_pat = compile(r'^-?\d{1,9}$') # up to nine so we don't cross 2^32
