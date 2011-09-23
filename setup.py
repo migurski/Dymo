@@ -20,5 +20,5 @@ setup(name='Dymo',
       packages=['Dymo'],
       scripts=['dymo-label.py', 'dymo-prepare-places.py'],
       data_files=[('share/dymo/data', data_files), ('share/dymo/fonts', glob('fonts/*.ttf'))],
-    # download_url='http://example.org/Dymo-%(version)s.tar.gz' % locals(),
+      download_url='https://github.com/downloads/migurski/Dymo/Dymo-%(version)s.tar.gz' % locals(),
       license='BSD')

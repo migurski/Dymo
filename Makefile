@@ -18,9 +18,6 @@ FONTS_Z11= --font 0 fonts/Arial.ttf 10   --font 50000 fonts/Arial.ttf 13    --fo
 
 all: $(TARBALL)
 
-live: $(TARBALL)
-	python setup.py register
-
 $(TARBALL): data
 	mkdir $(PACKAGE)
 	ln setup.py $(PACKAGE)/
