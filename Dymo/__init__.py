@@ -8,6 +8,8 @@ from ModestMaps.Core import Point, Coordinate
 
 from .places import Place
 
+__version__ = 'N.N.N'
+
 _osm = Provider()
 
 def location_point(lat, lon, zoom):
