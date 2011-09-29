@@ -1,6 +1,8 @@
 VERSION:=$(shell cat VERSION)
 PACKAGE=Dymo-$(VERSION)
 TARBALL=$(PACKAGE).tar.gz
+DATAPKG=Dymodata-$(VERSION)
+DATATAR=$(DATAPKG).tar.gz
 
 #
 # Fonts here are ordered triplets of min. population, file name, font size.
@@ -16,9 +18,9 @@ FONTS_Z11= --font 0 fonts/Arial.ttf 10   --font 50000 fonts/Arial.ttf 13    --fo
 
 
 
-all: $(TARBALL)
+all: $(TARBALL) $(DATATAR)
 
-$(TARBALL): data
+$(TARBALL):
 	mkdir $(PACKAGE)
 	ln setup.py $(PACKAGE)/
 	ln VERSION $(PACKAGE)/
@@ -31,20 +33,26 @@ $(TARBALL): data
 	cp Dymo/__init__.py $(PACKAGE)/Dymo/__init__.py
 	perl -pi -e 's#\bN\.N\.N\b#$(VERSION)#' $(PACKAGE)/Dymo/__init__.py
 
-	mkdir $(PACKAGE)/data
-	ln data/Africa-*.* $(PACKAGE)/data/
-	ln data/Asia-*.* $(PACKAGE)/data/
-	ln data/Australia-New-Zealand-*.* $(PACKAGE)/data/
-	ln data/Europe-*.* $(PACKAGE)/data/
-	ln data/North-America-*.* $(PACKAGE)/data/
-	ln data/South-America-*.* $(PACKAGE)/data/
-	ln data/US-*.* $(PACKAGE)/data/
-
-	mkdir $(PACKAGE)/fonts
-	ln fonts/*.ttf $(PACKAGE)/fonts/
-
 	tar -czf $(TARBALL) $(PACKAGE)
 	rm -rf $(PACKAGE)
+
+$(DATATAR): data
+	mkdir $(DATAPKG)
+
+	mkdir $(DATAPKG)/data
+	ln data/Africa-*.* $(DATAPKG)/data/
+	ln data/Asia-*.* $(DATAPKG)/data/
+	ln data/Australia-New-Zealand-*.* $(DATAPKG)/data/
+	ln data/Europe-*.* $(DATAPKG)/data/
+	ln data/North-America-*.* $(DATAPKG)/data/
+	ln data/South-America-*.* $(DATAPKG)/data/
+	ln data/US-*.* $(DATAPKG)/data/
+
+	mkdir $(DATAPKG)/fonts
+	ln fonts/*.ttf $(DATAPKG)/fonts/
+
+	tar -czf $(DATATAR) $(DATAPKG)
+	rm -rf $(DATAPKG)
 
 data: \
 	data/North-America-z4.txt data/North-America-z5.txt \
@@ -72,6 +80,7 @@ data: \
 clean:
 	find Dymo -name '*.pyc' -delete
 	rm -rf $(TARBALL)
+	rm -rf $(DATATAR)
 
 
 

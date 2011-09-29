@@ -50,7 +50,8 @@ Data Included
 -------------
 
 Look in ```data/``` for a list of zoom-by-zoom city locations, organized by
-continent and selected by Justin O’Bierne.
+continent and selected by Justin O’Bierne. Data is distributed separately from
+code, see [downloads](https://github.com/migurski/Dymo/downloads) for a link.
 
 To prepare your own city lists or modify fonts and font sizes in input lists,
 Use ```dymo-prepare-places.py``` to apply population-specific font choices to
