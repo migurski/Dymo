@@ -6,6 +6,7 @@ import json
 from Dymo.anneal import Annealer
 from Dymo.places import Places, NothingToDo
 from Dymo import load_places, point_lonlat
+from Dymo.index import Index2
 
 optparser = OptionParser(usage="""%prog [options] <label output file> <point output file> <input file 1> [<input file 2>, ...]
 
@@ -89,26 +90,24 @@ if __name__ == '__main__':
     label_data = {'type': 'FeatureCollection', 'features': []}
     point_data = {'type': 'FeatureCollection', 'features': []}
     
-    placed = []
+    placed = Index2(options.zoom)
     
     for place in places:
-        overlaps = False
-    
-        for other in placed:
-            if place.overlaps(other):
-                overlaps = True
-                print place.name, 'overlaps', other.name
-                break
+        blocker = placed.blocks(place)
+        overlaps = bool(blocker)
+        
+        if blocker:
+            print blocker.name, 'blocks', place.name
+        else:
+            placed.add(place)
         
         properties = copy(place.properties)
         
         if options.include_overlaps:
-            properties['overlaps'] = int(overlaps)
+            properties['overlaps'] = int(overlaps) # 1 or 0
         elif overlaps:
             continue
         
-        placed.append(place)
-    
         lonlat = lambda xy: point_lonlat(xy[0], xy[1], options.zoom)
         label_coords = [map(lonlat, place.label().envelope.exterior.coords)]
 

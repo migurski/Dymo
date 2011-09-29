@@ -116,6 +116,9 @@ class Place:
         """
         return self.name, self.fontfile, self.fontsize
     
+    def mask(self):
+        return self._mask_shape
+    
     def label(self):
         """ Return a label polygon, the bounds of the current label shape.
         """
