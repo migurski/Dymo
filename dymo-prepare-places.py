@@ -7,6 +7,7 @@ from optparse import OptionParser
 from shapely.geometry import Point
 
 from ModestMaps.OpenStreetMap import Provider
+from ModestMaps.Core import Coordinate
 from ModestMaps.Geo import Location
 
 optparser = OptionParser(usage="""%prog [options] <input file> <output file>
@@ -70,6 +71,9 @@ def prepare_file(name, mode):
     elif mode == 'w':
         return writer(file, dialect=dialect)
 
+def quadkey(coord):
+    return str(coord.container())
+
 if __name__ == '__main__':
 
     options, (input, output) = optparser.parse_args()
@@ -97,7 +101,7 @@ if __name__ == '__main__':
     #
     output.writerow(fields)
     
-    others = []
+    others = {}
     
     for place in input:
         if 'point size' not in place:
@@ -109,10 +113,12 @@ if __name__ == '__main__':
         if options.radius > 0:
             loc = Location(float(place['latitude']), float(place['longitude']))
             coord = Provider().locationCoordinate(loc).zoomTo(options.zoom + 8)
-            point = Point(coord.row, coord.column)
+            point = Point(coord.column, coord.row)
             blocked = False
             
-            for (other_name, other_area) in others:
+            quad = quadkey(coord.zoomTo(options.zoom))
+
+            for (other_name, other_area) in others.get(quad, []):
                 if point.intersects(other_area):
                     print >> stderr, place['name'], 'blocked by', other_name
                     blocked = True
@@ -121,7 +127,14 @@ if __name__ == '__main__':
             if blocked:
                 continue
     
-            others.append((place['name'], point.buffer(options.radius)))
+            place_area = point.buffer(options.radius, 3)
+            xmin, ymin, xmax, ymax = place_area.bounds
+            
+            quads = [quadkey(Coordinate(y, x, options.zoom + 8).zoomTo(options.zoom))
+                     for (x, y) in ((xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin))]
+            
+            for quad in set(quads):
+                others[quad] = others.get(quad, []) + [(place['name'], place_area)]
         
         try:
             value = int(place[options.font_field])
