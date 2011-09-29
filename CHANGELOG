@@ -1,3 +1,7 @@
+2011-09-28: 0.7
+- Added --radius option to dymo-prepare-place.py to cull tightly-packed places.
+- Added --font-field option to dymo-prepare-place.py to use fields other than population.
+
 2011-09-23: 0.6
 - Added awareness of point size column to dymo-prepare-places.py.
 
