@@ -12,15 +12,15 @@ class Index:
         """ Zoom is the base zoom level we're annealing to, radius is
             the pixel radius around each place to check for collisions.
         """
-        self.zoom = zoom
-        self.diff = ceil(log(radius * 2) / log(2))
+        self.pixels = zoom + 8
+        self.groups = zoom + 8 - ceil(log(radius * 2) / log(2))
         self.radius = radius
         self.quads = {}
     
     def add(self, name, location):
         """ Add a new place name and location to the index.
         """
-        coord = Provider().locationCoordinate(location).zoomTo(self.zoom + 8)
+        coord = Provider().locationCoordinate(location).zoomTo(self.pixels)
         point = Point(coord.column, coord.row)
         
         # buffer the location by radius and get its bbox
@@ -28,7 +28,7 @@ class Index:
         xmin, ymin, xmax, ymax = area.bounds
 
         # a list of quads that the buffered location overlaps
-        quads = [quadkey(Coordinate(y, x, self.zoom + 8).zoomBy(-self.diff))
+        quads = [quadkey(Coordinate(y, x, self.pixels).zoomTo(self.groups))
                  for (x, y) in ((xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin))]
         
         # store name + area shape
@@ -42,12 +42,11 @@ class Index:
         """ If the location is blocked by some other location
             in the index, return the blocker's name or False.
         """
-        coord = Provider().locationCoordinate(location).zoomTo(self.zoom + 8)
+        coord = Provider().locationCoordinate(location).zoomTo(self.pixels)
         point = Point(coord.column, coord.row)
         
         # figure out which quad the point is in
-        coord = coord.zoomBy(-self.diff)
-        key = quadkey(coord)
+        key = quadkey(coord.zoomTo(self.groups))
         
         # first try the easy hash check
         if key not in self.quads:
