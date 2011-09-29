@@ -74,7 +74,7 @@ class FootprintIndex:
         
         self.locationCoordinate = Provider().locationCoordinate
     
-    def areaQuads(self, area):
+    def _areaQuads(self, area):
         """
         """
         xmin, ymin, xmax, ymax = area.bounds
@@ -94,7 +94,7 @@ class FootprintIndex:
     def add(self, place):
         """ Add a new place to the index.
         """
-        for quad in self.areaQuads(place.footprint()):
+        for quad in self._areaQuads(place.footprint()):
             if quad in self.quads:
                 self.quads[quad].append(place)
             else:
@@ -102,17 +102,15 @@ class FootprintIndex:
     
     def blocks(self, place):
         """ If the place is blocked by some other place in
-            the index, return the blocker's name or False.
+            the index, return the blocking place or False.
         """
         # figure out which quads the area covers
-        quads = self.areaQuads(place.footprint())
+        quads = self._areaQuads(place.footprint())
+        
+        # now just the quads we already know about
+        quads = [key for key in quads if key in self.quads]
         
         for key in quads:
-            # first try the easy hash check
-            if key not in self.quads:
-                continue
-    
-            # then do the expensive area check
             for other in self.quads[key]:
                 if place.overlaps(other):
                     return other
