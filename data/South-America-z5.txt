@@ -29,4 +29,4 @@ zoom start	geonameid	name	asciiname	latitude	longitude	country code	capital	admi
 5	3462377	Goiania	Goiania	-16.67861	-49.25389	BR	no		1171195	8	10	fonts/Arial.ttf
 4	3911925	La Paz	La Paz	-16.5	-68.15	BO	yes		812799	8	10	fonts/Arial.ttf
 5	3868626	Valparaiso	Valparaiso	-33.03932	-71.62725	CL	no		282448	8	10	fonts/Arial.ttf
-5	3439101	Ciudad del Este	Ciudad del Este	-25.51667	-54.61667	PY	no			8	12	fonts/DejaVuSans.ttf
+5	3439101	Ciudad del Este	Ciudad del Este	-25.51667	-54.61667	PY	no			8	12	fonts/Arial.ttf
