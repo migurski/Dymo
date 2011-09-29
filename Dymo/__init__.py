@@ -75,7 +75,7 @@ def load_places(input_files, zoom):
                     if key not in types:
                         types[key] = int
                 elif float_pat.match(value):
-                    if key not in types:
+                    if key not in types or types[key] is int:
                         types[key] = float
                 else:
                     # it's not really a type, but it's like unicode()
