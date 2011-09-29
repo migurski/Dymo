@@ -23,12 +23,15 @@ class Index:
         coord = Provider().locationCoordinate(location).zoomTo(self.zoom + 8)
         point = Point(coord.column, coord.row)
         
+        # buffer the location by radius and get its bbox
         area = point.buffer(self.radius, 4)
         xmin, ymin, xmax, ymax = area.bounds
 
+        # a list of quads that the buffered location overlaps
         quads = [quadkey(Coordinate(y, x, self.zoom + 8).zoomBy(-self.diff))
                  for (x, y) in ((xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin))]
         
+        # store name + area shape
         for quad in set(quads):
             if quad in self.quads:
                 self.quads[quad].append((name, area))
@@ -42,13 +45,19 @@ class Index:
         coord = Provider().locationCoordinate(location).zoomTo(self.zoom + 8)
         point = Point(coord.column, coord.row)
         
+        # figure out which quad the point is in
         coord = coord.zoomBy(-self.diff)
         key = quadkey(coord)
         
-        if key in self.quads:
-            for (name, area) in self.quads[key]:
-                if point.intersects(area):
-                    return name or True
+        # first try the easy hash check
+        if key not in self.quads:
+            return False
+
+        # then do the expensive shape check
+        for (name, area) in self.quads[key]:
+            if point.intersects(area):
+                # ensure name evals to true
+                return name or True
         
         return False
 
