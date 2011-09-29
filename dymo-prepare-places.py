@@ -27,7 +27,7 @@ Example output columns:
 Optional pixel buffer radius option (--radius) defines a minimum distance
 between places that can be used to cull the list prior to annealing.""")
 
-defaults = dict(fonts=[(-1, 'fonts/DejaVuSans.ttf', 12)], zoom=4, radius=0)
+defaults = dict(fonts=[(-1, 'fonts/DejaVuSans.ttf', 12)], zoom=4, radius=0, font_field='population')
 
 optparser.set_defaults(**defaults)
 
@@ -35,10 +35,13 @@ optparser.add_option('-z', '--zoom', dest='zoom',
                      type='int', help='Maximum zoom level. Default value is %(zoom)d.' % defaults)
 
 optparser.add_option('-f', '--font', dest='fonts', action='append', nargs=3,
-                     help='Additional font, in the form of three values: minimum population, font file, font size. Can be specified multiple times.')
+                     help='Additional font, in the form of three values: minimum population (or other font field), font file, font size. Can be specified multiple times.')
 
 optparser.add_option('-r', '--radius', dest='radius',
                      type='float', help='Pixel buffer around each place. Default value is %(radius)d.' % defaults)
+
+optparser.add_option('--font-field', dest='font_field',
+                     help='Field to use for font selection, if other than %(font_field)s.' % defaults)
 
 def prepare_file(name, mode):
     """
@@ -67,17 +70,11 @@ def prepare_file(name, mode):
     elif mode == 'w':
         return writer(file, dialect=dialect)
 
-def population(row):
-    try:
-        return int(row.get('population', 0))
-    except:
-        return 0
-
 if __name__ == '__main__':
 
     options, (input, output) = optparser.parse_args()
 
-    fonts = [(int(pop), font, size) for (pop, font, size) in options.fonts]
+    fonts = [(int(min), font, size) for (min, font, size) in options.fonts]
     fonts.sort()
     
     #
@@ -126,8 +123,13 @@ if __name__ == '__main__':
     
             others.append((place['name'], point.buffer(options.radius)))
         
-        for (pop, font, size) in fonts:
-            if population(place) > pop:
+        try:
+            value = int(place[options.font_field])
+        except ValueError:
+            value = place[options.font_field]
+    
+        for (min_value, font, size) in fonts:
+            if value > min_value:
                 place['font file'] = font
                 place['font size'] = size
     
