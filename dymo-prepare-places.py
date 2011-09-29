@@ -6,7 +6,7 @@ from optparse import OptionParser
 
 from ModestMaps.Geo import Location
 
-from Dymo import Index
+from Dymo.index import PointIndex
 
 optparser = OptionParser(usage="""%prog [options] <input file> <output file>
 
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     output.writerow(fields)
     
     if options.radius > 0:
-        others = Index(options.zoom, options.radius)
+        others = PointIndex(options.zoom, options.radius)
     
     for place in input:
         if 'point size' not in place:

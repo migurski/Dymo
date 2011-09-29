@@ -8,7 +8,6 @@ from ModestMaps.OpenStreetMap import Provider
 from ModestMaps.Core import Point, Coordinate
 
 from .places import Place
-from .index import Index
 
 __version__ = 'N.N.N'
 

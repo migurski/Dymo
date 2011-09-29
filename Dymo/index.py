@@ -5,7 +5,7 @@ from shapely.geometry import Point
 from ModestMaps.OpenStreetMap import Provider
 from ModestMaps.Core import Coordinate
 
-class Index:
+class PointIndex:
     """ Primitive quadtree for checking collisions based on a known radius.
     """
     def __init__(self, zoom, radius):
@@ -62,12 +62,11 @@ class Index:
         
         return False
 
-class Index2:
-    """ Primitive quadtree for checking collisions based on a known radius.
+class FootprintIndex:
+    """ Primitive quadtree for checking collisions based on footprints.
     """
     def __init__(self, zoom):
-        """ Zoom is the base zoom level we're annealing to, radius is
-            the pixel radius around each place to check for collisions.
+        """ Zoom is the base zoom level we're annealing to.
         """
         self.zpixel = zoom + 8
         self.zgroup = zoom

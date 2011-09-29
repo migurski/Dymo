@@ -4,9 +4,9 @@ import cPickle
 import json
 
 from Dymo.anneal import Annealer
+from Dymo.index import FootprintIndex
 from Dymo.places import Places, NothingToDo
 from Dymo import load_places, point_lonlat
-from Dymo.index import Index2
 
 optparser = OptionParser(usage="""%prog [options] <label output file> <point output file> <input file 1> [<input file 2>, ...]
 
@@ -90,7 +90,7 @@ if __name__ == '__main__':
     label_data = {'type': 'FeatureCollection', 'features': []}
     point_data = {'type': 'FeatureCollection', 'features': []}
     
-    placed = Index2(options.zoom)
+    placed = FootprintIndex(options.zoom)
     
     for place in places:
         blocker = placed.blocks(place)
