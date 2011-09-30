@@ -26,11 +26,11 @@ rendering.
 
 Place U.S. city labels at zoom 6 for two minutes:
 
-    python dymo-label.py -z 6 --minutes 2 labels.json points.json data/US-z6.csv.gz
+    python dymo-label.py -z 6 --minutes 2 --labels-file labels.json --points-file points.json data/US-z6.csv.gz
 
 Place U.S. city labels at zoom 5 over a 10000-iteration 10.0 - 0.01 temperature range:
 
-    python dymo-label.py -z 5 --steps 10000 --max-temp 10 --min-temp 0.01 labels.json points.json data/US-z5.csv
+    python dymo-label.py -z 5 --steps 10000 --max-temp 10 --min-temp 0.01 -l labels.json -p points.json data/US-z5.csv
 
 Both examples will result in a pair of GeoJSON files, ```labels.json``` and
 ```points.json.``` The first will contain rectangular label areas, the second

@@ -20,10 +20,10 @@ and now want to redo your results on the same data the fast way.
 Examples:
 
   Place U.S. city labels at zoom 6 for two minutes:
-  > python dymo-label.py -z 6 --minutes 2 labels.json points.json data/US-z6.csv.gz
+  > python dymo-label.py -z 6 --minutes 2 --labels-file labels.json --points-file points.json data/US-z6.csv.gz
 
   Place U.S. city labels at zoom 5 over a 10000-iteration 10.0 - 0.01 temperature range:
-  > python dymo-label.py -z 5 --steps 10000 --max-temp 10 --min-temp 0.01 labels.json points.json data/US-z5.csv""")
+  > python dymo-label.py -z 5 --steps 10000 --max-temp 10 --min-temp 0.01 -l labels.json -p points.json data/US-z5.csv""")
 
 defaults = dict(minutes=2, zoom=18, dump_skip=100, include_overlaps=False)
 
@@ -34,6 +34,12 @@ optparser.add_option('-m', '--minutes', dest='minutes',
 
 optparser.add_option('-z', '--zoom', dest='zoom',
                      type='int', help='Map zoom level. Default value is %(zoom)d.' % defaults)
+
+optparser.add_option('-l', '--labels-file', dest='labels_file',
+                     help='Optional name of labels file to generate.')
+
+optparser.add_option('-p', '--points-file', dest='points_file',
+                     help='Optional name of points file to generate.')
 
 optparser.add_option('--min-temp', dest='temp_min',
                      type='float', help='Minimum annealing temperature, for more precise control than specifying --minutes.')
@@ -55,16 +61,17 @@ optparser.add_option('--dump-skip', dest='dump_skip',
 
 if __name__ == '__main__':
     
-    options, args = optparser.parse_args()
+    options, input_files = optparser.parse_args()
     
-    try:
-        label_file, point_file = args[:2]
-        input_files = args[2:]
-    except ValueError:
-        print 'Missing label file, point file, and input file(s).'
+    if not input_files:
+        print 'Missing input file(s).\n'
         optparser.print_usage()
         exit(1)
-
+    elif not (options.labels_file or options.points_file):
+        print 'Missing output file(s): labels or points.\n'
+        optparser.print_usage()
+        exit(1)
+    
     places = Places(bool(options.dump_file))
     
     for place in load_places(input_files, options.zoom):
@@ -120,8 +127,11 @@ if __name__ == '__main__':
         point_feature['geometry'] = {'type': 'Point', 'coordinates': [place.location.lon, place.location.lat]}
         point_data['features'].append(point_feature)
     
-    json.dump(label_data, open(label_file, 'w'), indent=2)
-    json.dump(point_data, open(point_file, 'w'), indent=2)
+    if options.labels_file:
+        json.dump(label_data, open(options.labels_file, 'w'), indent=2)
+
+    if options.points_file:
+        json.dump(point_data, open(options.points_file, 'w'), indent=2)
     
     if options.dump_file:
         frames = []
