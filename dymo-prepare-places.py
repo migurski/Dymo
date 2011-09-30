@@ -40,7 +40,7 @@ optparser.add_option('-r', '--radius', dest='radius',
                      type='float', help='Pixel buffer around each place. Default value is %(radius)d.' % defaults)
 
 optparser.add_option('--font-field', dest='font_field',
-                     help='Field to use for font selection, if other than %(font_field)s.' % defaults)
+                     help='Field to use for font selection. Default field is %(font_field)s.' % defaults)
 
 def prepare_file(name, mode):
     """
