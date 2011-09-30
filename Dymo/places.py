@@ -43,7 +43,8 @@ class Place:
                   and '_mask_shapes' in extras \
                   and '_label_footprint' in extras \
                   and '_mask_footprint' in extras \
-                  and '_point_shape' in extras
+                  and '_point_shape' in extras \
+                  and '_baseline' in extras
         
         if full_extras:
             # use the provided extras
@@ -53,6 +54,7 @@ class Place:
             self._label_footprint = extras['_label_footprint']
             self._mask_footprint = extras['_mask_footprint']
             self._point_shape = extras['_point_shape']
+            self._baseline = extras['_baseline']
 
         else:
             # fill out the shapes above
@@ -82,7 +84,8 @@ class Place:
                       _mask_shapes = self._mask_shapes,
                       _label_footprint = self._label_footprint,
                       _mask_footprint = self._mask_footprint,
-                      _point_shape = self._point_shape)
+                      _point_shape = self._point_shape,
+                      _baseline = self._baseline)
         
         return Place(self.name, self.fontfile, self.fontsize, self.location,
                      self.position, self.radius, self.properties, self.rank, **extras)
@@ -94,11 +97,12 @@ class Place:
         point_buffered = point.buffer(self.radius + self.buffer, 3)
         self._point_shape = point.buffer(self.radius, 3)
         
-        font = truetype(self.fontfile, int(self.fontsize * 10), encoding='unic')
-        
+        scale = 10.0
+        font = truetype(self.fontfile, int(self.fontsize * scale), encoding='unic')
+
         x, y = self.position.x, self.position.y
         w, h = font.getsize(self.name)
-        w, h = w/10.0, h/10.0
+        w, h = w/scale, h/scale
         
         for placement in placements:
             label_shape = point_label_bounds(x, y, w, h, self.radius, placement)
@@ -110,6 +114,9 @@ class Place:
         unionize = lambda a, b: a.union(b)
         self._label_footprint = reduce(unionize, self._label_shapes.values())
         self._mask_footprint = reduce(unionize, self._mask_shapes.values())
+        
+        # number of pixels from the top of the label based on the bottom of a "."
+        self._baseline = font.getmask('.').getbbox()[3] / scale
     
     def text(self):
         """ Return text content, font file and size.
@@ -120,6 +127,23 @@ class Place:
         """ Return a label polygon, the bounds of the current label shape.
         """
         return self._label_shape
+    
+    def registration(self):
+        """ Return a registration point and text justification.
+        """
+        xmin, ymin, xmax, ymax = self._label_shape.bounds
+        y = ymin + self._baseline
+        
+        if self.placement in (NNE, NE, ENE, ESE, SE, SSE):
+            x, justification = xmin, 'left'
+
+        elif self.placement in (S, N):
+            x, justification = xmin/2 + xmax/2, 'center'
+
+        elif self.placement in (SW, WSW, WNW, NW, NNW):
+            x, justification = xmax, 'right'
+        
+        return Point(x, y), justification
     
     def footprint(self):
         """ Return a footprint polygon, the total coverage of all placements.

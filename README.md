@@ -26,7 +26,7 @@ rendering.
 
 Place U.S. city labels at zoom 6 for two minutes:
 
-    python dymo-label.py -z 6 --minutes 2 --labels-file labels.json --points-file points.json data/US-z6.csv.gz
+    python dymo-label.py -z 6 --minutes 2 --labels-file labels.json --places-file points.json data/US-z6.csv.gz
 
 Place U.S. city labels at zoom 5 over a 10000-iteration 10.0 - 0.01 temperature range:
 

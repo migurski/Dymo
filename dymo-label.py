@@ -1,5 +1,5 @@
 from optparse import OptionParser
-from copy import copy
+from copy import copy, deepcopy
 import cPickle
 import json
 
@@ -20,7 +20,7 @@ and now want to redo your results on the same data the fast way.
 Examples:
 
   Place U.S. city labels at zoom 6 for two minutes:
-  > python dymo-label.py -z 6 --minutes 2 --labels-file labels.json --points-file points.json data/US-z6.csv.gz
+  > python dymo-label.py -z 6 --minutes 2 --labels-file labels.json --places-file points.json data/US-z6.csv.gz
 
   Place U.S. city labels at zoom 5 over a 10000-iteration 10.0 - 0.01 temperature range:
   > python dymo-label.py -z 5 --steps 10000 --max-temp 10 --min-temp 0.01 -l labels.json -p points.json data/US-z5.csv""")
@@ -38,8 +38,11 @@ optparser.add_option('-z', '--zoom', dest='zoom',
 optparser.add_option('-l', '--labels-file', dest='labels_file',
                      help='Optional name of labels file to generate.')
 
-optparser.add_option('-p', '--points-file', dest='points_file',
-                     help='Optional name of points file to generate.')
+optparser.add_option('-p', '--places-file', dest='places_file',
+                     help='Optional name of place points file to generate.')
+
+optparser.add_option('-r', '--registrations-file', dest='registrations_file',
+                     help='Optional name of registration points file to generate. This file will have an additional "justified" property with values "left", "center", or "right".')
 
 optparser.add_option('--min-temp', dest='temp_min',
                      type='float', help='Minimum annealing temperature, for more precise control than specifying --minutes.')
@@ -67,8 +70,8 @@ if __name__ == '__main__':
         print 'Missing input file(s).\n'
         optparser.print_usage()
         exit(1)
-    elif not (options.labels_file or options.points_file):
-        print 'Missing output file(s): labels or points.\n'
+    elif not (options.labels_file or options.places_file or options.registrations_file):
+        print 'Missing output file(s): labels, place points, or registration points.\n'
         optparser.print_usage()
         exit(1)
     
@@ -95,7 +98,8 @@ if __name__ == '__main__':
         pass
     
     label_data = {'type': 'FeatureCollection', 'features': []}
-    point_data = {'type': 'FeatureCollection', 'features': []}
+    place_data = {'type': 'FeatureCollection', 'features': []}
+    rgstr_data = {'type': 'FeatureCollection', 'features': []}
     
     placed = FootprintIndex(options.zoom)
     
@@ -125,13 +129,22 @@ if __name__ == '__main__':
 
         point_feature = {'type': 'Feature', 'properties': properties}
         point_feature['geometry'] = {'type': 'Point', 'coordinates': [place.location.lon, place.location.lat]}
-        point_data['features'].append(point_feature)
+        place_data['features'].append(deepcopy(point_feature))
+        
+        reg_point, justification = place.registration()
+        point_feature['geometry']['coordinates'] = lonlat((reg_point.x, reg_point.y))
+        point_feature['properties']['justified'] = justification
+        
+        rgstr_data['features'].append(point_feature)
     
     if options.labels_file:
         json.dump(label_data, open(options.labels_file, 'w'), indent=2)
 
-    if options.points_file:
-        json.dump(point_data, open(options.points_file, 'w'), indent=2)
+    if options.places_file:
+        json.dump(place_data, open(options.places_file, 'w'), indent=2)
+    
+    if options.registrations_file:
+        json.dump(rgstr_data, open(options.registrations_file, 'w'), indent=2)
     
     if options.dump_file:
         frames = []
