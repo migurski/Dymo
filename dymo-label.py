@@ -17,6 +17,12 @@ your minimum and maximum temperatures and appropriate number of steps are before
 you start, which usually means that you've run the annealer once the slow way
 and now want to redo your results on the same data the fast way.
 
+Input fields:
+
+  preferred placement
+    Optional preference for point placement, one of "top right" (the default),
+    "top", "top left", "bottom left", "bottom", or "bottom right".
+
 Examples:
 
   Place U.S. city labels at zoom 6 for two minutes:

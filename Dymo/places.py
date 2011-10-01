@@ -27,7 +27,7 @@ placements = {NE: 0.000, ENE: 0.070, ESE: 0.100, SE: 0.175, SSE: 0.200,
 
 class Place:
 
-    def __init__(self, name, fontfile, fontsize, location, position, radius, properties, rank=1, preferred='top', **extras):
+    def __init__(self, name, fontfile, fontsize, location, position, radius, properties, rank=1, preferred=None, **extras):
         self.name = name
         self.location = location
         self.position = position
@@ -138,7 +138,7 @@ class Place:
         self._placements = deepcopy(placements)
         
         # top right is the Imhof-approved default
-        if preferred == 'top right':
+        if preferred == 'top right' or not preferred:
             return
         
         # bump up the cost of every placement artificially to leave room for new preferences

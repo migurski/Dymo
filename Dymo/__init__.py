@@ -96,4 +96,9 @@ def load_places(input_files, zoom):
                                for (key, value) in row.items()
                                if key not in ('latitude', 'longitude')])
             
-            yield Place(name, fontfile, fontsize, location, point, radius, properties)
+            kwargs = dict()
+            
+            if 'preferred placement' in row:
+                kwargs['preferred'] = row['preferred placement']
+            
+            yield Place(name, fontfile, fontsize, location, point, radius, properties, **kwargs)
