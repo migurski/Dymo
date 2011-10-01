@@ -11,14 +11,23 @@ from shapely.geometry import Point, Polygon
 
 NE, ENE, ESE, SE, SSE, S, SW, WSW, WNW, NW, NNW, N, NNE = range(13)
 
+#
+#          NNW   N   NNE
+#        NW             NE
+#       WNW      .      ENE
+#       WSW             ESE
+#        SW             SE
+#                S   SSE
+#
 # slide 13 of http://www.cs.uu.nl/docs/vakken/gd/steven2.pdf
+#
 placements = {NE: 0.000, ENE: 0.070, ESE: 0.100, SE: 0.175, SSE: 0.200,
               S: 0.900, SW: 0.600, WSW: 0.500, WNW: 0.470, NW: 0.400,
               NNW: 0.575, N: 0.800, NNE: 0.150}
 
 class Place:
 
-    def __init__(self, name, fontfile, fontsize, location, position, radius, properties, rank=1, **extras):
+    def __init__(self, name, fontfile, fontsize, location, position, radius, properties, rank=1, preferred=NE, **extras):
         self.name = name
         self.location = location
         self.position = position
@@ -28,7 +37,8 @@ class Place:
         self.fontsize = fontsize
         self.properties = properties
     
-        self.placement = NE
+        self.placement = preferred
+        self._preferred = preferred
         self.radius = radius
         self.buffer = 2
         
@@ -44,6 +54,7 @@ class Place:
                   and '_label_footprint' in extras \
                   and '_mask_footprint' in extras \
                   and '_point_shape' in extras \
+                  and '_placements' in extras \
                   and '_baseline' in extras
         
         if full_extras:
@@ -54,6 +65,7 @@ class Place:
             self._label_footprint = extras['_label_footprint']
             self._mask_footprint = extras['_mask_footprint']
             self._point_shape = extras['_point_shape']
+            self._placements = extras['_placements']
             self._baseline = extras['_baseline']
 
         else:
@@ -85,6 +97,7 @@ class Place:
                       _label_footprint = self._label_footprint,
                       _mask_footprint = self._mask_footprint,
                       _point_shape = self._point_shape,
+                      _placements = self._placements,
                       _baseline = self._baseline)
         
         return Place(self.name, self.fontfile, self.fontsize, self.location,
@@ -117,6 +130,10 @@ class Place:
         
         # number of pixels from the top of the label based on the bottom of a "."
         self._baseline = font.getmask('.').getbbox()[3] / scale
+        
+        # local copy of placement energies
+        self._placements = deepcopy(placements)
+        self._placements[self._preferred] = 0.000
     
     def text(self):
         """ Return text content, font file and size.
@@ -156,7 +173,7 @@ class Place:
         self._mask_shape = self._mask_shapes[self.placement]
     
     def placement_energy(self):
-        return placements[self.placement]
+        return self._placements[self.placement]
     
     def overlaps(self, other, reflexive=True):
         overlaps = self._mask_shape.intersects(other.label())
