@@ -75,7 +75,7 @@ def load_places(input_files, zoom):
                     if key not in types:
                         types[key] = int
                 elif float_pat.match(value):
-                    if key not in types:
+                    if key not in types or types[key] is int:
                         types[key] = float
                 else:
                     # it's not really a type, but it's like unicode()
@@ -96,4 +96,9 @@ def load_places(input_files, zoom):
                                for (key, value) in row.items()
                                if key not in ('latitude', 'longitude')])
             
-            yield Place(name, fontfile, fontsize, location, point, radius, properties)
+            kwargs = dict()
+            
+            if 'preferred placement' in row:
+                kwargs['preferred'] = row['preferred placement']
+            
+            yield Place(name, fontfile, fontsize, location, point, radius, properties, **kwargs)

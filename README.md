@@ -26,11 +26,11 @@ rendering.
 
 Place U.S. city labels at zoom 6 for two minutes:
 
-    python dymo-label.py -z 6 --minutes 2 labels.json points.json data/US-z6.csv.gz
+    python dymo-label.py -z 6 --minutes 2 --labels-file labels.json --places-file points.json data/US-z6.csv.gz
 
 Place U.S. city labels at zoom 5 over a 10000-iteration 10.0 - 0.01 temperature range:
 
-    python dymo-label.py -z 5 --steps 10000 --max-temp 10 --min-temp 0.01 labels.json points.json data/US-z5.csv
+    python dymo-label.py -z 5 --steps 10000 --max-temp 10 --min-temp 0.01 -l labels.json -p points.json data/US-z5.csv
 
 Both examples will result in a pair of GeoJSON files, ```labels.json``` and
 ```points.json.``` The first will contain rectangular label areas, the second
@@ -50,7 +50,8 @@ Data Included
 -------------
 
 Look in ```data/``` for a list of zoom-by-zoom city locations, organized by
-continent and selected by Justin O’Bierne.
+continent and selected by Justin O’Bierne. Data is distributed separately from
+code, see [downloads](https://github.com/migurski/Dymo/downloads) for a link.
 
 To prepare your own city lists or modify fonts and font sizes in input lists,
 Use ```dymo-prepare-places.py``` to apply population-specific font choices to

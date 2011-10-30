@@ -9,16 +9,25 @@ except ImportError:
 
 from shapely.geometry import Point, Polygon
 
-NE, ENE, ESE, SE, SSE, S, SW, WSW, WNW, NW, NNW, N, NNE = range(13)
+NE, ENE, ESE, SE, SSE, S, SSW, SW, WSW, WNW, NW, NNW, N, NNE = range(14)
 
+#
+#          NNW   N   NNE
+#        NW             NE
+#       WNW      .      ENE
+#       WSW             ESE
+#        SW             SE
+#          SSW   S   SSE
+#
 # slide 13 of http://www.cs.uu.nl/docs/vakken/gd/steven2.pdf
+#
 placements = {NE: 0.000, ENE: 0.070, ESE: 0.100, SE: 0.175, SSE: 0.200,
-              S: 0.900, SW: 0.600, WSW: 0.500, WNW: 0.470, NW: 0.400,
-              NNW: 0.575, N: 0.800, NNE: 0.150}
+              S: 0.900, SSW: 1.000, SW: 0.600, WSW: 0.500, WNW: 0.470,
+              NW: 0.400, NNW: 0.575, N: 0.800, NNE: 0.150}
 
 class Place:
 
-    def __init__(self, name, fontfile, fontsize, location, position, radius, properties, rank=1, **extras):
+    def __init__(self, name, fontfile, fontsize, location, position, radius, properties, rank=1, preferred=None, **extras):
         self.name = name
         self.location = location
         self.position = position
@@ -43,7 +52,9 @@ class Place:
                   and '_mask_shapes' in extras \
                   and '_label_footprint' in extras \
                   and '_mask_footprint' in extras \
-                  and '_point_shape' in extras
+                  and '_point_shape' in extras \
+                  and '_placements' in extras \
+                  and '_baseline' in extras
         
         if full_extras:
             # use the provided extras
@@ -53,9 +64,12 @@ class Place:
             self._label_footprint = extras['_label_footprint']
             self._mask_footprint = extras['_mask_footprint']
             self._point_shape = extras['_point_shape']
+            self._placements = extras['_placements']
+            self._baseline = extras['_baseline']
 
         else:
             # fill out the shapes above
+            self._populate_placements(preferred)
             self._populate_shapes()
 
         # label bounds for current placement
@@ -82,22 +96,26 @@ class Place:
                       _mask_shapes = self._mask_shapes,
                       _label_footprint = self._label_footprint,
                       _mask_footprint = self._mask_footprint,
-                      _point_shape = self._point_shape)
+                      _point_shape = self._point_shape,
+                      _placements = self._placements,
+                      _baseline = self._baseline)
         
         return Place(self.name, self.fontfile, self.fontsize, self.location,
                      self.position, self.radius, self.properties, self.rank, **extras)
     
     def _populate_shapes(self):
-        """ Set values for self._label_shapes, _footprint_shape, and _footprint_shape_b.
+        """ Set values for self._label_shapes, _footprint_shape, and others.
         """
         point = Point(self.position.x, self.position.y)
         point_buffered = point.buffer(self.radius + self.buffer, 3)
         self._point_shape = point.buffer(self.radius, 3)
         
-        font = truetype(self.fontfile, self.fontsize, encoding='unic')
-        
+        scale = 10.0
+        font = truetype(self.fontfile, int(self.fontsize * scale), encoding='unic')
+
         x, y = self.position.x, self.position.y
         w, h = font.getsize(self.name)
+        w, h = w/scale, h/scale
         
         for placement in placements:
             label_shape = point_label_bounds(x, y, w, h, self.radius, placement)
@@ -109,6 +127,45 @@ class Place:
         unionize = lambda a, b: a.union(b)
         self._label_footprint = reduce(unionize, self._label_shapes.values())
         self._mask_footprint = reduce(unionize, self._mask_shapes.values())
+        
+        # number of pixels from the top of the label based on the bottom of a "."
+        self._baseline = font.getmask('.').getbbox()[3] / scale
+    
+    def _populate_placements(self, preferred):
+        """ Set values for self._placements.
+        """
+        # local copy of placement energies
+        self._placements = deepcopy(placements)
+        
+        # top right is the Imhof-approved default
+        if preferred == 'top right' or not preferred:
+            return
+        
+        # bump up the cost of every placement artificially to leave room for new preferences
+        self._placements = dict([ (key, .4 + v*.6) for (key, v) in self._placements.items() ])
+        
+        if preferred == 'top':
+            self.placement = N
+            self._placements.update({ N: .0, NNW: .3, NNE: .3 })
+        
+        elif preferred == 'top left':
+            self.placement = NW
+            self._placements.update({ NW: .0, WNW: .1, NNW: .1 })
+        
+        elif preferred == 'bottom':
+            self.placement = S
+            self._placements.update({ S: .0, SSW: .3, SSE: .3 })
+        
+        elif preferred == 'bottom right':
+            self.placement = SE
+            self._placements.update({ SE: .0, ESE: .1, SSE: .1 })
+        
+        elif preferred == 'bottom left':
+            self.placement = SW
+            self._placements.update({ SW: .0, WSW: .1, SSW: .1 })
+        
+        else:
+            raise Exception('Unknown preferred placement "%s"' % preferred)
     
     def text(self):
         """ Return text content, font file and size.
@@ -120,18 +177,35 @@ class Place:
         """
         return self._label_shape
     
+    def registration(self):
+        """ Return a registration point and text justification.
+        """
+        xmin, ymin, xmax, ymax = self._label_shape.bounds
+        y = ymin + self._baseline
+        
+        if self.placement in (NNE, NE, ENE, ESE, SE, SSE):
+            x, justification = xmin, 'left'
+
+        elif self.placement in (S, N):
+            x, justification = xmin/2 + xmax/2, 'center'
+
+        elif self.placement in (SSW, SW, WSW, WNW, NW, NNW):
+            x, justification = xmax, 'right'
+        
+        return Point(x, y), justification
+    
     def footprint(self):
         """ Return a footprint polygon, the total coverage of all placements.
         """
         return self._label_footprint
     
     def move(self):
-        self.placement = choice(placements.keys())
+        self.placement = choice(self._placements.keys())
         self._label_shape = self._label_shapes[self.placement]
         self._mask_shape = self._mask_shapes[self.placement]
     
     def placement_energy(self):
-        return placements[self.placement]
+        return self._placements[self.placement]
     
     def overlaps(self, other, reflexive=True):
         overlaps = self._mask_shape.intersects(other.label())
@@ -153,24 +227,30 @@ def point_label_bounds(x, y, width, height, radius, placement):
     """ Rectangular area occupied by a label placed by a point with radius.
     """
     if placement in (NE, ENE, ESE, SE):
+        # to the right
         x += radius + width/2
     
     if placement in (NW, WNW, WSW, SW):
+        # to the left
         x -= radius + width/2
 
     if placement in (NW, NE):
+        # way up high
         y -= height/2
 
     if placement in (SW, SE):
+        # way down low
         y += height/2
 
     if placement in (ENE, WNW):
+        # just a little above
         y -= height/6
 
     if placement in (ESE, WSW):
+        # just a little below
         y += height/6
     
-    if placement in (NNE, SSE, NNW):
+    if placement in (NNE, SSE, SSW, NNW):
         _x = radius * cos(pi/4) + width/2
         _y = radius * sin(pi/4) + height/2
         
@@ -179,15 +259,17 @@ def point_label_bounds(x, y, width, height, radius, placement):
         else:
             x -= _x
         
-        if placement in (SSE, ):
+        if placement in (SSE, SSW):
             y += _y
         else:
             y -= _y
     
     if placement == N:
+        # right on top
         y -= radius + height / 2
     
     if placement == S:
+        # right on the bottom
         y += radius + height / 2
     
     x1, y1 = x - width/2, y - height/2
