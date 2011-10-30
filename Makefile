@@ -5,14 +5,14 @@ TARBALL=$(PACKAGE).tar.gz
 #
 # Fonts here are ordered triplets of min. population, file name, font size.
 #
-FONTS_Z4=  --font 0 fonts/Arial.ttf 10   --font 250000 fonts/Arial.ttf 12
-FONTS_Z5=  --font 0 fonts/Arial.ttf 10   --font 2500000 fonts/Arial.ttf 12
-FONTS_Z6=  --font 0 fonts/Arial.ttf 10   --font 250000 fonts/Arial.ttf 13   --font 2500000 fonts/Arial.ttf 18
-FONTS_Z7=  --font 0 fonts/Arial.ttf 10   --font 250000 fonts/Arial.ttf 13   --font 2500000 fonts/Arial.ttf 18
-FONTS_Z8=  --font 0 fonts/Arial.ttf 10   --font 50000 fonts/Arial.ttf 13    --font 250000 fonts/Arial.ttf 18
-FONTS_Z9=  --font 0 fonts/Arial.ttf 10   --font 50000 fonts/Arial.ttf 13    --font 250000 fonts/Arial.ttf 18
-FONTS_Z10= --font 0 fonts/Arial.ttf 10   --font 50000 fonts/Arial.ttf 13    --font 250000 fonts/Arial.ttf 18
-FONTS_Z11= --font 0 fonts/Arial.ttf 10   --font 50000 fonts/Arial.ttf 13    --font 250000 fonts/Arial.ttf 18
+FONTS_Z4=  --font 0 fonts/PTN57F.ttf 13   --font 250000 fonts/PTN57F.ttf 18
+FONTS_Z5=  --font 0 fonts/PTN57F.ttf 13   --font 2500000 fonts/PTN57F.ttf 18
+FONTS_Z6=  --font 0 fonts/PTN57F.ttf 13   --font 250000 fonts/PTN57F.ttf 18   --font 2500000 fonts/PTN57F.ttf 24
+FONTS_Z7=  --font 0 fonts/PTN57F.ttf 13   --font 250000 fonts/PTN57F.ttf 18   --font 2500000 fonts/PTN57F.ttf 24
+FONTS_Z8=  --font 0 fonts/PTN57F.ttf 13   --font 50000 fonts/PTN57F.ttf 18    --font 250000 fonts/PTN57F.ttf 24
+FONTS_Z9=  --font 0 fonts/PTN57F.ttf 13   --font 50000 fonts/PTN57F.ttf 18    --font 250000 fonts/PTN57F.ttf 24
+FONTS_Z10= --font 0 fonts/PTN57F.ttf 13   --font 50000 fonts/PTN57F.ttf 18    --font 250000 fonts/PTN57F.ttf 24
+FONTS_Z11= --font 0 fonts/PTN57F.ttf 13   --font 50000 fonts/PTN57F.ttf 18    --font 250000 fonts/PTN57F.ttf 24
 
 
 
