@@ -7,14 +7,23 @@ DATATAR=$(DATAPKG).tar.gz
 #
 # Fonts here are ordered triplets of min. population, file name, font size.
 #
-FONTS_Z4=  --font 0 fonts/PTN57F.ttf 13   --font 250000 fonts/PTN57F.ttf 18
-FONTS_Z5=  --font 0 fonts/PTN57F.ttf 13   --font 2500000 fonts/PTN57F.ttf 18
-FONTS_Z6=  --font 0 fonts/PTN57F.ttf 13   --font 250000 fonts/PTN57F.ttf 18   --font 2500000 fonts/PTN57F.ttf 24
-FONTS_Z7=  --font 0 fonts/PTN57F.ttf 13   --font 250000 fonts/PTN57F.ttf 18   --font 2500000 fonts/PTN57F.ttf 24
-FONTS_Z8=  --font 0 fonts/PTN57F.ttf 13   --font 50000 fonts/PTN57F.ttf 18    --font 250000 fonts/PTN57F.ttf 24
-FONTS_Z9=  --font 0 fonts/PTN57F.ttf 13   --font 50000 fonts/PTN57F.ttf 18    --font 250000 fonts/PTN57F.ttf 24
-FONTS_Z10= --font 0 fonts/PTN57F.ttf 13   --font 50000 fonts/PTN57F.ttf 18    --font 250000 fonts/PTN57F.ttf 24
-FONTS_Z11= --font 0 fonts/PTN57F.ttf 13   --font 50000 fonts/PTN57F.ttf 18    --font 250000 fonts/PTN57F.ttf 24
+FONTS_Z4=  --font 0 fonts/PTN57F.ttf 18   --font 250000 fonts/PTN57F.ttf 24
+FONTS_Z5=  --font 0 fonts/PTN57F.ttf 18   --font 2500000 fonts/PTN57F.ttf 24
+FONTS_Z6=  --font 0 fonts/PTN57F.ttf 18   --font 250000 fonts/PTN57F.ttf 24   --font 2500000 fonts/PTN57F.ttf 32
+FONTS_Z7=  --font 0 fonts/PTN57F.ttf 18   --font 250000 fonts/PTN57F.ttf 24   --font 2500000 fonts/PTN57F.ttf 32
+FONTS_Z8=  --font 0 fonts/PTN57F.ttf 18   --font 50000 fonts/PTN57F.ttf 24    --font 250000 fonts/PTN57F.ttf 32
+FONTS_Z9=  --font 0 fonts/PTN57F.ttf 18   --font 50000 fonts/PTN57F.ttf 24    --font 250000 fonts/PTN57F.ttf 32
+FONTS_Z10= --font 0 fonts/PTN57F.ttf 18   --font 50000 fonts/PTN57F.ttf 24    --font 250000 fonts/PTN57F.ttf 32
+FONTS_Z11= --font 0 fonts/PTN57F.ttf 18   --font 50000 fonts/PTN57F.ttf 24    --font 250000 fonts/PTN57F.ttf 32
+
+POINTS_Z4=  --point 0 5   --point 250000 7
+POINTS_Z5=  --point 0 5   --point 2500000 7
+POINTS_Z6=  --point 0 5   --point 250000 7
+POINTS_Z7=  --point 0 5   --point 250000 7
+POINTS_Z8=  --point 0 5   --point 50000 7
+POINTS_Z9=  --point 0 5   --point 50000 7
+POINTS_Z10= --point 0 5   --point 50000 7
+POINTS_Z11= --point 0 5   --point 50000 7
 
 
 
@@ -86,155 +95,155 @@ clean:
 
 
 data/North-America-z4.txt: data/North-America-all.txt.gz
-	python dymo-prepare-places.py --zoom 4 --radius 5 $(FONTS_Z4) data/North-America-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 4 --radius 5 $(FONTS_Z4) $(POINTS_Z4) data/North-America-all.txt.gz $@
 
 data/North-America-z5.txt: data/North-America-all.txt.gz
-	python dymo-prepare-places.py --zoom 5 --radius 5 $(FONTS_Z5) data/North-America-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 5 --radius 5 $(FONTS_Z5) $(POINTS_Z5) data/North-America-all.txt.gz $@
 
 data/North-America-z6.txt.gz: data/North-America-all.txt.gz
-	python dymo-prepare-places.py --zoom 6 --radius 5 $(FONTS_Z6) data/North-America-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 6 --radius 5 $(FONTS_Z6) $(POINTS_Z6) data/North-America-all.txt.gz $@
 
 data/North-America-z7.txt.gz: data/North-America-all.txt.gz
-	python dymo-prepare-places.py --zoom 7 --radius 5 $(FONTS_Z7) data/North-America-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 7 --radius 5 $(FONTS_Z7) $(POINTS_Z7) data/North-America-all.txt.gz $@
 
 data/North-America-z8.txt.gz: data/North-America-all.txt.gz
-	python dymo-prepare-places.py --zoom 8 --radius 5 $(FONTS_Z8) data/North-America-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 8 --radius 5 $(FONTS_Z8) $(POINTS_Z8) data/North-America-all.txt.gz $@
 
 data/North-America-z9.txt.gz: data/North-America-all.txt.gz
-	python dymo-prepare-places.py --zoom 9 --radius 5 $(FONTS_Z9) data/North-America-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 9 --radius 5 $(FONTS_Z9) $(POINTS_Z9) data/North-America-all.txt.gz $@
 
 data/North-America-z10.txt.gz: data/North-America-all.txt.gz
-	python dymo-prepare-places.py --zoom 10 --radius 5 $(FONTS_Z10) data/North-America-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 10 --radius 5 $(FONTS_Z10) $(POINTS_Z10) data/North-America-all.txt.gz $@
 
 data/North-America-z11.txt.gz: data/North-America-all.txt.gz
-	python dymo-prepare-places.py --zoom 11 --radius 5 $(FONTS_Z11) data/North-America-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 11 --radius 5 $(FONTS_Z11) $(POINTS_Z11) data/North-America-all.txt.gz $@
 
 
 
 data/Europe-z4.txt: data/Europe-all.txt.gz
-	python dymo-prepare-places.py --zoom 4 --radius 5 $(FONTS_Z4) data/Europe-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 4 --radius 5 $(FONTS_Z4) $(POINTS_Z4) data/Europe-all.txt.gz $@
 
 data/Europe-z5.txt: data/Europe-all.txt.gz
-	python dymo-prepare-places.py --zoom 5 --radius 5 $(FONTS_Z5) data/Europe-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 5 --radius 5 $(FONTS_Z5) $(POINTS_Z5) data/Europe-all.txt.gz $@
 
 data/Europe-z6.txt.gz: data/Europe-all.txt.gz
-	python dymo-prepare-places.py --zoom 6 --radius 5 $(FONTS_Z6) data/Europe-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 6 --radius 5 $(FONTS_Z6) $(POINTS_Z6) data/Europe-all.txt.gz $@
 
 data/Europe-z7.txt.gz: data/Europe-all.txt.gz
-	python dymo-prepare-places.py --zoom 7 --radius 5 $(FONTS_Z7) data/Europe-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 7 --radius 5 $(FONTS_Z7) $(POINTS_Z7) data/Europe-all.txt.gz $@
 
 data/Europe-z8.txt.gz: data/Europe-all.txt.gz
-	python dymo-prepare-places.py --zoom 8 --radius 5 $(FONTS_Z8) data/Europe-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 8 --radius 5 $(FONTS_Z8) $(POINTS_Z8) data/Europe-all.txt.gz $@
 
 data/Europe-z9.txt.gz: data/Europe-all.txt.gz
-	python dymo-prepare-places.py --zoom 9 --radius 5 $(FONTS_Z9) data/Europe-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 9 --radius 5 $(FONTS_Z9) $(POINTS_Z9) data/Europe-all.txt.gz $@
 
 data/Europe-z10.txt.gz: data/Europe-all.txt.gz
-	python dymo-prepare-places.py --zoom 10 --radius 5 $(FONTS_Z10) data/Europe-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 10 --radius 5 $(FONTS_Z10) $(POINTS_Z10) data/Europe-all.txt.gz $@
 
 data/Europe-z11.txt.gz: data/Europe-all.txt.gz
-	python dymo-prepare-places.py --zoom 11 --radius 5 $(FONTS_Z11) data/Europe-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 11 --radius 5 $(FONTS_Z11) $(POINTS_Z11) data/Europe-all.txt.gz $@
 
 
 
 data/South-America-z4.txt: data/South-America-all.txt.gz
-	python dymo-prepare-places.py --zoom 4 --radius 5 $(FONTS_Z4) data/South-America-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 4 --radius 5 $(FONTS_Z4) $(POINTS_Z4) data/South-America-all.txt.gz $@
 
 data/South-America-z5.txt: data/South-America-all.txt.gz
-	python dymo-prepare-places.py --zoom 5 --radius 5 $(FONTS_Z5) data/South-America-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 5 --radius 5 $(FONTS_Z5) $(POINTS_Z5) data/South-America-all.txt.gz $@
 
 data/South-America-z6.txt.gz: data/South-America-all.txt.gz
-	python dymo-prepare-places.py --zoom 6 --radius 5 $(FONTS_Z6) data/South-America-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 6 --radius 5 $(FONTS_Z6) $(POINTS_Z6) data/South-America-all.txt.gz $@
 
 data/South-America-z7.txt.gz: data/South-America-all.txt.gz
-	python dymo-prepare-places.py --zoom 7 --radius 5 $(FONTS_Z7) data/South-America-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 7 --radius 5 $(FONTS_Z7) $(POINTS_Z7) data/South-America-all.txt.gz $@
 
 data/South-America-z8.txt.gz: data/South-America-all.txt.gz
-	python dymo-prepare-places.py --zoom 8 --radius 5 $(FONTS_Z8) data/South-America-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 8 --radius 5 $(FONTS_Z8) $(POINTS_Z8) data/South-America-all.txt.gz $@
 
 data/South-America-z9.txt.gz: data/South-America-all.txt.gz
-	python dymo-prepare-places.py --zoom 9 --radius 5 $(FONTS_Z9) data/South-America-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 9 --radius 5 $(FONTS_Z9) $(POINTS_Z9) data/South-America-all.txt.gz $@
 
 data/South-America-z10.txt.gz: data/South-America-all.txt.gz
-	python dymo-prepare-places.py --zoom 10 --radius 5 $(FONTS_Z10) data/South-America-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 10 --radius 5 $(FONTS_Z10) $(POINTS_Z10) data/South-America-all.txt.gz $@
 
 data/South-America-z11.txt.gz: data/South-America-all.txt.gz
-	python dymo-prepare-places.py --zoom 11 --radius 5 $(FONTS_Z11) data/South-America-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 11 --radius 5 $(FONTS_Z11) $(POINTS_Z11) data/South-America-all.txt.gz $@
 
 
 
 data/Asia-z4.txt: data/Asia-all.txt.gz
-	python dymo-prepare-places.py --zoom 4 --radius 5 $(FONTS_Z4) data/Asia-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 4 --radius 5 $(FONTS_Z4) $(POINTS_Z4) data/Asia-all.txt.gz $@
 
 data/Asia-z5.txt: data/Asia-all.txt.gz
-	python dymo-prepare-places.py --zoom 5 --radius 5 $(FONTS_Z5) data/Asia-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 5 --radius 5 $(FONTS_Z5) $(POINTS_Z5) data/Asia-all.txt.gz $@
 
 data/Asia-z6.txt.gz: data/Asia-all.txt.gz
-	python dymo-prepare-places.py --zoom 6 --radius 5 $(FONTS_Z6) data/Asia-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 6 --radius 5 $(FONTS_Z6) $(POINTS_Z6) data/Asia-all.txt.gz $@
 
 data/Asia-z7.txt.gz: data/Asia-all.txt.gz
-	python dymo-prepare-places.py --zoom 7 --radius 5 $(FONTS_Z7) data/Asia-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 7 --radius 5 $(FONTS_Z7) $(POINTS_Z7) data/Asia-all.txt.gz $@
 
 data/Asia-z8.txt.gz: data/Asia-all.txt.gz
-	python dymo-prepare-places.py --zoom 8 --radius 5 $(FONTS_Z8) data/Asia-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 8 --radius 5 $(FONTS_Z8) $(POINTS_Z8) data/Asia-all.txt.gz $@
 
 data/Asia-z9.txt.gz: data/Asia-all.txt.gz
-	python dymo-prepare-places.py --zoom 9 --radius 5 $(FONTS_Z9) data/Asia-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 9 --radius 5 $(FONTS_Z9) $(POINTS_Z9) data/Asia-all.txt.gz $@
 
 data/Asia-z10.txt.gz: data/Asia-all.txt.gz
-	python dymo-prepare-places.py --zoom 10 --radius 5 $(FONTS_Z10) data/Asia-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 10 --radius 5 $(FONTS_Z10) $(POINTS_Z10) data/Asia-all.txt.gz $@
 
 data/Asia-z11.txt.gz: data/Asia-all.txt.gz
-	python dymo-prepare-places.py --zoom 11 --radius 5 $(FONTS_Z11) data/Asia-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 11 --radius 5 $(FONTS_Z11) $(POINTS_Z11) data/Asia-all.txt.gz $@
 
 
 
 data/Africa-z4.txt: data/Africa-all.txt.gz
-	python dymo-prepare-places.py --zoom 4 --radius 5 $(FONTS_Z4) data/Africa-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 4 --radius 5 $(FONTS_Z4) $(POINTS_Z4) data/Africa-all.txt.gz $@
 
 data/Africa-z5.txt: data/Africa-all.txt.gz
-	python dymo-prepare-places.py --zoom 5 --radius 5 $(FONTS_Z5) data/Africa-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 5 --radius 5 $(FONTS_Z5) $(POINTS_Z5) data/Africa-all.txt.gz $@
 
 data/Africa-z6.txt.gz: data/Africa-all.txt.gz
-	python dymo-prepare-places.py --zoom 6 --radius 5 $(FONTS_Z6) data/Africa-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 6 --radius 5 $(FONTS_Z6) $(POINTS_Z6) data/Africa-all.txt.gz $@
 
 data/Africa-z7.txt.gz: data/Africa-all.txt.gz
-	python dymo-prepare-places.py --zoom 7 --radius 5 $(FONTS_Z7) data/Africa-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 7 --radius 5 $(FONTS_Z7) $(POINTS_Z7) data/Africa-all.txt.gz $@
 
 data/Africa-z8.txt.gz: data/Africa-all.txt.gz
-	python dymo-prepare-places.py --zoom 8 --radius 5 $(FONTS_Z8) data/Africa-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 8 --radius 5 $(FONTS_Z8) $(POINTS_Z8) data/Africa-all.txt.gz $@
 
 data/Africa-z9.txt.gz: data/Africa-all.txt.gz
-	python dymo-prepare-places.py --zoom 9 --radius 5 $(FONTS_Z9) data/Africa-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 9 --radius 5 $(FONTS_Z9) $(POINTS_Z9) data/Africa-all.txt.gz $@
 
 data/Africa-z10.txt.gz: data/Africa-all.txt.gz
-	python dymo-prepare-places.py --zoom 10 --radius 5 $(FONTS_Z10) data/Africa-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 10 --radius 5 $(FONTS_Z10) $(POINTS_Z10) data/Africa-all.txt.gz $@
 
 data/Africa-z11.txt.gz: data/Africa-all.txt.gz
-	python dymo-prepare-places.py --zoom 11 --radius 5 $(FONTS_Z11) data/Africa-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 11 --radius 5 $(FONTS_Z11) $(POINTS_Z11) data/Africa-all.txt.gz $@
 
 
 
 data/Australia-New-Zealand-z4.txt: data/Australia-New-Zealand-all.txt.gz
-	python dymo-prepare-places.py --zoom 4 --radius 5 $(FONTS_Z4) data/Australia-New-Zealand-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 4 --radius 5 $(FONTS_Z4) $(POINTS_Z4) data/Australia-New-Zealand-all.txt.gz $@
 
 data/Australia-New-Zealand-z5.txt: data/Australia-New-Zealand-all.txt.gz
-	python dymo-prepare-places.py --zoom 5 --radius 5 $(FONTS_Z5) data/Australia-New-Zealand-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 5 --radius 5 $(FONTS_Z5) $(POINTS_Z5) data/Australia-New-Zealand-all.txt.gz $@
 
 data/Australia-New-Zealand-z6.txt.gz: data/Australia-New-Zealand-all.txt.gz
-	python dymo-prepare-places.py --zoom 6 --radius 5 $(FONTS_Z6) data/Australia-New-Zealand-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 6 --radius 5 $(FONTS_Z6) $(POINTS_Z6) data/Australia-New-Zealand-all.txt.gz $@
 
 data/Australia-New-Zealand-z7.txt.gz: data/Australia-New-Zealand-all.txt.gz
-	python dymo-prepare-places.py --zoom 7 --radius 5 $(FONTS_Z7) data/Australia-New-Zealand-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 7 --radius 5 $(FONTS_Z7) $(POINTS_Z7) data/Australia-New-Zealand-all.txt.gz $@
 
 data/Australia-New-Zealand-z8.txt.gz: data/Australia-New-Zealand-all.txt.gz
-	python dymo-prepare-places.py --zoom 8 --radius 5 $(FONTS_Z8) data/Australia-New-Zealand-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 8 --radius 5 $(FONTS_Z8) $(POINTS_Z8) data/Australia-New-Zealand-all.txt.gz $@
 
 data/Australia-New-Zealand-z9.txt.gz: data/Australia-New-Zealand-all.txt.gz
-	python dymo-prepare-places.py --zoom 9 --radius 5 $(FONTS_Z9) data/Australia-New-Zealand-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 9 --radius 5 $(FONTS_Z9) $(POINTS_Z9) data/Australia-New-Zealand-all.txt.gz $@
 
 data/Australia-New-Zealand-z10.txt.gz: data/Australia-New-Zealand-all.txt.gz
-	python dymo-prepare-places.py --zoom 10 --radius 5 $(FONTS_Z10) data/Australia-New-Zealand-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 10 --radius 5 $(FONTS_Z10) $(POINTS_Z10) data/Australia-New-Zealand-all.txt.gz $@
 
 data/Australia-New-Zealand-z11.txt.gz: data/Australia-New-Zealand-all.txt.gz
-	python dymo-prepare-places.py --zoom 11 --radius 5 $(FONTS_Z11) data/Australia-New-Zealand-all.txt.gz $@
+	python dymo-prepare-places.py --zoom 11 --radius 5 $(FONTS_Z11) $(POINTS_Z11) data/Australia-New-Zealand-all.txt.gz $@
