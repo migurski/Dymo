@@ -26,7 +26,7 @@ Example output columns:
 Optional pixel buffer radius option (--radius) defines a minimum distance
 between places that can be used to cull the list prior to annealing.""")
 
-defaults = dict(fonts=[(-1, 'fonts/DejaVuSans.ttf', 12)], zoom=4, radius=0, font_field='population')
+defaults = dict(fonts=[(-1, 'fonts/DejaVuSans.ttf', 12)], points=[(-1, 8)], zoom=4, radius=0, font_field='population', point_field='population')
 
 optparser.set_defaults(**defaults)
 
@@ -36,11 +36,17 @@ optparser.add_option('-z', '--zoom', dest='zoom',
 optparser.add_option('-f', '--font', dest='fonts', action='append', nargs=3,
                      help='Additional font, in the form of three values: minimum population (or other font field), font file, font size. Can be specified multiple times.')
 
+optparser.add_option('-p', '--point', dest='points', action='append', nargs=2,
+                     help='Additional point size, in the form of two values: minimum population (or other point field), point size. Can be specified multiple times.')
+
 optparser.add_option('-r', '--radius', dest='radius',
                      type='float', help='Pixel buffer around each place. Default value is %(radius)d.' % defaults)
 
 optparser.add_option('--font-field', dest='font_field',
                      help='Field to use for font selection. Default field is %(font_field)s.' % defaults)
+
+optparser.add_option('--point-field', dest='point_field',
+                     help='Field to use for point selection. Default field is %(point_field)s.' % defaults)
 
 def prepare_file(name, mode):
     """
@@ -76,6 +82,9 @@ if __name__ == '__main__':
     fonts = [(int(min), font, size) for (min, font, size) in options.fonts]
     fonts.sort()
     
+    points = [(int(min), size) for (min, size) in options.points]
+    points.sort()
+    
     #
     # prepare input/output files
     #
@@ -100,9 +109,6 @@ if __name__ == '__main__':
         others = PointIndex(options.zoom, options.radius)
     
     for place in input:
-        if 'point size' not in place:
-            place['point size'] = '8'
-        
         if int(place['zoom start']) > options.zoom:
             continue
         
@@ -120,6 +126,10 @@ if __name__ == '__main__':
             value = int(place[options.font_field])
         except ValueError:
             value = place[options.font_field]
+    
+        for (min_value, size) in points:
+            if value > min_value:
+                place['point size'] = size
     
         for (min_value, font, size) in fonts:
             if value > min_value:
