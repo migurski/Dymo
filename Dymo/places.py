@@ -28,6 +28,13 @@ placements = {NE: 0.000, ENE: 0.070, ESE: 0.100, SE: 0.175, SSE: 0.200,
 class Place:
 
     def __init__(self, name, fontfile, fontsize, location, position, radius, properties, rank=1, preferred=None, **extras):
+        
+        if location.lon < -360 or 360 < location.lon:
+            raise Exception('Silly human trying to pass an invalid longitude of %.3f for "%s"' % (location.lon, name))
+    
+        if location.lat < -90 or 90 < location.lat:
+            raise Exception('Silly human trying to pass an invalid latitude of %.3f for "%s"' % (location.lat, name))
+    
         self.name = name
         self.location = location
         self.position = position

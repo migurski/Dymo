@@ -1,3 +1,6 @@
+2011-11-18: 0.8.1
+- Added simple bounds check for latitude and longitude of places.
+
 2011-10-01: 0.8.0
 - Incompatibly-modified dymo-label.py syntax with --labels-file, --places-file and --registrations-file options.
 - Added text registration point and justification output.
