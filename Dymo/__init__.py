@@ -88,8 +88,16 @@ def load_places(input_files, zoom):
             fontsize = int(row.get('font size', 12))
             fontfile = row.get('font file', 'fonts/DejaVuSans.ttf')
             
-            lat = float(row['latitude'])
-            lon = float(row['longitude'])
+            try:
+                lat = float(row['latitude'])
+                lon = float(row['longitude'])
+            except KeyError:
+                try:
+                    lat = float(row['lat'])
+                    lon = float(row['long'])
+                except KeyError:
+                    lat = float(row['lat'])
+                    lon = float(row['lon'])
             location, point = location_point(lat, lon, zoom)
             
             properties = dict([(key_pat.sub(r'_', key), types[key](value))

@@ -107,7 +107,13 @@ if __name__ == '__main__':
             continue
         
         if options.radius > 0:
-            loc = Location(float(place['latitude']), float(place['longitude']))
+            try:
+                loc = Location(float(place['latitude']), float(place['longitude']))
+            except KeyError:
+                try:
+                    loc = Location(float(place['lat']), float(place['long']))
+                except KeyError:
+                    loc = Location(float(place['lat']), float(place['lon']))
             other = others.blocks(loc)
             
             if other:
