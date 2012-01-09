@@ -31,7 +31,8 @@ Examples:
   Place U.S. city labels at zoom 5 over a 10000-iteration 10.0 - 0.01 temperature range:
   > python dymo-label.py -z 5 --steps 10000 --max-temp 10 --min-temp 0.01 -l labels.json -p points.json data/US-z5.csv""")
 
-defaults = dict(minutes=2, zoom=18, dump_skip=100, include_overlaps=False)
+defaults = dict(minutes=2, zoom=18, dump_skip=100, include_overlaps=False,
+                output_projected=False)
 
 optparser.set_defaults(**defaults)
 
@@ -61,6 +62,9 @@ optparser.add_option('--steps', dest='steps',
 
 optparser.add_option('--include-overlaps', dest='include_overlaps',
                      action='store_true', help='Include lower-priority places when they overlap higher-priority places. Default behavior is to skip the overlapping cities.')
+
+optparser.add_option('--output-projected', dest='output_projected',
+                     action='store_true', help='Optionally output projected coordinates.')
 
 optparser.add_option('--dump-file', dest='dump_file',
                      help='Optional filename for a sequential dump of pickled annealer states. This all has to be stored in memory, so for a large job specifying this option could use up all available RAM.')
@@ -125,22 +129,43 @@ if __name__ == '__main__':
         elif overlaps:
             continue
         
-        lonlat = lambda xy: point_lonlat(xy[0], xy[1], options.zoom)
-        label_coords = [map(lonlat, place.label().envelope.exterior.coords)]
-
+        #
+        # Output slightly different geometries depending
+        # on whether we want projected or geographic output.
+        #
+        
         label_feature = {'type': 'Feature', 'properties': properties}
-        label_feature['geometry'] = {'type': 'Polygon', 'coordinates': label_coords}
-
-        label_data['features'].append(label_feature)
-
         point_feature = {'type': 'Feature', 'properties': properties}
-        point_feature['geometry'] = {'type': 'Point', 'coordinates': [place.location.lon, place.location.lat]}
-        place_data['features'].append(deepcopy(point_feature))
-        
+
+        label_feature['geometry'] = {'type': 'Polygon', 'coordinates': None}
+        point_feature['geometry'] = {'type': 'Point', 'coordinates': None}
+
         reg_point, justification = place.registration()
-        point_feature['geometry']['coordinates'] = lonlat((reg_point.x, reg_point.y))
+
+        if options.output_projected:
+            label_coords = list(place.label().envelope.exterior.coords)
+    
+            label_feature['geometry']['coordinates'] = label_coords
+            label_data['features'].append(label_feature)
+    
+            point_feature['geometry']['coordinates'] = [place.position.x, place.position.y]
+            place_data['features'].append(deepcopy(point_feature))
+            
+            point_feature['geometry']['coordinates'] = (reg_point.x, reg_point.y)
+            
+        else:
+            lonlat = lambda xy: point_lonlat(xy[0], xy[1], options.zoom)
+            label_coords = [map(lonlat, place.label().envelope.exterior.coords)]
+    
+            label_feature['geometry']['coordinates'] = label_coords
+            label_data['features'].append(label_feature)
+    
+            point_feature['geometry']['coordinates'] = [place.location.lon, place.location.lat]
+            place_data['features'].append(deepcopy(point_feature))
+            
+            point_feature['geometry']['coordinates'] = lonlat((reg_point.x, reg_point.y))
+
         point_feature['properties']['justified'] = justification
-        
         rgstr_data['features'].append(point_feature)
     
     if options.labels_file:
