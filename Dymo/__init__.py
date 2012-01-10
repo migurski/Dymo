@@ -8,6 +8,12 @@ from ModestMaps.Geo import Location
 from ModestMaps.OpenStreetMap import Provider
 from ModestMaps.Core import Point, Coordinate
 
+try:
+    import pyproj
+except ImportError:
+    # don't worry about it until GeometryCustom is actually instantiated.
+    pass
+
 from .places import Place
 
 __version__ = 'N.N.N'
@@ -19,7 +25,8 @@ int_pat = compile(r'^-?\d{1,9}$') # up to nine so we don't cross 2^32
 float_pat = compile(r'^-?\d+(\.\d+)?$')
 
 class GeometryWebmercator:
-
+    """
+    """
     def __init__(self, zoom):
         """
         """
@@ -49,6 +56,30 @@ class GeometryWebmercator:
     
         except ValueError:
             raise Exception((x, y, zoom))
+
+class GeometryCustom:
+    """
+    """
+    def __init__(self, projection, scale):
+        """
+        """
+        if 'pyproj' not in globals():
+            raise ImportError('No module named pyproj')
+        
+        self.proj = pyproj.Proj(projection + ' +to_meter=%.6f' % scale)
+    
+    def location_point(self, lat, lon):
+        """ Return a location and point object for the lat, lon pair.
+        """
+        location = Location(float(lat), float(lon))
+        point = Point(*self.proj(location.lon, location.lat))
+
+        return location, point
+    
+    def point_lonlat(self, x, y):
+        """ Return a longitude, latitude tuple from pixels.
+        """
+        return self.proj(x, y, inverse=True)
 
 def get_geometry(projection, zoom, scale):
     """ Return an appropriate geometry class for a combination of factors.
