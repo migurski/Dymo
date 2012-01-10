@@ -31,6 +31,7 @@ class GeometryWebmercator:
         """
         """
         self.zoom = zoom
+        self.radius = 2 ** (zoom + 7)
     
     def location_point(self, lat, lon):
         """ Return a location and point object for the lat, lon pair.
@@ -38,7 +39,7 @@ class GeometryWebmercator:
         try:
             location = Location(float(lat), float(lon))
             coord = _osm.locationCoordinate(location).zoomTo(self.zoom + 8)
-            point = Point(coord.column, coord.row)
+            point = Point(coord.column - self.radius, self.radius - coord.row)
             
             return location, point
     
@@ -49,7 +50,7 @@ class GeometryWebmercator:
         """ Return a longitude, latitude tuple from pixels.
         """
         try:
-            coord = Coordinate(y, x, self.zoom + 8)
+            coord = Coordinate(self.radius - y, x + self.radius, self.zoom + 8)
             location = _osm.coordinateLocation(coord)
             
             return location.lon, location.lat
