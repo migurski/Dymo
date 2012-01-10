@@ -6,7 +6,7 @@ import json
 from Dymo.anneal import Annealer
 from Dymo.index import FootprintIndex
 from Dymo.places import Places, NothingToDo
-from Dymo import load_places, point_lonlat
+from Dymo import load_places, point_lonlat, get_geometry
 
 optparser = OptionParser(usage="""%prog [options] <label output file> <point output file> <input file 1> [<input file 2>, ...]
 
@@ -31,8 +31,7 @@ Examples:
   Place U.S. city labels at zoom 5 over a 10000-iteration 10.0 - 0.01 temperature range:
   > python dymo-label.py -z 5 --steps 10000 --max-temp 10 --min-temp 0.01 -l labels.json -p points.json data/US-z5.csv""")
 
-defaults = dict(minutes=2, zoom=18, dump_skip=100, include_overlaps=False,
-                output_projected=False)
+defaults = dict(minutes=2, dump_skip=100, include_overlaps=False, output_projected=False)
 
 optparser.set_defaults(**defaults)
 
@@ -40,7 +39,7 @@ optparser.add_option('-m', '--minutes', dest='minutes',
                      type='float', help='Number of minutes to run annealer. Default value is %(minutes).1f.' % defaults)
 
 optparser.add_option('-z', '--zoom', dest='zoom',
-                     type='int', help='Map zoom level. Default value is %(zoom)d.' % defaults)
+                     type='int', help='Map zoom level. Conflicts with --scale and --projection options. Default value is 18.' % defaults)
 
 optparser.add_option('-l', '--labels-file', dest='labels_file',
                      help='Optional name of labels file to generate.')
@@ -66,6 +65,12 @@ optparser.add_option('--include-overlaps', dest='include_overlaps',
 optparser.add_option('--output-projected', dest='output_projected',
                      action='store_true', help='Optionally output projected coordinates.')
 
+optparser.add_option('--projection', dest='projection',
+                     help='Optional PROJ.4 string to use instead of default web spherical mercator.')
+
+optparser.add_option('--scale', dest='scale',
+                     type='float', help='Optional scale to use with --projection, applied to +to_meter parameter. Conflicts with --zoom option. Default value is 1.')
+
 optparser.add_option('--dump-file', dest='dump_file',
                      help='Optional filename for a sequential dump of pickled annealer states. This all has to be stored in memory, so for a large job specifying this option could use up all available RAM.')
 
@@ -76,14 +81,43 @@ if __name__ == '__main__':
     
     options, input_files = optparser.parse_args()
     
+    #
+    # Geographic projections
+    #
+    
+    if options.zoom is not None and options.scale is not None:
+        print 'Conflicting input: --scale and --zoom can not be used together.\n'
+        exit(1)
+    
+    if options.zoom is not None and options.projection is not None:
+        print 'Conflicting input: --projection and --zoom can not be used together.\n'
+        exit(1)
+    
+    if options.zoom is None and options.projection is None and options.scale is None:
+        print 'Bad geometry input: need at least one of --zoom, --scale, or --projection.\n'
+        exit(1)
+    
+    get_geometry(options.projection, options.zoom, options.scale)
+    
+    exit(0)
+    
+    #
+    # Input and output files.
+    #
+    
     if not input_files:
         print 'Missing input file(s).\n'
         optparser.print_usage()
         exit(1)
-    elif not (options.labels_file or options.places_file or options.registrations_file):
+    
+    if not (options.labels_file or options.places_file or options.registrations_file):
         print 'Missing output file(s): labels, place points, or registration points.\n'
         optparser.print_usage()
         exit(1)
+    
+    #
+    # Load places.
+    #
     
     places = Places(bool(options.dump_file))
     

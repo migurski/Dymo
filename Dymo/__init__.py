@@ -1,6 +1,7 @@
 from gzip import GzipFile
 from csv import DictReader
 from os.path import splitext
+from math import log, pi
 from re import compile
 
 from ModestMaps.Geo import Location
@@ -17,6 +18,28 @@ key_pat = compile(r'\W')
 int_pat = compile(r'^-?\d{1,9}$') # up to nine so we don't cross 2^32
 float_pat = compile(r'^-?\d+(\.\d+)?$')
 
+def get_geometry(projection, zoom, scale):
+    """ Return an appropriate geometry class for a combination of factors.
+    
+        This function assumes that illegal combinations such as zoom
+        and scale or projection and zoom have already been filtered out.
+    """
+    if projection is not None and scale is not None:
+        return GeometryCustom(projection, scale)
+    
+    elif projection is not None:
+        return GeometryCustom(projection, 1.0)
+    
+    elif scale is not None:
+        zoom = log(2 * 6378137 * pi / scale) / log(2)
+        return GeometryWebmercator(zoom)
+    
+    elif zoom is not None:
+        return GeometryWebmercator(zoom)
+    
+    else:
+        return GeometryWebmercator(18)
+    
 def location_point(lat, lon, zoom):
     """ Return a point that maps to pixels at the requested zoom level for 2^8 tile size.
     """
