@@ -100,6 +100,8 @@ if __name__ == '__main__':
         others = PointIndex(options.zoom, options.radius)
     
     for place in input:
+        place = dict( [ (key.lower(), value) for (key, value) in place.items() ] )       
+
         if 'point size' not in place:
             place['point size'] = '8'
         
