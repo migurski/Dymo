@@ -8,7 +8,7 @@ from Dymo.index import FootprintIndex
 from Dymo.places import Places, NothingToDo
 from Dymo import load_places, get_geometry
 
-optparser = OptionParser(usage="""%prog [options] <label output file> <point output file> <input file 1> [<input file 2>, ...]
+optparser = OptionParser(usage="""%prog [options] --labels-file <label output file> --places-file <point output file> --registrations-file <registration output file> <input file 1> [<input file 2>, ...]
 
 There are two ways to run the label placer. The slow, default way performs a
 test to figure out the best parameters for the simulated annealing algorithm
