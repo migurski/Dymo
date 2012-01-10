@@ -1,4 +1,5 @@
 from math import ceil, log
+from itertools import product
 
 from shapely.geometry import Point
 
@@ -65,29 +66,24 @@ class PointIndex:
 class FootprintIndex:
     """ Primitive quadtree for checking collisions based on footprints.
     """
-    def __init__(self, zoom):
-        """ Zoom is the base zoom level we're annealing to.
+    def __init__(self, geometry):
+        """ Geometry is one of GeometryCustom or GeometryWebmercator.
         """
-        self.zpixel = zoom + 8
-        self.zgroup = zoom
+        self.geometry = geometry
         self.quads = {}
-        
-        self.locationCoordinate = Provider().locationCoordinate
     
     def _areaQuads(self, area):
         """
         """
         xmin, ymin, xmax, ymax = area.bounds
         
-        ul = Coordinate(ymin, xmin, self.zpixel).zoomTo(self.zgroup).container()
-        lr = Coordinate(ymax, xmax, self.zpixel).zoomTo(self.zgroup).container()
+        xs = range(int(xmin / 100.0), 1 + int(ceil(xmax / 100.0)))
+        ys = range(int(ymin / 100.0), 1 + int(ceil(ymax / 100.0)))
         
         quads = set()
         
-        for x in range(int(1 + lr.column - ul.column)):
-            for y in range(int(1 + lr.row - ul.row)):
-                coord = ul.right(x).down(y)
-                quads.add(quadkey(coord))
+        for (x, y) in product(xs, ys):
+            quads.add((x, y))
         
         return quads
         

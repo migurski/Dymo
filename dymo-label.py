@@ -69,7 +69,7 @@ optparser.add_option('--projection', dest='projection',
                      help='Optional PROJ.4 string to use instead of default web spherical mercator.')
 
 optparser.add_option('--scale', dest='scale',
-                     type='float', help='Optional scale to use with --projection, applied to +to_meter parameter. Use +to_meter directly if you\'re not sure about this. Conflicts with --zoom option. Default value is 1.')
+                     type='float', help='Optional scale to use with --projection. Equivalent to +to_meter PROJ.4 parameter, which is not used internally due to not quite working in pyproj. Conflicts with --zoom option. Default value is 1.')
 
 optparser.add_option('--dump-file', dest='dump_file',
                      help='Optional filename for a sequential dump of pickled annealer states. This all has to be stored in memory, so for a large job specifying this option could use up all available RAM.')
@@ -143,7 +143,7 @@ if __name__ == '__main__':
     place_data = {'type': 'FeatureCollection', 'features': []}
     rgstr_data = {'type': 'FeatureCollection', 'features': []}
     
-    placed = FootprintIndex(options.zoom)
+    placed = FootprintIndex(geometry)
     
     for place in places:
         blocker = placed.blocks(place)
