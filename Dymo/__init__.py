@@ -66,23 +66,22 @@ class GeometryCustom:
         if 'pyproj' not in globals():
             raise ImportError('No module named pyproj')
         
-        if scale != 1.0:
-            projection += ' +to_meter=%.6f' % scale
-        
         self.proj = pyproj.Proj(projection)
+        self.scale = float(scale)
     
     def location_point(self, lat, lon):
         """ Return a location and point object for the lat, lon pair.
         """
         location = Location(float(lat), float(lon))
-        point = Point(*self.proj(location.lon, location.lat))
+        x, y = self.proj(location.lon, location.lat)
+        point = Point(x/self.scale, y/self.scale)
 
         return location, point
     
     def point_lonlat(self, x, y):
         """ Return a longitude, latitude tuple from pixels.
         """
-        return self.proj(x, y, inverse=True)
+        return self.proj(x*self.scale, y*self.scale, inverse=True)
 
 def get_geometry(projection, zoom, scale):
     """ Return an appropriate geometry class for a combination of factors.
