@@ -69,7 +69,7 @@ optparser.add_option('--projection', dest='projection',
                      help='Optional PROJ.4 string to use instead of default web spherical mercator.')
 
 optparser.add_option('--scale', dest='scale',
-                     type='float', help='Optional scale to use with --projection, applied to +to_meter parameter. Conflicts with --zoom option. Default value is 1.')
+                     type='float', help='Optional scale to use with --projection, applied to +to_meter parameter. Use +to_meter directly if you\'re not sure about this. Conflicts with --zoom option. Default value is 1.')
 
 optparser.add_option('--dump-file', dest='dump_file',
                      help='Optional filename for a sequential dump of pickled annealer states. This all has to be stored in memory, so for a large job specifying this option could use up all available RAM.')
