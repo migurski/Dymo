@@ -6,7 +6,7 @@ import json
 from Dymo.anneal import Annealer
 from Dymo.index import FootprintIndex
 from Dymo.places import Places, NothingToDo
-from Dymo import load_places, point_lonlat, get_geometry
+from Dymo import load_places, get_geometry
 
 optparser = OptionParser(usage="""%prog [options] <label output file> <point output file> <input file 1> [<input file 2>, ...]
 
@@ -97,9 +97,7 @@ if __name__ == '__main__':
         print 'Bad geometry input: need at least one of --zoom, --scale, or --projection.\n'
         exit(1)
     
-    get_geometry(options.projection, options.zoom, options.scale)
-    
-    exit(0)
+    geometry = get_geometry(options.projection, options.zoom, options.scale)
     
     #
     # Input and output files.
@@ -121,7 +119,7 @@ if __name__ == '__main__':
     
     places = Places(bool(options.dump_file))
     
-    for place in load_places(input_files, options.zoom):
+    for place in load_places(input_files, geometry):
         places.add(place)
     
     def state_energy(places):
@@ -188,7 +186,7 @@ if __name__ == '__main__':
             point_feature['geometry']['coordinates'] = (reg_point.x, reg_point.y)
             
         else:
-            lonlat = lambda xy: point_lonlat(xy[0], xy[1], options.zoom)
+            lonlat = lambda xy: geometry.point_lonlat(xy[0], xy[1])
             label_coords = [map(lonlat, place.label().envelope.exterior.coords)]
     
             label_feature['geometry']['coordinates'] = label_coords

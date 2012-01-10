@@ -18,6 +18,38 @@ key_pat = compile(r'\W')
 int_pat = compile(r'^-?\d{1,9}$') # up to nine so we don't cross 2^32
 float_pat = compile(r'^-?\d+(\.\d+)?$')
 
+class GeometryWebmercator:
+
+    def __init__(self, zoom):
+        """
+        """
+        self.zoom = zoom
+    
+    def location_point(self, lat, lon):
+        """ Return a location and point object for the lat, lon pair.
+        """
+        try:
+            location = Location(float(lat), float(lon))
+            coord = _osm.locationCoordinate(location).zoomTo(self.zoom + 8)
+            point = Point(coord.column, coord.row)
+            
+            return location, point
+    
+        except ValueError:
+            raise Exception((lat, lon, zoom))
+    
+    def point_lonlat(self, x, y):
+        """ Return a longitude, latitude tuple from pixels.
+        """
+        try:
+            coord = Coordinate(y, x, self.zoom + 8)
+            location = _osm.coordinateLocation(coord)
+            
+            return location.lon, location.lat
+    
+        except ValueError:
+            raise Exception((x, y, zoom))
+
 def get_geometry(projection, zoom, scale):
     """ Return an appropriate geometry class for a combination of factors.
     
@@ -40,37 +72,12 @@ def get_geometry(projection, zoom, scale):
     else:
         return GeometryWebmercator(18)
     
-def location_point(lat, lon, zoom):
-    """ Return a point that maps to pixels at the requested zoom level for 2^8 tile size.
-    """
-    try:
-        location = Location(float(lat), float(lon))
-        coord = _osm.locationCoordinate(location).zoomTo(zoom + 8)
-        point = Point(coord.column, coord.row)
-        
-        return location, point
-
-    except ValueError:
-        raise Exception((lat, lon, zoom))
-
 def label_bbox(shape, zoom):
     """ Return an envelope in geographic coordinates based on a shape in pixels at a known zoom level.
     """
     pass
 
-def point_lonlat(x, y, zoom):
-    """ Return a longitude, latitude tuple from pixels at the requested zoom level.
-    """
-    try:
-        coord = Coordinate(y, x, zoom + 8)
-        location = _osm.coordinateLocation(coord)
-        
-        return location.lon, location.lat
-
-    except ValueError:
-        raise Exception((x, y, zoom))
-
-def load_places(input_files, zoom):
+def load_places(input_files, geometry):
     """
     """
     for input_file in input_files:
@@ -113,7 +120,7 @@ def load_places(input_files, zoom):
             
             lat = float(row['latitude'])
             lon = float(row['longitude'])
-            location, point = location_point(lat, lon, zoom)
+            location, point = geometry.location_point(lat, lon)
             
             properties = dict([(key_pat.sub(r'_', key), types[key](value))
                                for (key, value) in row.items()
