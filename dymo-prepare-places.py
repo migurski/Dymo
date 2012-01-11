@@ -6,6 +6,7 @@ from optparse import OptionParser
 
 from ModestMaps.Geo import Location
 
+from Dymo import row_location
 from Dymo.index import PointIndex
 
 optparser = OptionParser(usage="""%prog [options] <input file> <output file>
@@ -109,13 +110,7 @@ if __name__ == '__main__':
             continue
         
         if options.radius > 0:
-            try:
-                loc = Location(float(place['latitude']), float(place['longitude']))
-            except KeyError:
-                try:
-                    loc = Location(float(place['lat']), float(place['long']))
-                except KeyError:
-                    loc = Location(float(place['lat']), float(place['lon']))
+            loc = Location(*row_location(place))
             other = others.blocks(loc)
             
             if other:

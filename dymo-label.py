@@ -6,7 +6,7 @@ import json
 from Dymo.anneal import Annealer
 from Dymo.index import FootprintIndex
 from Dymo.places import Places, NothingToDo
-from Dymo import load_places, point_lonlat
+from Dymo import load_places, get_geometry
 
 optparser = OptionParser(usage="""%prog [options] --labels-file <label output file> --places-file <point output file> --registrations-file <registration output file> <input file 1> [<input file 2>, ...]
 
@@ -31,7 +31,7 @@ Examples:
   Place U.S. city labels at zoom 5 over a 10000-iteration 10.0 - 0.01 temperature range:
   > python dymo-label.py -z 5 --steps 10000 --max-temp 10 --min-temp 0.01 -l labels.json -p points.json data/US-z5.csv""")
 
-defaults = dict(minutes=2, zoom=18, dump_skip=100, include_overlaps=False)
+defaults = dict(minutes=2, dump_skip=100, include_overlaps=False, output_projected=False)
 
 optparser.set_defaults(**defaults)
 
@@ -39,7 +39,7 @@ optparser.add_option('-m', '--minutes', dest='minutes',
                      type='float', help='Number of minutes to run annealer. Default value is %(minutes).1f.' % defaults)
 
 optparser.add_option('-z', '--zoom', dest='zoom',
-                     type='int', help='Map zoom level. Default value is %(zoom)d.' % defaults)
+                     type='int', help='Map zoom level. Conflicts with --scale and --projection options. Default value is 18.' % defaults)
 
 optparser.add_option('-l', '--labels-file', dest='labels_file',
                      help='Optional name of labels file to generate.')
@@ -62,6 +62,15 @@ optparser.add_option('--steps', dest='steps',
 optparser.add_option('--include-overlaps', dest='include_overlaps',
                      action='store_true', help='Include lower-priority places when they overlap higher-priority places. Default behavior is to skip the overlapping cities.')
 
+optparser.add_option('--output-projected', dest='output_projected',
+                     action='store_true', help='Optionally output projected coordinates.')
+
+optparser.add_option('--projection', dest='projection',
+                     help='Optional PROJ.4 string to use instead of default web spherical mercator.')
+
+optparser.add_option('--scale', dest='scale',
+                     type='float', help='Optional scale to use with --projection. Equivalent to +to_meter PROJ.4 parameter, which is not used internally due to not quite working in pyproj. Conflicts with --zoom option. Default value is 1.')
+
 optparser.add_option('--dump-file', dest='dump_file',
                      help='Optional filename for a sequential dump of pickled annealer states. This all has to be stored in memory, so for a large job specifying this option could use up all available RAM.')
 
@@ -72,18 +81,45 @@ if __name__ == '__main__':
     
     options, input_files = optparser.parse_args()
     
+    #
+    # Geographic projections
+    #
+    
+    if options.zoom is not None and options.scale is not None:
+        print 'Conflicting input: --scale and --zoom can not be used together.\n'
+        exit(1)
+    
+    if options.zoom is not None and options.projection is not None:
+        print 'Conflicting input: --projection and --zoom can not be used together.\n'
+        exit(1)
+    
+    if options.zoom is None and options.projection is None and options.scale is None:
+        print 'Bad geometry input: need at least one of --zoom, --scale, or --projection.\n'
+        exit(1)
+    
+    geometry = get_geometry(options.projection, options.zoom, options.scale)
+    
+    #
+    # Input and output files.
+    #
+    
     if not input_files:
         print 'Missing input file(s).\n'
         optparser.print_usage()
         exit(1)
-    elif not (options.labels_file or options.places_file or options.registrations_file):
+    
+    if not (options.labels_file or options.places_file or options.registrations_file):
         print 'Missing output file(s): labels, place points, or registration points.\n'
         optparser.print_usage()
         exit(1)
     
+    #
+    # Load places.
+    #
+    
     places = Places(bool(options.dump_file))
     
-    for place in load_places(input_files, options.zoom):
+    for place in load_places(input_files, geometry):
         places.add(place)
     
     def state_energy(places):
@@ -107,7 +143,7 @@ if __name__ == '__main__':
     place_data = {'type': 'FeatureCollection', 'features': []}
     rgstr_data = {'type': 'FeatureCollection', 'features': []}
     
-    placed = FootprintIndex(options.zoom)
+    placed = FootprintIndex(geometry)
     
     for place in places:
         blocker = placed.blocks(place)
@@ -125,22 +161,43 @@ if __name__ == '__main__':
         elif overlaps:
             continue
         
-        lonlat = lambda xy: point_lonlat(xy[0], xy[1], options.zoom)
-        label_coords = [map(lonlat, place.label().envelope.exterior.coords)]
-
+        #
+        # Output slightly different geometries depending
+        # on whether we want projected or geographic output.
+        #
+        
         label_feature = {'type': 'Feature', 'properties': properties}
-        label_feature['geometry'] = {'type': 'Polygon', 'coordinates': label_coords}
-
-        label_data['features'].append(label_feature)
-
         point_feature = {'type': 'Feature', 'properties': properties}
-        point_feature['geometry'] = {'type': 'Point', 'coordinates': [place.location.lon, place.location.lat]}
-        place_data['features'].append(deepcopy(point_feature))
-        
+
+        label_feature['geometry'] = {'type': 'Polygon', 'coordinates': None}
+        point_feature['geometry'] = {'type': 'Point', 'coordinates': None}
+
         reg_point, justification = place.registration()
-        point_feature['geometry']['coordinates'] = lonlat((reg_point.x, reg_point.y))
+
+        if options.output_projected:
+            label_coords = list(place.label().envelope.exterior.coords)
+    
+            label_feature['geometry']['coordinates'] = label_coords
+            label_data['features'].append(label_feature)
+    
+            point_feature['geometry']['coordinates'] = [place.position.x, place.position.y]
+            place_data['features'].append(deepcopy(point_feature))
+            
+            point_feature['geometry']['coordinates'] = (reg_point.x, reg_point.y)
+            
+        else:
+            lonlat = lambda xy: geometry.point_lonlat(xy[0], xy[1])
+            label_coords = [map(lonlat, place.label().envelope.exterior.coords)]
+    
+            label_feature['geometry']['coordinates'] = label_coords
+            label_data['features'].append(label_feature)
+    
+            point_feature['geometry']['coordinates'] = [place.location.lon, place.location.lat]
+            place_data['features'].append(deepcopy(point_feature))
+            
+            point_feature['geometry']['coordinates'] = lonlat((reg_point.x, reg_point.y))
+
         point_feature['properties']['justified'] = justification
-        
         rgstr_data['features'].append(point_feature)
     
     if options.labels_file:

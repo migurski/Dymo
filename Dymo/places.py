@@ -243,19 +243,19 @@ def point_label_bounds(x, y, width, height, radius, placement):
 
     if placement in (NW, NE):
         # way up high
-        y -= height/2
+        y += height/2
 
     if placement in (SW, SE):
         # way down low
-        y += height/2
+        y -= height/2
 
     if placement in (ENE, WNW):
         # just a little above
-        y -= height/6
+        y += height/6
 
     if placement in (ESE, WSW):
         # just a little below
-        y += height/6
+        y -= height/6
     
     if placement in (NNE, SSE, SSW, NNW):
         _x = radius * cos(pi/4) + width/2
@@ -267,20 +267,20 @@ def point_label_bounds(x, y, width, height, radius, placement):
             x -= _x
         
         if placement in (SSE, SSW):
-            y += _y
-        else:
             y -= _y
+        else:
+            y += _y
     
     if placement == N:
         # right on top
-        y -= radius + height / 2
+        y += radius + height / 2
     
     if placement == S:
         # right on the bottom
-        y += radius + height / 2
+        y -= radius + height / 2
     
-    x1, y1 = x - width/2, y - height/2
-    x2, y2 = x + width/2, y + height/2
+    x1, y1 = x - width/2, y + height/2
+    x2, y2 = x + width/2, y - height/2
     
     return Polygon(((x1, y1), (x1, y2), (x2, y2), (x2, y1), (x1, y1)))
 
