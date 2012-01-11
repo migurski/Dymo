@@ -84,6 +84,37 @@ class GeometryCustom:
         """
         return self.proj(x*self.scale, y*self.scale, inverse=True)
 
+def row_location(row):
+    """ Return a floating point latitude, longitude pair from a row.
+    """
+    if 'latitude' in row:
+        lat = row['latitude']
+    elif 'LATITUDE' in row:
+        lat = row['LATITUDE']
+    elif 'lat' in row:
+        lat = row['lat']
+    elif 'LAT' in row:
+        lat = row['LAT']
+    else:
+        raise Exception('Missing "latitude" or "lat" field in row')
+
+    if 'longitude' in row:
+        lon = row['longitude']
+    elif 'LONGITUDE' in row:
+        lon = row['LONGITUDE']
+    elif 'long' in row:
+        lon = row['long']
+    elif 'LONG' in row:
+        lon = row['LONG']
+    elif 'lon' in row:
+        lon = row['lon']
+    elif 'LON' in row:
+        lon = row['LON']
+    else:
+        raise Exception('Missing "longitude", "long", or "lon" field in row')
+    
+    return float(lat), float(lon)
+
 def get_geometry(projection, zoom, scale):
     """ Return an appropriate geometry class for a combination of factors.
     
@@ -152,17 +183,7 @@ def load_places(input_files, geometry):
             fontsize = int(row.get('font size', 12))
             fontfile = row.get('font file', 'fonts/DejaVuSans.ttf')
             
-            try:
-                lat = float(row['latitude'])
-                lon = float(row['longitude'])
-            except KeyError:
-                try:
-                    lat = float(row['lat'])
-                    lon = float(row['long'])
-                except KeyError:
-                    lat = float(row['lat'])
-                    lon = float(row['lon'])
-            location, point = geometry.location_point(lat, lon)
+            location, point = geometry.location_point(*row_location(row))
             
             properties = dict([(key_pat.sub(r'_', key), types[key](value))
                                for (key, value) in row.items()
