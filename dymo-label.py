@@ -150,7 +150,7 @@ if __name__ == '__main__':
         overlaps = bool(blocker)
         
         if blocker:
-            print blocker.name, 'blocks', place.name
+            print place.name, 'blocked by', blocker.name
         else:
             placed.add(place)
         
