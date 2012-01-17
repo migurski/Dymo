@@ -27,12 +27,15 @@ Example output columns:
 Optional pixel buffer radius option (--radius) defines a minimum distance
 between places that can be used to cull the list prior to annealing.""")
 
-defaults = dict(fonts=[(-1, 'fonts/DejaVuSans.ttf', 12)], zoom=4, radius=0, font_field='population')
+defaults = dict(fonts=[(-1, 'fonts/DejaVuSans.ttf', 12)], zoom=4, radius=0, font_field='population', zoom_field='zoom start', point_size=8)
 
 optparser.set_defaults(**defaults)
 
 optparser.add_option('-z', '--zoom', dest='zoom',
                      type='int', help='Maximum zoom level. Default value is %(zoom)d.' % defaults)
+
+optparser.add_option('--zoom-field', dest='zoom_field', 
+                     help='Field to use for limiting selection by zoom. Default field is %(zoom_field)s' % defaults)
 
 optparser.add_option('-f', '--font', dest='fonts', action='append', nargs=3,
                      help='Additional font, in the form of three values: minimum population (or other font field), font file, font size. Can be specified multiple times.')
@@ -42,6 +45,16 @@ optparser.add_option('-r', '--radius', dest='radius',
 
 optparser.add_option('--font-field', dest='font_field',
                      help='Field to use for font selection. Default field is %(font_field)s.' % defaults)
+
+optparser.add_option('--filter-field', dest='filter_field', action='append', nargs=2,
+                     help='Field to use for limiting selection by theme and the value to limit by. Default is no filter.')
+
+optparser.add_option('--point-size', dest='point_size',
+                     type='int', help='Size in pixels for implied townspot symbol width/height. Default size is %(point_size)d' % defaults)
+
+optparser.add_option('--point-size-field', dest='point_size_field',
+                     help='Field to use for sizing in pixels the implied townspot symbol width/height. No default.')
+
 
 def prepare_file(name, mode):
     """
@@ -99,14 +112,31 @@ if __name__ == '__main__':
     
     if options.radius > 0:
         others = PointIndex(options.zoom, options.radius)
-    
-    for place in input:
-        place = dict( [ (key.lower(), value) for (key, value) in place.items() ] )       
-
-        if 'point size' not in place:
-            place['point size'] = '8'
         
-        if int(place['zoom start']) > options.zoom:
+    for place in input:
+        place = dict( [ (key.lower(), value) for (key, value) in place.items() ] )
+        
+        if options.filter_field: 
+            if place[ options.filter_field[0][0] ] != options.filter_field[0][1] :
+                continue
+
+        #
+        # determine the point size using three pieces of information: the default size,
+        # the user-specified value from options, and the value given in the data file.
+        #
+        
+        if options.point_size:
+            point_size = options.point_size
+        
+        if 'point size' in place:
+            point_size = int(place['point size']) or point_size
+        
+        if options.point_size_field and options.point_size_field in place:
+            point_size = int(place[options.point_size_field]) or point_size
+        
+        place['point size'] = point_size
+        
+        if int(place[ options.zoom_field ]) > options.zoom:
             continue
         
         if options.radius > 0:
@@ -120,9 +150,9 @@ if __name__ == '__main__':
             others.add(place['name'], loc)
         
         try:
-            value = int(place[options.font_field])
+            value = int(place[options.font_field.lower()])
         except ValueError:
-            value = place[options.font_field]
+            value = place[options.font_field.lower()]
     
         for (min_value, font, size) in fonts:
             if value > min_value:
