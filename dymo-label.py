@@ -31,7 +31,7 @@ Examples:
   Place U.S. city labels at zoom 5 over a 10000-iteration 10.0 - 0.01 temperature range:
   > python dymo-label.py -z 5 --steps 10000 --max-temp 10 --min-temp 0.01 -l labels.json -p points.json data/US-z5.csv""")
 
-defaults = dict(minutes=2, dump_skip=100, include_overlaps=False, output_projected=False)
+defaults = dict(minutes=2, dump_skip=100, include_overlaps=False, output_projected=False, name_field='name')
 
 optparser.set_defaults(**defaults)
 
@@ -77,6 +77,10 @@ optparser.add_option('--dump-file', dest='dump_file',
 optparser.add_option('--dump-skip', dest='dump_skip',
                      type='int', help='Optional number of states to skip for each state in the dump file.')
 
+optparser.add_option('--name-field', dest='name_field',
+                     help='Optional name of column for labels to name themselves. Default value is ||name||.' % defaults)
+
+
 if __name__ == '__main__':
     
     options, input_files = optparser.parse_args()
@@ -119,7 +123,7 @@ if __name__ == '__main__':
     
     places = Places(bool(options.dump_file))
     
-    for place in load_places(input_files, geometry):
+    for place in load_places(input_files, geometry, options.name_field):
         places.add(place)
     
     def state_energy(places):
@@ -151,6 +155,7 @@ if __name__ == '__main__':
         
         if blocker:
             print place.name, 'blocked by', blocker.name
+            #print place[options.name_field], 'blocked by', blocker[options.name_field]
         else:
             placed.add(place)
         

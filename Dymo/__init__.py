@@ -142,7 +142,7 @@ def label_bbox(shape, zoom):
     """
     pass
 
-def load_places(input_files, geometry):
+def load_places(input_files, geometry, field_name):
     """
     """
     for input_file in input_files:
@@ -177,7 +177,7 @@ def load_places(input_files, geometry):
                     types[key] = lambda s: s.decode('utf-8')
         
         for row in rows:
-            name = row['name'].decode('utf-8')
+            name = row[ field_name ].decode('utf-8')
             radius = int(row.get('point size', 8))
             
             fontsize = int(row.get('font size', 12))
