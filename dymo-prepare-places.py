@@ -27,7 +27,7 @@ Example output columns:
 Optional pixel buffer radius option (--radius) defines a minimum distance
 between places that can be used to cull the list prior to annealing.""")
 
-defaults = dict(fonts=[(-1, 'fonts/DejaVuSans.ttf', 12)], zoom=4, radius=0, font_field='population', zoom_field='zoom start', point_size=8)
+defaults = dict(fonts=[(-1, 'fonts/DejaVuSans.ttf', 12)], zoom=4, radius=0, font_field='population', zoom_field='zoom start', symbol_size=8)
 
 optparser.set_defaults(**defaults)
 
@@ -49,11 +49,11 @@ optparser.add_option('--font-field', dest='font_field',
 optparser.add_option('--filter-field', dest='filter_field', action='append', nargs=2,
                      help='Field to use for limiting selection by theme and the value to limit by. Default is no filter.')
 
-optparser.add_option('--point-size', dest='point_size',
-                     type='int', help='Size in pixels for implied townspot symbol width/height. Default size is %(point_size)d' % defaults)
+optparser.add_option('--symbol-size', dest='symbol_size',
+                     type='int', help='Size in pixels for implied townspot symbol width/height in pixels. Default size is %(symbol_size)d' % defaults)
 
-optparser.add_option('--point-size-field', dest='point_size_field',
-                     help='Field to use for sizing in pixels the implied townspot symbol width/height. No default.')
+optparser.add_option('--symbol-size-field', dest='symbol_size_field',
+                     help='Field to use for sizing the implied townspot symbol width/height in pixels. No default.')
 
 
 def prepare_file(name, mode):
@@ -125,16 +125,21 @@ if __name__ == '__main__':
         # the user-specified value from options, and the value given in the data file.
         #
         
-        if options.point_size:
-            point_size = options.point_size
+        if options.symbol_size:
+            symbol_size = options.symbol_size
         
         if 'point size' in place:
-            point_size = int(place['point size']) or point_size
+            symbol_size = int(place['symbol size']) or symbol_size
         
-        if options.point_size_field and options.point_size_field in place:
-            point_size = int(place[options.point_size_field]) or point_size
+        if options.symbol_size_field and options.symbol_size_field in place:
+            symbol_size = int(place[options.symbol_size_field]) or symbol_size
         
-        place['point size'] = point_size
+        #
+        # internally Dymo uses "point size" to mean townspot "symbol size", 
+        # as measured in points/pixels.
+        #
+        
+        place['point size'] = symbol_size
         
         if int(place[ options.zoom_field ]) > options.zoom:
             continue
