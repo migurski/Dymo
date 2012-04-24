@@ -114,7 +114,7 @@ if __name__ == '__main__':
         others = PointIndex(options.zoom, options.radius)
         
     for place in input:
-        place = dict( [ (key.lower(), value) for (key, value) in place.items() ] )
+        place = dict( [ ((key or '').lower(), value) for (key, value) in place.items() ] )
         
         if options.filter_field: 
             if place[ options.filter_field[0][0] ] != options.filter_field[0][1] :
