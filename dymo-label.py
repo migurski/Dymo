@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from optparse import OptionParser
 from copy import copy, deepcopy
 import cPickle

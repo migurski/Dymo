@@ -1,3 +1,6 @@
+2012-05-20: 0.9.1
+- Fixed shbang so that scripts actually work when installed.
+
 2012-01-10: 0.9.0
 - Added support for arbitrary projections in dymo-label.py with new --projection and --scale options.
 - Allowing latitude and longitude to be specified as "lat", "lon", or "long", upper- or lowercase.
