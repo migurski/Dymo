@@ -377,6 +377,11 @@ class Places:
 
         self.energy += place.placement_energy()
     
+    def count(self):
+        """
+        """
+        return len(self._places)
+    
     def as_graph(self):
         """ Return a list of places and a networkx graph of place neighbors.
         """

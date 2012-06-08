@@ -130,6 +130,56 @@ if __name__ == '__main__':
     def state_move(places):
         places.move()
 
+    #
+    # Do the annealing.
+    #
+    
+    annealed = [None] * places.count()
+    
+    from community import best_partition
+    
+    places_list, places_graph = places.as_graph()
+    place_groups, connections = dict(), 0
+    
+    print best_partition(places_graph)
+    
+    for (place_index, part) in best_partition(places_graph).items():
+        if part not in place_groups:
+            place_groups[part] = []
+        
+        connections += len(place_groups[part])
+        place_groups[part].append(place_index)
+    
+    for place_group in place_groups.values():
+        print place_group
+        print sum(range(len(place_group)))
+        
+        if len(place_group) < 2:
+            continue
+        
+        budget = sum(range(len(place_group))) / float(connections)
+        places_local = Places(bool(options.dump_file))
+        
+        for i in place_group:
+            place = places_list[i]
+            places_local.add(place)
+        
+        annealer = Annealer(lambda p: p.energy, lambda p: p.move())
+        places_local, e = annealer.auto(places_local, budget * options.minutes, 100)
+        
+        for (index, place) in enumerate(places_local):
+            index = place_group[index]
+            
+            assert annealed[index] is None
+            
+            annealed[index] = place
+        
+        print list(enumerate(places_local))
+    
+    print annealed
+    
+    exit(1)
+    
     try:
         annealer = Annealer(state_energy, state_move)
         
@@ -140,6 +190,10 @@ if __name__ == '__main__':
 
     except NothingToDo:
         pass
+    
+    #
+    # Output results.
+    #
     
     label_data = {'type': 'FeatureCollection', 'features': []}
     place_data = {'type': 'FeatureCollection', 'features': []}
