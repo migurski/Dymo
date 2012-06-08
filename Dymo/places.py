@@ -8,6 +8,7 @@ except ImportError:
     from ImageFont import truetype
 
 from shapely.geometry import Point, Polygon
+from networkx import Graph
 
 NE, ENE, ESE, SE, SSE, S, SSW, SW, WSW, WNW, NW, NNW, N, NNE = range(14)
 
@@ -375,3 +376,16 @@ class Places:
             self.energy += self._overlap_energy(place, other)
 
         self.energy += place.placement_energy()
+    
+    def as_graph(self):
+        """ Return a list of places and a networkx graph of place neighbors.
+        """
+        graph = Graph()
+        graph.add_nodes_from(range(len(self._places)))
+        
+        for (place, neighbors) in self._neighbors.items():
+            for neighbor in neighbors:
+                i, j = self._places.index(place), self._places.index(neighbor)
+                graph.add_edge(i, j)
+        
+        return self._places[:], graph
