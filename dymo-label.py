@@ -124,34 +124,32 @@ if __name__ == '__main__':
     for place in load_places(input_files, geometry):
         places.add(place)
     
-    def state_energy(places):
-        return places.energy
-
-    def state_move(places):
-        places.move()
-
     #
     # Do the annealing.
     #
     
-    annealed = [None] * places.count()
+    annealer = Annealer(lambda p: p.energy, lambda p: p.move())
+
+    if options.temp_min and options.temp_max and options.steps:
+        annealed, e = annealer.anneal(places, options.temp_max, options.temp_min, options.steps, 30)
     
-    for (group, (places_local, indexes, weight, connections)) in enumerate(places.in_pieces()):
-
-        try:
-            minutes = options.minutes * float(weight) / connections
-            annealer = Annealer(lambda p: p.energy, lambda p: p.move())
-            places_local, e = annealer.auto(places_local, minutes, min(100, weight * 20))
-
-        except NothingToDo:
-            pass
+    else:
+        annealed = [None] * places.count()
         
-        for (index_local, place) in enumerate(places_local):
-            index = indexes[index_local]
-            assert annealed[index] is None
-            annealed[index] = (place, group)
-        
-        print sorted([place.name.encode('ascii', 'replace') for place in places_local])
+        for (group, (places_local, indexes, weight, connections)) in enumerate(places.in_pieces()):
+            try:
+                minutes = options.minutes * float(weight) / connections
+                places_local, e = annealer.auto(places_local, minutes, min(100, weight * 20))
+    
+            except NothingToDo:
+                pass
+            
+            for (index_local, place) in enumerate(places_local):
+                index = indexes[index_local]
+                assert annealed[index] is None
+                annealed[index] = place
+            
+            print sorted([place.name.encode('ascii', 'replace') for place in places_local])
     
     # print annealed
     # 
@@ -175,11 +173,10 @@ if __name__ == '__main__':
     label_data = {'type': 'FeatureCollection', 'features': []}
     place_data = {'type': 'FeatureCollection', 'features': []}
     rgstr_data = {'type': 'FeatureCollection', 'features': []}
-    footp_data = {'type': 'FeatureCollection', 'features': []}
     
     placed = FootprintIndex(geometry)
     
-    for (place, group) in annealed:
+    for place in annealed:
         blocker = placed.blocks(place)
         overlaps = bool(blocker)
         
@@ -189,7 +186,6 @@ if __name__ == '__main__':
             placed.add(place)
         
         properties = copy(place.properties)
-        properties['group'] = group
         
         if options.include_overlaps:
             properties['overlaps'] = int(overlaps) # 1 or 0
@@ -234,11 +230,6 @@ if __name__ == '__main__':
 
         point_feature['properties']['justified'] = justification
         rgstr_data['features'].append(point_feature)
-
-        footp_coords = [map(lonlat, place._label_footprint.exterior.coords)]
-        footp_data['features'].append(dict(geometry={'type': 'Polygon', 'coordinates': footp_coords}, properties=point_feature['properties']))
-    
-    json.dump(footp_data, open('footprints.json', 'w'), indent=2)
     
     if options.labels_file:
         json.dump(label_data, open(options.labels_file, 'w'), indent=2)
