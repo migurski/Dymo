@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 from distutils.core import setup
-from Dymo import __version__
+from Dymo import __version__ as version
 
 setup(name='Dymo',
-      version=__version__,
+      version=version,
       description='Label placement library that uses simulated annealing to choose location for map labels.',
       author='Michal Migurski',
       author_email='mike@stamen.com',
