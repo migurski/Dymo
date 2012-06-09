@@ -2,6 +2,8 @@
 
 from optparse import OptionParser
 from copy import copy, deepcopy
+from datetime import timedelta
+from time import time
 import cPickle
 import json
 
@@ -137,35 +139,28 @@ if __name__ == '__main__':
         annealed = [None] * places.count()
         
         for (group, (places_local, indexes, weight, connections)) in enumerate(places.in_pieces()):
+            if len(indexes) > 1:
+                print 'Placing', ', '.join(sorted([place.name.encode('utf-8', 'replace') for place in places_local]))
+    
             try:
+                start = time()
                 minutes = options.minutes * float(weight) / connections
-                places_local, e = annealer.auto(places_local, minutes, min(100, weight * 20))
+                places_local, e = annealer.auto(places_local, minutes, min(100, weight * 20), verbose=minutes>.3)
     
             except NothingToDo:
                 pass
+            
+            else:
+                if minutes > .3:
+                    elapsed = timedelta(seconds=time() - start)
+                    overtime = elapsed - timedelta(minutes=minutes)
+                    print '...done in', str(elapsed)[:-7], 'including', str(overtime)[:-7], 'overhead.'
             
             for (index_local, place) in enumerate(places_local):
                 index = indexes[index_local]
                 assert annealed[index] is None
                 annealed[index] = place
             
-            print sorted([place.name.encode('ascii', 'replace') for place in places_local])
-    
-    # print annealed
-    # 
-    # exit(1)
-    # 
-    # try:
-    #     annealer = Annealer(state_energy, state_move)
-    #     
-    #     if options.temp_min and options.temp_max and options.steps:
-    #         places, e = annealer.anneal(places, options.temp_max, options.temp_min, options.steps, 30)
-    #     else:
-    #         places, e = annealer.auto(places, options.minutes, 500)
-    # 
-    # except NothingToDo:
-    #     pass
-    
     #
     # Output results.
     #

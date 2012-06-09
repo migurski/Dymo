@@ -67,7 +67,7 @@ class Annealer:
 		self.energy = energy  # function to calculate energy of a state
 		self.move = move      # function to make a random change to a state
 	
-	def anneal(self, state, Tmax, Tmin, steps, updates=0):
+	def anneal(self, state, Tmax, Tmin, steps, updates=0, verbose=True):
 		"""Minimizes the energy of a system by simulated annealing.
 		
 		Keyword arguments:
@@ -103,18 +103,21 @@ class Annealer:
 			
 			elapsed = time.time() - start
 			if step == 0:
-				print ' Temperature        Energy    Accept   Improve     Elapsed   Remaining'
-				print '%12.2f  %12.2f                      %s            ' % \
-					(T, E, time_string(elapsed) )
+				if verbose:
+					print ' Temperature        Energy    Accept   Improve     Elapsed   Remaining'
+					print '%12.2f  %12.2f                      %s            ' % \
+						(T, E, time_string(elapsed) )
 			else:
 				remain = ( steps - step ) * ( elapsed / step )
-				print '%12.2f  %12.2f  %7.2f%%  %7.2f%%  %s  %s' % \
-					(T, E, 100.0*acceptance, 100.0*improvement,
-						time_string(elapsed), time_string(remain))
+				if verbose:
+					print '%12.2f  %12.2f  %7.2f%%  %7.2f%%  %s  %s' % \
+						(T, E, 100.0*acceptance, 100.0*improvement,
+							time_string(elapsed), time_string(remain))
 		
 		# Precompute factor for exponential cooling from Tmax to Tmin
 		if Tmin <= 0.0:
-			print 'Exponential cooling requires a minimum temperature greater than zero.'
+			if verbose:
+				print 'Exponential cooling requires a minimum temperature greater than zero.'
 			sys.exit()
 		Tfactor = -math.log( float(Tmax) / Tmin )
 		
@@ -160,7 +163,7 @@ class Annealer:
 		# Return best state and energy
 		return bestState, bestEnergy
 	
-	def auto(self, state, minutes, steps=2000):
+	def auto(self, state, minutes, steps=2000, verbose=True):
 		"""Minimizes the energy of a system by simulated annealing with
 		automatic selection of the temperature schedule.
 		
@@ -168,6 +171,7 @@ class Annealer:
 		state -- an initial arrangement of the system
 		minutes -- time to spend annealing (after exploring temperatures)
 		steps -- number of steps to spend on each stage of exploration
+		verbose -- boolean, whether to print progress at all
 		
 		Returns the best state and energy found."""
 		
@@ -196,7 +200,8 @@ class Annealer:
 		step = 0
 		start = time.time()
 		
-		print 'Attempting automatic simulated anneal...'
+		if verbose:
+			print 'Attempting automatic simulated anneal...'
 		
 		# Find an initial guess for temperature
 		T = 0.0
@@ -206,14 +211,16 @@ class Annealer:
 			self.move(state)
 			T = abs( self.energy(state) - E )
 		
-		print 'Exploring temperature landscape:'
-		print ' Temperature        Energy    Accept   Improve     Elapsed'
+		if verbose:
+			print 'Exploring temperature landscape:'
+			print ' Temperature        Energy    Accept   Improve     Elapsed'
 		def update(T, E, acceptance, improvement):
 			"""Prints the current temperature, energy, acceptance rate,
 			improvement rate, and elapsed time."""
 			elapsed = time.time() - start
-			print '%12.2f  %12.2f  %7.2f%%  %7.2f%%  %s' % \
-				(T, E, 100.0*acceptance, 100.0*improvement, time_string(elapsed))
+			if verbose:
+				print '%12.2f  %12.2f  %7.2f%%  %7.2f%%  %s' % \
+					(T, E, 100.0*acceptance, 100.0*improvement, time_string(elapsed))
 		
 		# Search for Tmax - a temperature that gives 98% acceptance
 		state, E, acceptance, improvement = run(state, T, steps)
@@ -243,8 +250,9 @@ class Annealer:
 		duration = round_figures(int(60.0 * minutes * step / elapsed), 2)
 		
 		# Perform anneal
-		print 'Annealing from %.3f to %.9f over %i steps:' % (Tmax, Tmin, duration)
-		return self.anneal(state, Tmax, Tmin, duration, 20)
+		if verbose:
+			print 'Annealing from %.3f to %.9f over %i steps:' % (Tmax, Tmin, duration)
+		return self.anneal(state, Tmax, Tmin, duration, 20, verbose)
 
 if __name__ == '__main__':
 	"""Test annealer with a traveling salesman problem."""
