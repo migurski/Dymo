@@ -138,17 +138,20 @@ if __name__ == '__main__':
     
     for (group, (places_local, indexes, weight, connections)) in enumerate(places.in_pieces()):
 
-        if len(indexes) > 1:
+        try:
             minutes = options.minutes * float(weight) / connections
             annealer = Annealer(lambda p: p.energy, lambda p: p.move())
             places_local, e = annealer.auto(places_local, minutes, min(100, weight * 20))
+
+        except NothingToDo:
+            pass
         
         for (index_local, place) in enumerate(places_local):
             index = indexes[index_local]
             assert annealed[index] is None
             annealed[index] = (place, group)
         
-        print sorted([place.name.encode('ascii', 'ignore') for place in places_local])
+        print sorted([place.name.encode('ascii', 'replace') for place in places_local])
     
     # print annealed
     # 

@@ -7,10 +7,7 @@ try:
 except ImportError:
     from ImageFont import truetype
 
-from .community import best_partition
-
 from shapely.geometry import Point, Polygon
-from networkx import Graph
 
 NE, ENE, ESE, SE, SSE, S, SSW, SW, WSW, WNW, NW, NNW, N, NNE = range(14)
 
@@ -385,45 +382,53 @@ class Places:
         return len(self._places)
     
     def in_pieces(self):
-        """ Return a list of lists of of places and original indexes.
+        """ Partition places into mutually-overlapping collections.
+        
+            Return value is a list of tuples, each with a Places instance,
+            a list of indexes back to the parent Places instance, a weight
+            for that instance based on connectivity density, and a total
+            weight for all pieces together.
         """
-        graph, groups, connections = Graph(), dict(), dict()
-
-        graph.add_nodes_from(range(len(self._places)))
+        partition, places = [], self._places[:]
         
-        for (place, neighbors) in self._neighbors.items():
-            for neighbor in neighbors:
-                i, j = self._places.index(place), self._places.index(neighbor)
-                graph.add_edge(i, j)
+        while places:
+            group, neighbors = [], [places.pop(0)]
+            
+            while neighbors:
+                place = neighbors.pop(0)
+                group.append(place)
+                
+                if place in places:
+                    # can't be in any other group
+                    places.remove(place)
+                
+                for neighbor in self._neighbors[place]:
+                    if neighbor not in group and neighbor not in neighbors:
+                        neighbors.append(neighbor)
+            
+            partition.append(group)
         
-        for (index, part) in best_partition(graph).items():
-            if part not in groups:
-                groups[part] = []
-            
-            if part not in connections:
-                connections[part] = 0
-            
-            connections[part] += len(groups[part])
-            groups[part].append(index)
-
-        total_connections = sum(connections.values())
-
         #
-        # groups is now a dictionary of lists, each with the indexes of places
-        # in self._places. connections is now a dictionary of integers, each
-        # with the number of inter-place connections for that group.
+        # partition is now a list of lists of places.
         #
         
         pieces = []
         
-        for (part, indexes) in groups.items():
+        for place_list in partition:
             places = Places(self.keep_chain)
-            weight = connections[part]
+            indexes = []
+            weight = 0
             
-            for index in indexes:
-                places.add(self._places[index])
+            for place in place_list:
+                places.add(place)
+                weight += len(indexes)
+                indexes.append(self._places.index(place))
             
-            pieces.append((places, indexes, weight, total_connections))
+            pieces.append((places, indexes, weight))
+        
+        total_weight = sum([weight for (p, i, weight) in pieces])
+        pieces = [(p, i, w, total_weight) for (p, i, w) in pieces]
+        pieces.sort(key=lambda piece: len(piece[1]), reverse=True)
         
         #
         # pieces is now a list of tuples, each with an instance of Places,
@@ -433,17 +438,3 @@ class Places:
         #
         
         return pieces
-        
-    def as_graph(self):
-        """ Return a list of places and a networkx graph of place neighbors.
-        """
-        graph = Graph()
-        graph.add_nodes_from(range(len(self._places)))
-        
-        for (place, neighbors) in self._neighbors.items():
-            for neighbor in neighbors:
-                i, j = self._places.index(place), self._places.index(neighbor)
-                graph.add_edge(i, j)
-                graph.add_edge(j, i)
-        
-        return self._places[:], graph
