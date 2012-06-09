@@ -23,7 +23,6 @@ all: $(TARBALL) $(DATATAR)
 $(TARBALL):
 	mkdir $(PACKAGE)
 	ln setup.py $(PACKAGE)/
-	ln VERSION $(PACKAGE)/
 	ln dymo-*.py $(PACKAGE)/
 
 	mkdir $(PACKAGE)/Dymo
