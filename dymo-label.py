@@ -136,60 +136,34 @@ if __name__ == '__main__':
     
     annealed = [None] * places.count()
     
-    from community import best_partition
-    
-    places_list, places_graph = places.as_graph()
-    place_groups, connections = dict(), 0
-    
-    print best_partition(places_graph)
-    
-    for (place_index, part) in best_partition(places_graph).items():
-        if part not in place_groups:
-            place_groups[part] = []
-        
-        connections += len(place_groups[part])
-        place_groups[part].append(place_index)
-    
-    for place_group in place_groups.values():
-        print place_group
-        print sum(range(len(place_group)))
-        
-        if len(place_group) < 2:
-            continue
-        
-        budget = sum(range(len(place_group))) / float(connections)
-        places_local = Places(bool(options.dump_file))
-        
-        for i in place_group:
-            place = places_list[i]
-            places_local.add(place)
-        
-        annealer = Annealer(lambda p: p.energy, lambda p: p.move())
-        places_local, e = annealer.auto(places_local, budget * options.minutes, 100)
-        
-        for (index, place) in enumerate(places_local):
-            index = place_group[index]
-            
-            assert annealed[index] is None
-            
-            annealed[index] = place
-        
-        print list(enumerate(places_local))
-    
-    print annealed
-    
-    exit(1)
-    
-    try:
-        annealer = Annealer(state_energy, state_move)
-        
-        if options.temp_min and options.temp_max and options.steps:
-            places, e = annealer.anneal(places, options.temp_max, options.temp_min, options.steps, 30)
-        else:
-            places, e = annealer.auto(places, options.minutes, 500)
+    for (group, (places_local, indexes, weight, connections)) in enumerate(places.in_pieces()):
 
-    except NothingToDo:
-        pass
+        if len(indexes) > 1:
+            minutes = options.minutes * float(weight) / connections
+            annealer = Annealer(lambda p: p.energy, lambda p: p.move())
+            places_local, e = annealer.auto(places_local, minutes, min(100, weight * 20))
+        
+        for (index_local, place) in enumerate(places_local):
+            index = indexes[index_local]
+            assert annealed[index] is None
+            annealed[index] = (place, group)
+        
+        print sorted([place.name.encode('ascii', 'ignore') for place in places_local])
+    
+    # print annealed
+    # 
+    # exit(1)
+    # 
+    # try:
+    #     annealer = Annealer(state_energy, state_move)
+    #     
+    #     if options.temp_min and options.temp_max and options.steps:
+    #         places, e = annealer.anneal(places, options.temp_max, options.temp_min, options.steps, 30)
+    #     else:
+    #         places, e = annealer.auto(places, options.minutes, 500)
+    # 
+    # except NothingToDo:
+    #     pass
     
     #
     # Output results.
@@ -198,10 +172,11 @@ if __name__ == '__main__':
     label_data = {'type': 'FeatureCollection', 'features': []}
     place_data = {'type': 'FeatureCollection', 'features': []}
     rgstr_data = {'type': 'FeatureCollection', 'features': []}
+    footp_data = {'type': 'FeatureCollection', 'features': []}
     
     placed = FootprintIndex(geometry)
     
-    for place in places:
+    for (place, group) in annealed:
         blocker = placed.blocks(place)
         overlaps = bool(blocker)
         
@@ -211,6 +186,7 @@ if __name__ == '__main__':
             placed.add(place)
         
         properties = copy(place.properties)
+        properties['group'] = group
         
         if options.include_overlaps:
             properties['overlaps'] = int(overlaps) # 1 or 0
@@ -255,6 +231,11 @@ if __name__ == '__main__':
 
         point_feature['properties']['justified'] = justification
         rgstr_data['features'].append(point_feature)
+
+        footp_coords = [map(lonlat, place._label_footprint.exterior.coords)]
+        footp_data['features'].append(dict(geometry={'type': 'Polygon', 'coordinates': footp_coords}, properties=point_feature['properties']))
+    
+    json.dump(footp_data, open('footprints.json', 'w'), indent=2)
     
     if options.labels_file:
         json.dump(label_data, open(options.labels_file, 'w'), indent=2)

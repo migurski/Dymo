@@ -7,6 +7,8 @@ try:
 except ImportError:
     from ImageFont import truetype
 
+from .community import best_partition
+
 from shapely.geometry import Point, Polygon
 from networkx import Graph
 
@@ -382,6 +384,56 @@ class Places:
         """
         return len(self._places)
     
+    def in_pieces(self):
+        """ Return a list of lists of of places and original indexes.
+        """
+        graph, groups, connections = Graph(), dict(), dict()
+
+        graph.add_nodes_from(range(len(self._places)))
+        
+        for (place, neighbors) in self._neighbors.items():
+            for neighbor in neighbors:
+                i, j = self._places.index(place), self._places.index(neighbor)
+                graph.add_edge(i, j)
+        
+        for (index, part) in best_partition(graph).items():
+            if part not in groups:
+                groups[part] = []
+            
+            if part not in connections:
+                connections[part] = 0
+            
+            connections[part] += len(groups[part])
+            groups[part].append(index)
+
+        total_connections = sum(connections.values())
+
+        #
+        # groups is now a dictionary of lists, each with the indexes of places
+        # in self._places. connections is now a dictionary of integers, each
+        # with the number of inter-place connections for that group.
+        #
+        
+        pieces = []
+        
+        for (part, indexes) in groups.items():
+            places = Places(self.keep_chain)
+            weight = connections[part]
+            
+            for index in indexes:
+                places.add(self._places[index])
+            
+            pieces.append((places, indexes, weight, total_connections))
+        
+        #
+        # pieces is now a list of tuples, each with an instance of Places,
+        # a list of indexes back to self._places (the original collections),
+        # and the numerator and denominator of a fractional weight based on
+        # connectivity and expected processing time.
+        #
+        
+        return pieces
+        
     def as_graph(self):
         """ Return a list of places and a networkx graph of place neighbors.
         """
@@ -392,5 +444,6 @@ class Places:
             for neighbor in neighbors:
                 i, j = self._places.index(place), self._places.index(neighbor)
                 graph.add_edge(i, j)
+                graph.add_edge(j, i)
         
         return self._places[:], graph
