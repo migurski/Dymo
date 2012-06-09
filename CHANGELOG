@@ -1,3 +1,6 @@
+2012-06-09: 0.10.0
+- Added partitioning behavior to dymo-label for speed boost & potential concurrency.
+
 2012-05-20: 0.9.1
 - Fixed shbang so that scripts actually work when installed.
 
