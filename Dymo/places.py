@@ -232,6 +232,17 @@ class Place:
 
 class Area (Place):
 
+    #
+    #      WNW  NW   N   NE  ENE
+    #       WW   W   C   E   EE
+    #      WSW  SW   S   SE  ESE
+    #
+    WNW, NW, N, NE, ENE, WW, W, C, E, EE, WSW, SW, S, SE, ESE = range(15)
+    
+    placements = {WNW: 0.6, NW: 0.2, N: 0.1, NE: 0.2, ENE: 0.6,
+                  WW: 0.4, W: 0.1, C: 0.0, E: 0.1, EE: 0.4,
+                  WSW: 0.6, SW: 0.2, S: 0.1, SE: 0.2, ESE: 0.6}
+    
     def __init__(self, name, fontfile, fontsize, location, position, properties, rank=1, **extras):
     
         if location.lon < -360 or 360 < location.lon:
@@ -249,7 +260,7 @@ class Area (Place):
         self.fontsize = fontsize
         self.properties = properties
     
-        self.placement = NE
+        self.placement = Area.C
         self.buffer = 2
         
         self._label_shapes = {}      # dictionary of label bounds by placement
@@ -277,7 +288,7 @@ class Area (Place):
 
         else:
             # fill out the shapes above
-            self._populate_placements(preferred)
+            self._placements = deepcopy(Area.placements)
             self._populate_shapes()
 
         # label bounds for current placement
@@ -301,8 +312,49 @@ class Area (Place):
                       _placements = self._placements,
                       _baseline = self._baseline)
         
-        return Place(self.name, self.fontfile, self.fontsize, self.location,
-                     self.position, self.properties, self.rank, **extras)
+        return Area(self.name, self.fontfile, self.fontsize, self.location,
+                    self.position, self.properties, self.rank, **extras)
+    
+    def _populate_shapes(self):
+        """ Set values for self._label_shapes, _footprint_shape, and others.
+        """
+        scale = 10.0
+        font = truetype(self.fontfile, int(self.fontsize * scale), encoding='unic')
+
+        x, y = self.position.x, self.position.y
+        w, h = font.getsize(self.name)
+        w, h = w/scale, h/scale
+        
+        for placement in Area.placements:
+            label_shape = area_label_bounds(x, y, w, h, placement)
+            mask_shape = label_shape.buffer(self.buffer, 2)
+        
+            self._label_shapes[placement] = label_shape
+            self._mask_shapes[placement] = mask_shape
+    
+        unionize = lambda a, b: a.union(b)
+        self._label_footprint = reduce(unionize, self._label_shapes.values())
+        self._mask_footprint = reduce(unionize, self._mask_shapes.values())
+        
+        # number of pixels from the top of the label based on the bottom of a "."
+        self._baseline = font.getmask('.').getbbox()[3] / scale
+    
+    def registration(self):
+        """ Return a registration point and text justification.
+        """
+        xmin, ymin, xmax, ymax = self._label_shape.bounds
+        y = ymin + self._baseline
+        
+        if self.placement in (Area.ENE, Area.EE, Area.ESE, Area.NE, Area.E, Area.SE):
+            x, justification = xmin, 'left'
+
+        elif self.placement in (Area.S, Area.C, Area.N):
+            x, justification = xmin/2 + xmax/2, 'center'
+
+        elif self.placement in (Area.WNW, Area.WW, Area.WSW, Area.NW, Area.W, Area.SW):
+            x, justification = xmax, 'right'
+        
+        return Point(x, y), justification
 
 def point_label_bounds(x, y, width, height, radius, placement):
     """ Rectangular area occupied by a label placed by a point with radius.
@@ -352,6 +404,43 @@ def point_label_bounds(x, y, width, height, radius, placement):
     if placement == S:
         # right on the bottom
         y -= radius + height / 2
+    
+    x1, y1 = x - width/2, y + height/2
+    x2, y2 = x + width/2, y - height/2
+    
+    return Polygon(((x1, y1), (x1, y2), (x2, y2), (x2, y1), (x1, y1)))
+
+def area_label_bounds(x, y, width, height, placement):
+    """ Rectangular area occupied by a label placed by a point with radius.
+    """
+    #
+    #      WNW  NW   N   NE  ENE
+    #       WW   W   C   E   EE
+    #      WSW  SW   S   SE  ESE
+    #
+    if placement in (Area.WNW, Area.WW, Area.WSW):
+        # to the left-left
+        x -= width/2
+
+    if placement in (Area.NW, Area.W, Area.SW):
+        # to the left
+        x -= width/4
+
+    if placement in (Area.NE, Area.E, Area.SE):
+        # to the right
+        x += width/4
+
+    if placement in (Area.ENE, Area.EE, Area.ESE):
+        # to the right-right
+        x += width/2
+
+    if placement in (Area.WNW, Area.NW, Area.N, Area.NE, Area.ENE):
+        # a little above
+        y -= height/2
+
+    if placement in (Area.WSW, Area.SW, Area.S, Area.SE, Area.ESE):
+        # a little below
+        y += height/2
     
     x1, y1 = x - width/2, y + height/2
     x2, y2 = x + width/2, y - height/2
