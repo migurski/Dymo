@@ -9,24 +9,24 @@ except ImportError:
 
 from shapely.geometry import Point, Polygon
 
-NE, ENE, ESE, SE, SSE, S, SSW, SW, WSW, WNW, NW, NNW, N, NNE = range(14)
-
-#
-#          NNW   N   NNE
-#        NW             NE
-#       WNW      .      ENE
-#       WSW             ESE
-#        SW             SE
-#          SSW   S   SSE
-#
-# slide 13 of http://www.cs.uu.nl/docs/vakken/gd/steven2.pdf
-#
-placements = {NE: 0.000, ENE: 0.070, ESE: 0.100, SE: 0.175, SSE: 0.200,
-              S: 0.900, SSW: 1.000, SW: 0.600, WSW: 0.500, WNW: 0.470,
-              NW: 0.400, NNW: 0.575, N: 0.800, NNE: 0.150}
-
 class Place:
 
+    NE, ENE, ESE, SE, SSE, S, SSW, SW, WSW, WNW, NW, NNW, N, NNE = range(14)
+    
+    #
+    #          NNW   N   NNE
+    #        NW             NE
+    #       WNW      .      ENE
+    #       WSW             ESE
+    #        SW             SE
+    #          SSW   S   SSE
+    #
+    # slide 13 of http://www.cs.uu.nl/docs/vakken/gd/steven2.pdf
+    #
+    placements = {NE: 0.000, ENE: 0.070, ESE: 0.100, SE: 0.175, SSE: 0.200,
+                  S: 0.900, SSW: 1.000, SW: 0.600, WSW: 0.500, WNW: 0.470,
+                  NW: 0.400, NNW: 0.575, N: 0.800, NNE: 0.150}
+    
     def __init__(self, name, fontfile, fontsize, location, position, radius, properties, rank=1, preferred=None, **extras):
         
         if location.lon < -360 or 360 < location.lon:
@@ -44,7 +44,7 @@ class Place:
         self.fontsize = fontsize
         self.properties = properties
     
-        self.placement = NE
+        self.placement = Place.NE
         self.radius = radius
         self.buffer = 2
         
@@ -124,7 +124,7 @@ class Place:
         w, h = font.getsize(self.name)
         w, h = w/scale, h/scale
         
-        for placement in placements:
+        for placement in Place.placements:
             label_shape = point_label_bounds(x, y, w, h, self.radius, placement)
             mask_shape = label_shape.buffer(self.buffer, 2).union(point_buffered)
             
@@ -142,7 +142,7 @@ class Place:
         """ Set values for self._placements.
         """
         # local copy of placement energies
-        self._placements = deepcopy(placements)
+        self._placements = deepcopy(Place.placements)
         
         # top right is the Imhof-approved default
         if preferred == 'top right' or not preferred:
@@ -152,24 +152,24 @@ class Place:
         self._placements = dict([ (key, .4 + v*.6) for (key, v) in self._placements.items() ])
         
         if preferred == 'top':
-            self.placement = N
-            self._placements.update({ N: .0, NNW: .3, NNE: .3 })
+            self.placement = Place.N
+            self._placements.update({ Place.N: .0, Place.NNW: .3, Place.NNE: .3 })
         
         elif preferred == 'top left':
-            self.placement = NW
-            self._placements.update({ NW: .0, WNW: .1, NNW: .1 })
+            self.placement = Place.NW
+            self._placements.update({ Place.NW: .0, Place.WNW: .1, Place.NNW: .1 })
         
         elif preferred == 'bottom':
-            self.placement = S
-            self._placements.update({ S: .0, SSW: .3, SSE: .3 })
+            self.placement = Place.S
+            self._placements.update({ Place.S: .0, Place.SSW: .3, Place.SSE: .3 })
         
         elif preferred == 'bottom right':
-            self.placement = SE
-            self._placements.update({ SE: .0, ESE: .1, SSE: .1 })
+            self.placement = Place.SE
+            self._placements.update({ Place.SE: .0, Place.ESE: .1, Place.SSE: .1 })
         
         elif preferred == 'bottom left':
-            self.placement = SW
-            self._placements.update({ SW: .0, WSW: .1, SSW: .1 })
+            self.placement = Place.SW
+            self._placements.update({ Place.SW: .0, Place.WSW: .1, Place.SSW: .1 })
         
         else:
             raise Exception('Unknown preferred placement "%s"' % preferred)
@@ -190,13 +190,13 @@ class Place:
         xmin, ymin, xmax, ymax = self._label_shape.bounds
         y = ymin + self._baseline
         
-        if self.placement in (NNE, NE, ENE, ESE, SE, SSE):
+        if self.placement in (Place.NNE, Place.NE, Place.ENE, Place.ESE, Place.SE, Place.SSE):
             x, justification = xmin, 'left'
 
-        elif self.placement in (S, N):
+        elif self.placement in (Place.S, Place.N):
             x, justification = xmin/2 + xmax/2, 'center'
 
-        elif self.placement in (SSW, SW, WSW, WNW, NW, NNW):
+        elif self.placement in (Place.SSW, Place.SW, Place.WSW, Place.WNW, Place.NW, Place.NNW):
             x, justification = xmax, 'right'
         
         return Point(x, y), justification
@@ -232,16 +232,16 @@ class Place:
 
 class Area (Place):
 
+    WNW, NW, N, NE, ENE, WW, W, C, E, EE, WSW, SW, S, SE, ESE = range(15)
+    
     #
     #      WNW  NW   N   NE  ENE
     #       WW   W   C   E   EE
     #      WSW  SW   S   SE  ESE
     #
-    WNW, NW, N, NE, ENE, WW, W, C, E, EE, WSW, SW, S, SE, ESE = range(15)
-    
-    placements = {WNW: 0.6, NW: 0.2, N: 0.1, NE: 0.2, ENE: 0.6,
-                  WW: 0.4, W: 0.1, C: 0.0, E: 0.1, EE: 0.4,
-                  WSW: 0.6, SW: 0.2, S: 0.1, SE: 0.2, ESE: 0.6}
+    placements = {WNW: .8, NW: .2, N: .1, NE: .2, ENE: .8,
+                   WW: .4,  W: .1, C: .0,  E: .1,  EE: .4,
+                  WSW: .8, SW: .2, S: .1, SE: .2, ESE: .8}
     
     def __init__(self, name, fontfile, fontsize, location, position, properties, rank=1, **extras):
     
@@ -359,49 +359,49 @@ class Area (Place):
 def point_label_bounds(x, y, width, height, radius, placement):
     """ Rectangular area occupied by a label placed by a point with radius.
     """
-    if placement in (NE, ENE, ESE, SE):
+    if placement in (Place.NE, Place.ENE, Place.ESE, Place.SE):
         # to the right
         x += radius + width/2
     
-    if placement in (NW, WNW, WSW, SW):
+    if placement in (Place.NW, Place.WNW, Place.WSW, Place.SW):
         # to the left
         x -= radius + width/2
 
-    if placement in (NW, NE):
+    if placement in (Place.NW, Place.NE):
         # way up high
         y += height/2
 
-    if placement in (SW, SE):
+    if placement in (Place.SW, Place.SE):
         # way down low
         y -= height/2
 
-    if placement in (ENE, WNW):
+    if placement in (Place.ENE, Place.WNW):
         # just a little above
         y += height/6
 
-    if placement in (ESE, WSW):
+    if placement in (Place.ESE, Place.WSW):
         # just a little below
         y -= height/6
     
-    if placement in (NNE, SSE, SSW, NNW):
+    if placement in (Place.NNE, Place.SSE, Place.SSW, Place.NNW):
         _x = radius * cos(pi/4) + width/2
         _y = radius * sin(pi/4) + height/2
         
-        if placement in (NNE, SSE):
+        if placement in (Place.NNE, Place.SSE):
             x += _x
         else:
             x -= _x
         
-        if placement in (SSE, SSW):
+        if placement in (Place.SSE, Place.SSW):
             y -= _y
         else:
             y += _y
     
-    if placement == N:
+    if placement == Place.N:
         # right on top
         y += radius + height / 2
     
-    if placement == S:
+    if placement == Place.S:
         # right on the bottom
         y -= radius + height / 2
     
