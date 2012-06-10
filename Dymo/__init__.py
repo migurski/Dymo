@@ -142,7 +142,7 @@ def label_bbox(shape, zoom):
     """
     pass
 
-def load_places(input_files, geometry):
+def load_inputs(input_files, geometry):
     """
     """
     for input_file in input_files:
@@ -178,7 +178,6 @@ def load_places(input_files, geometry):
         
         for row in rows:
             name = row['name'].decode('utf-8')
-            radius = int(row.get('point size', 8))
             
             fontsize = int(row.get('font size', 12))
             fontfile = row.get('font file', 'fonts/DejaVuSans.ttf')
@@ -189,9 +188,27 @@ def load_places(input_files, geometry):
                                for (key, value) in row.items()
                                if key not in ('latitude', 'longitude')])
             
-            kwargs = dict()
-            
-            if 'preferred placement' in row:
-                kwargs['preferred'] = row['preferred placement']
-            
-            yield Area(name, fontfile, fontsize, location, point, properties, **kwargs)
+            yield name, fontfile, fontsize, location, point, properties, row
+
+def load_places(input_files, geometry):
+    """
+    """
+    rows = load_inputs(input_files, geometry)
+    
+    for (name, fontfile, fontsize, location, point, properties, row) in rows:
+        radius = int(row.get('point size', 8))
+
+        kwargs = dict()
+        
+        if 'preferred placement' in row:
+            kwargs['preferred'] = row['preferred placement']
+        
+        yield Place(name, fontfile, fontsize, location, point, radius, properties, **kwargs)
+
+def load_areas(input_files, geometry):
+    """
+    """
+    rows = load_inputs(input_files, geometry)
+    
+    for (name, fontfile, fontsize, location, point, properties, row) in rows:
+        yield Area(name, fontfile, fontsize, location, point, properties)
