@@ -125,7 +125,7 @@ class Place:
         w, h = w/scale, h/scale
         
         for placement in Place.placements:
-            label_shape = point_label_bounds(x, y, w, h, self.radius, placement)
+            label_shape = Place.label_bounds(x, y, w, h, self.radius, placement)
             mask_shape = label_shape.buffer(self.buffer, 2).union(point_buffered)
             
             self._label_shapes[placement] = label_shape
@@ -229,6 +229,61 @@ class Place:
             can_overlap |= other.can_overlap(self, False)
 
         return can_overlap
+    
+    @staticmethod
+    def label_bounds(x, y, width, height, radius, placement):
+        """ Rectangular area occupied by a label placed by a point with radius.
+        """
+        if placement in (Place.NE, Place.ENE, Place.ESE, Place.SE):
+            # to the right
+            x += radius + width/2
+        
+        if placement in (Place.NW, Place.WNW, Place.WSW, Place.SW):
+            # to the left
+            x -= radius + width/2
+    
+        if placement in (Place.NW, Place.NE):
+            # way up high
+            y += height/2
+    
+        if placement in (Place.SW, Place.SE):
+            # way down low
+            y -= height/2
+    
+        if placement in (Place.ENE, Place.WNW):
+            # just a little above
+            y += height/6
+    
+        if placement in (Place.ESE, Place.WSW):
+            # just a little below
+            y -= height/6
+        
+        if placement in (Place.NNE, Place.SSE, Place.SSW, Place.NNW):
+            _x = radius * cos(pi/4) + width/2
+            _y = radius * sin(pi/4) + height/2
+            
+            if placement in (Place.NNE, Place.SSE):
+                x += _x
+            else:
+                x -= _x
+            
+            if placement in (Place.SSE, Place.SSW):
+                y -= _y
+            else:
+                y += _y
+        
+        if placement == Place.N:
+            # right on top
+            y += radius + height / 2
+        
+        if placement == Place.S:
+            # right on the bottom
+            y -= radius + height / 2
+        
+        x1, y1 = x - width/2, y + height/2
+        x2, y2 = x + width/2, y - height/2
+        
+        return Polygon(((x1, y1), (x1, y2), (x2, y2), (x2, y1), (x1, y1)))
 
 class Area (Place):
 
@@ -326,7 +381,7 @@ class Area (Place):
         w, h = w/scale, h/scale
         
         for placement in Area.placements:
-            label_shape = area_label_bounds(x, y, w, h, placement)
+            label_shape = Area.label_bounds(x, y, w, h, placement)
             mask_shape = label_shape.buffer(self.buffer, 2)
         
             self._label_shapes[placement] = label_shape
@@ -355,97 +410,44 @@ class Area (Place):
             x, justification = xmax, 'right'
         
         return Point(x, y), justification
-
-def point_label_bounds(x, y, width, height, radius, placement):
-    """ Rectangular area occupied by a label placed by a point with radius.
-    """
-    if placement in (Place.NE, Place.ENE, Place.ESE, Place.SE):
-        # to the right
-        x += radius + width/2
     
-    if placement in (Place.NW, Place.WNW, Place.WSW, Place.SW):
-        # to the left
-        x -= radius + width/2
-
-    if placement in (Place.NW, Place.NE):
-        # way up high
-        y += height/2
-
-    if placement in (Place.SW, Place.SE):
-        # way down low
-        y -= height/2
-
-    if placement in (Place.ENE, Place.WNW):
-        # just a little above
-        y += height/6
-
-    if placement in (Place.ESE, Place.WSW):
-        # just a little below
-        y -= height/6
+    @staticmethod
+    def label_bounds(x, y, width, height, placement):
+        """ Rectangular area occupied by a label placed by a point with radius.
+        """
+        #
+        #      WNW  NW   N   NE  ENE
+        #       WW   W   C   E   EE
+        #      WSW  SW   S   SE  ESE
+        #
+        if placement in (Area.WNW, Area.WW, Area.WSW):
+            # to the left-left
+            x -= width/2
     
-    if placement in (Place.NNE, Place.SSE, Place.SSW, Place.NNW):
-        _x = radius * cos(pi/4) + width/2
-        _y = radius * sin(pi/4) + height/2
+        if placement in (Area.NW, Area.W, Area.SW):
+            # to the left
+            x -= width/4
+    
+        if placement in (Area.NE, Area.E, Area.SE):
+            # to the right
+            x += width/4
+    
+        if placement in (Area.ENE, Area.EE, Area.ESE):
+            # to the right-right
+            x += width/2
+    
+        if placement in (Area.WNW, Area.NW, Area.N, Area.NE, Area.ENE):
+            # a little above
+            y -= height/2
+    
+        if placement in (Area.WSW, Area.SW, Area.S, Area.SE, Area.ESE):
+            # a little below
+            y += height/2
         
-        if placement in (Place.NNE, Place.SSE):
-            x += _x
-        else:
-            x -= _x
+        x1, y1 = x - width/2, y + height/2
+        x2, y2 = x + width/2, y - height/2
         
-        if placement in (Place.SSE, Place.SSW):
-            y -= _y
-        else:
-            y += _y
-    
-    if placement == Place.N:
-        # right on top
-        y += radius + height / 2
-    
-    if placement == Place.S:
-        # right on the bottom
-        y -= radius + height / 2
-    
-    x1, y1 = x - width/2, y + height/2
-    x2, y2 = x + width/2, y - height/2
-    
-    return Polygon(((x1, y1), (x1, y2), (x2, y2), (x2, y1), (x1, y1)))
-
-def area_label_bounds(x, y, width, height, placement):
-    """ Rectangular area occupied by a label placed by a point with radius.
-    """
-    #
-    #      WNW  NW   N   NE  ENE
-    #       WW   W   C   E   EE
-    #      WSW  SW   S   SE  ESE
-    #
-    if placement in (Area.WNW, Area.WW, Area.WSW):
-        # to the left-left
-        x -= width/2
-
-    if placement in (Area.NW, Area.W, Area.SW):
-        # to the left
-        x -= width/4
-
-    if placement in (Area.NE, Area.E, Area.SE):
-        # to the right
-        x += width/4
-
-    if placement in (Area.ENE, Area.EE, Area.ESE):
-        # to the right-right
-        x += width/2
-
-    if placement in (Area.WNW, Area.NW, Area.N, Area.NE, Area.ENE):
-        # a little above
-        y -= height/2
-
-    if placement in (Area.WSW, Area.SW, Area.S, Area.SE, Area.ESE):
-        # a little below
-        y += height/2
-    
-    x1, y1 = x - width/2, y + height/2
-    x2, y2 = x + width/2, y - height/2
-    
-    return Polygon(((x1, y1), (x1, y2), (x2, y2), (x2, y1), (x1, y1)))
+        return Polygon(((x1, y1), (x1, y2), (x2, y2), (x2, y1), (x1, y1)))
 
 class NothingToDo (Exception):
     pass
