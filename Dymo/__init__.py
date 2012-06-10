@@ -14,7 +14,7 @@ except ImportError:
     # don't worry about it until GeometryCustom is actually instantiated.
     pass
 
-from .places import Place
+from .places import Place, Area
 
 __version__ = '0.10.1'
 
@@ -194,4 +194,4 @@ def load_places(input_files, geometry):
             if 'preferred placement' in row:
                 kwargs['preferred'] = row['preferred placement']
             
-            yield Place(name, fontfile, fontsize, location, point, radius, properties, **kwargs)
+            yield Area(name, fontfile, fontsize, location, point, properties, **kwargs)

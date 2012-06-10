@@ -230,6 +230,80 @@ class Place:
 
         return can_overlap
 
+class Area (Place):
+
+    def __init__(self, name, fontfile, fontsize, location, position, properties, rank=1, **extras):
+    
+        if location.lon < -360 or 360 < location.lon:
+            raise Exception('Silly human trying to pass an invalid longitude of %.3f for "%s"' % (location.lon, name))
+    
+        if location.lat < -90 or 90 < location.lat:
+            raise Exception('Silly human trying to pass an invalid latitude of %.3f for "%s"' % (location.lat, name))
+    
+        self.name = name
+        self.location = location
+        self.position = position
+        self.rank = rank
+        
+        self.fontfile = fontfile
+        self.fontsize = fontsize
+        self.properties = properties
+    
+        self.placement = NE
+        self.buffer = 2
+        
+        self._label_shapes = {}      # dictionary of label bounds by placement
+        self._mask_shapes = {}       # dictionary of mask shapes by placement
+        self._label_footprint = None # all possible label shapes, together
+        self._mask_footprint = None  # all possible mask shapes, together
+        
+        full_extras = 'placement' in extras \
+                  and '_label_shapes' in extras \
+                  and '_mask_shapes' in extras \
+                  and '_label_footprint' in extras \
+                  and '_mask_footprint' in extras \
+                  and '_placements' in extras \
+                  and '_baseline' in extras
+        
+        if full_extras:
+            # use the provided extras
+            self.placement = extras['placement']
+            self._label_shapes = extras['_label_shapes']
+            self._mask_shapes = extras['_mask_shapes']
+            self._label_footprint = extras['_label_footprint']
+            self._mask_footprint = extras['_mask_footprint']
+            self._placements = extras['_placements']
+            self._baseline = extras['_baseline']
+
+        else:
+            # fill out the shapes above
+            self._populate_placements(preferred)
+            self._populate_shapes()
+
+        # label bounds for current placement
+        self._label_shape = self._label_shapes[self.placement]
+
+        # mask shape for current placement
+        self._mask_shape = self._mask_shapes[self.placement]
+    
+    def __deepcopy__(self, memo_dict):
+        """ Override deep copy to spend less time copying.
+        
+            Profiling showed that a significant percentage of time was spent
+            deep-copying annealer state from step to step, and testing with
+            z5 U.S. data shows a 4000% speed increase, so yay.
+        """
+        extras = dict(placement = self.placement,
+                      _label_shapes = self._label_shapes,
+                      _mask_shapes = self._mask_shapes,
+                      _label_footprint = self._label_footprint,
+                      _mask_footprint = self._mask_footprint,
+                      _placements = self._placements,
+                      _baseline = self._baseline)
+        
+        return Place(self.name, self.fontfile, self.fontsize, self.location,
+                     self.position, self.properties, self.rank, **extras)
+
 def point_label_bounds(x, y, width, height, radius, placement):
     """ Rectangular area occupied by a label placed by a point with radius.
     """
