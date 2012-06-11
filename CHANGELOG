@@ -1,3 +1,6 @@
+2012-06-10: 0.11.1
+- Fixed a namespace conflict between Dymo Point and shapely Point.
+
 2012-06-10: 0.11.0
 - Added --blobs option to dymo-label.py for making non-town-point output.
 

@@ -7,7 +7,7 @@ try:
 except ImportError:
     from ImageFont import truetype
 
-from shapely.geometry import Point, Polygon
+from shapely import geometry
 
 class Point:
 
@@ -113,7 +113,7 @@ class Point:
     def _populate_shapes(self):
         """ Set values for self._label_shapes, _footprint_shape, and others.
         """
-        point = Point(self.position.x, self.position.y)
+        point = geometry.Point(self.position.x, self.position.y)
         point_buffered = point.buffer(self.radius + self.buffer, 3)
         self._point_shape = point.buffer(self.radius, 3)
         
@@ -199,7 +199,7 @@ class Point:
         elif self.placement in (Point.SSW, Point.SW, Point.WSW, Point.WNW, Point.NW, Point.NNW):
             x, justification = xmax, 'right'
         
-        return Point(x, y), justification
+        return geometry.Point(x, y), justification
     
     def footprint(self):
         """ Return a footprint polygon, the total coverage of all placements.
@@ -283,7 +283,7 @@ class Point:
         x1, y1 = x - width/2, y + height/2
         x2, y2 = x + width/2, y - height/2
         
-        return Polygon(((x1, y1), (x1, y2), (x2, y2), (x2, y1), (x1, y1)))
+        return geometry.Polygon(((x1, y1), (x1, y2), (x2, y2), (x2, y1), (x1, y1)))
 
 class Blob (Point):
 
@@ -412,7 +412,7 @@ class Blob (Point):
         elif self.placement in (Blob.WNW, Blob.WW, Blob.WSW, Blob.NW, Blob.W, Blob.SW):
             x, justification = xmax, 'right'
         
-        return Point(x, y), justification
+        return geometry.Point(x, y), justification
     
     @staticmethod
     def label_bounds(x, y, width, height, placement):
@@ -450,7 +450,7 @@ class Blob (Point):
         x1, y1 = x - width/2, y + height/2
         x2, y2 = x + width/2, y - height/2
         
-        return Polygon(((x1, y1), (x1, y2), (x2, y2), (x2, y1), (x1, y1)))
+        return geometry.Polygon(((x1, y1), (x1, y2), (x2, y2), (x2, y1), (x1, y1)))
 
 class NothingToDo (Exception):
     pass
