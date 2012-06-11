@@ -14,12 +14,11 @@ from Dymo import load_places, load_blobs, get_geometry
 
 optparser = OptionParser(usage="""%prog [options] --labels-file <label output file> --places-file <point output file> --registrations-file <registration output file> <input file 1> [<input file 2>, ...]
 
-There are two ways to run the label placer. The slow, default way performs a
-test to figure out the best parameters for the simulated annealing algorithm
-before running it. The faster, more advanced way required that you know what
-your minimum and maximum temperatures and appropriate number of steps are before
-you start, which usually means that you've run the annealer once the slow way
-and now want to redo your results on the same data the fast way.
+There are two ways to run the label placer. The default way performs a test
+to figure out the best parameters for the simulated annealing algorithm before
+running it. The more precise way required that you know what your minimum and
+maximum temperatures and appropriate number of steps are before you start.
+For most inputs, the default method with `--minutes` specified will be best.
 
 Input fields:
 
