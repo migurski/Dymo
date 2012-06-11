@@ -14,7 +14,7 @@ except ImportError:
     # don't worry about it until GeometryCustom is actually instantiated.
     pass
 
-from .places import Place, Area
+from .places import Point, Blob
 
 __version__ = '0.10.1'
 
@@ -203,12 +203,12 @@ def load_places(input_files, geometry):
         if 'preferred placement' in row:
             kwargs['preferred'] = row['preferred placement']
         
-        yield Place(name, fontfile, fontsize, location, point, radius, properties, **kwargs)
+        yield Point(name, fontfile, fontsize, location, point, radius, properties, **kwargs)
 
-def load_areas(input_files, geometry):
+def load_blobs(input_files, geometry):
     """
     """
     rows = load_inputs(input_files, geometry)
     
     for (name, fontfile, fontsize, location, point, properties, row) in rows:
-        yield Area(name, fontfile, fontsize, location, point, properties)
+        yield Blob(name, fontfile, fontsize, location, point, properties)

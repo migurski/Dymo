@@ -10,7 +10,7 @@ import json
 from Dymo.anneal import Annealer
 from Dymo.index import FootprintIndex
 from Dymo.places import Places, NothingToDo
-from Dymo import load_places, load_areas, get_geometry
+from Dymo import load_places, load_blobs, get_geometry
 
 optparser = OptionParser(usage="""%prog [options] --labels-file <label output file> --places-file <point output file> --registrations-file <registration output file> <input file 1> [<input file 2>, ...]
 
@@ -72,8 +72,8 @@ optparser.add_option('--output-projected', dest='output_projected',
 optparser.add_option('--projection', dest='projection',
                      help='Optional PROJ.4 string to use instead of default web spherical mercator.')
 
-optparser.add_option('--areas', dest='load_inputs', action='store_const', const=load_areas,
-                     help='Load input as areas rather than points, placing labels on top of locations instead of near them.')
+optparser.add_option('--blobs', dest='load_inputs', action='store_const', const=load_blobs,
+                     help='Load input as blobs rather than points, placing labels on top of locations instead of near them.')
 
 optparser.add_option('--scale', dest='scale',
                      type='float', help='Optional scale to use with --projection. Equivalent to +to_meter PROJ.4 parameter, which is not used internally due to not quite working in pyproj. Conflicts with --zoom option. Default value is 1.')
