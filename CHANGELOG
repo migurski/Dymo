@@ -1,3 +1,6 @@
+2012-06-18: 0.11.2
+- Modified partition weighting to actual instead of potential connectivity.
+
 2012-06-10: 0.11.1
 - Fixed a namespace conflict between Dymo Point and shapely Point.
 

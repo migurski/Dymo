@@ -589,14 +589,14 @@ class Places:
             
             for place in place_list:
                 places.add(place)
-                weight += len(indexes)
+                weight += len(self._neighbors[place])
                 indexes.append(self._places.index(place))
             
             pieces.append((places, indexes, weight))
         
         total_weight = sum([weight for (p, i, weight) in pieces])
-        pieces = [(p, i, w, total_weight) for (p, i, w) in pieces]
-        pieces.sort(key=lambda piece: len(piece[1]), reverse=True)
+        pieces = [(p, i, w/2, total_weight/2) for (p, i, w) in pieces]
+        pieces.sort(key=lambda piece: piece[2], reverse=True)
         
         #
         # pieces is now a list of tuples, each with an instance of Places,
