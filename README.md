@@ -24,6 +24,11 @@ Using Dymo
 information to GeoJSON point and label files suitable for use in geographic
 rendering.
 
+Mamata Akella at the National Park Service has written
+[a detailed tutorial on Dymo and Tile Mill](http://www.nps.gov/npmap/blog/improving-park-label-placement-with-dymo-and-tilemill.html),
+to “avoid label overlaps and improve the overall legibility of park names dramatically.”
+The tutorial shows how to prepare data for Dymo using ArcGIS Desktop.
+
 Place U.S. city labels at zoom 6 for two minutes:
 
     python dymo-label.py -z 6 --minutes 2 --labels-file labels.json --places-file points.json data/US-z6.csv.gz
