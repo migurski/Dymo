@@ -142,7 +142,7 @@ def label_bbox(shape, zoom):
     """
     pass
 
-def load_places(input_files, geometry, field_name):
+def load_places(input_files, geometry, name_field, placement_field):
     """
     """
     for input_file in input_files:
@@ -177,7 +177,7 @@ def load_places(input_files, geometry, field_name):
                     types[key] = lambda s: s.decode('utf-8')
         
         for row in rows:
-            name = row[ field_name ].decode('utf-8')
+            name = row[ name_field ].decode('utf-8')
             radius = int(row.get('point size', 8))
             
             fontsize = int(row.get('font size', 12))
@@ -191,7 +191,7 @@ def load_places(input_files, geometry, field_name):
             
             kwargs = dict()
             
-            if 'preferred placement' in row:
-                kwargs['preferred'] = row['preferred placement']
+            if placement_field in row:
+                kwargs['preferred'] = row[placement_field]
             
             yield Place(name, fontfile, fontsize, location, point, radius, properties, **kwargs)
