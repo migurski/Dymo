@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from gzip import GzipFile
 from sys import argv, stderr
 from os.path import splitext

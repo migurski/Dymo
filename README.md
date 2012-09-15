@@ -24,6 +24,11 @@ Using Dymo
 information to GeoJSON point and label files suitable for use in geographic
 rendering.
 
+Mamata Akella at the National Park Service has written
+[a detailed tutorial on Dymo and Tile Mill](http://www.nps.gov/npmap/blog/improving-park-label-placement-with-dymo-and-tilemill.html),
+to “avoid label overlaps and improve the overall legibility of park names dramatically.”
+The tutorial shows how to prepare data for Dymo using ArcGIS Desktop.
+
 Place U.S. city labels at zoom 6 for two minutes:
 
     python dymo-label.py -z 6 --minutes 2 --labels-file labels.json --places-file points.json data/US-z6.csv.gz
@@ -40,11 +45,10 @@ placed separately for each zoom level:
 
 ![U.S. Labels](http://farm5.static.flickr.com/4123/5413923643_be14a6b13b_b.jpg)
 
-A trick for determining the right temperature range for a given data input is to
-run ```dymo-label.py``` once for a short time, e.g. ```--minutes 0.1```, noting
-the temperature ranges reported in the output. You can then vary the number of
-steps up and down to arrive at a good-looking label set without waiting for the
-first “Exploring temperature landscape” step each time.
+For larger datasets, it’s almost always faster to run `dymo-label.py` with the
+`--minutes` option instead of `--min-temp`/`--max-temp`, because Dymo will
+automatically partition labels based on mutual overlaps and perform many small
+annealing processes.
 
 Data Included
 -------------

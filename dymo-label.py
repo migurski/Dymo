@@ -1,21 +1,24 @@
+#!/usr/bin/env python
+
 from optparse import OptionParser
 from copy import copy, deepcopy
+from datetime import timedelta
+from time import time
 import cPickle
 import json
 
 from Dymo.anneal import Annealer
 from Dymo.index import FootprintIndex
 from Dymo.places import Places, NothingToDo
-from Dymo import load_places, get_geometry
+from Dymo import load_places, load_blobs, get_geometry
 
 optparser = OptionParser(usage="""%prog [options] --labels-file <label output file> --places-file <point output file> --registrations-file <registration output file> <input file 1> [<input file 2>, ...]
 
-There are two ways to run the label placer. The slow, default way performs a
-test to figure out the best parameters for the simulated annealing algorithm
-before running it. The faster, more advanced way required that you know what
-your minimum and maximum temperatures and appropriate number of steps are before
-you start, which usually means that you've run the annealer once the slow way
-and now want to redo your results on the same data the fast way.
+There are two ways to run the label placer. The default way performs a test
+to figure out the best parameters for the simulated annealing algorithm before
+running it. The more precise way required that you know what your minimum and
+maximum temperatures and appropriate number of steps are before you start.
+For most inputs, the default method with `--minutes` specified will be best.
 
 Input fields:
 
@@ -32,7 +35,7 @@ Examples:
   Place U.S. city labels at zoom 5 over a 10000-iteration 10.0 - 0.01 temperature range:
   > python dymo-label.py -z 5 --steps 10000 --max-temp 10 --min-temp 0.01 -l labels.json -p points.json data/US-z5.csv""")
 
-defaults = dict(minutes=2, dump_skip=100, include_overlaps=False, output_projected=False, name_field='name', placement_field='preferred placement')
+defaults = dict(minutes=2, dump_skip=100, include_overlaps=False, output_projected=False, load_inputs=load_places, name_field='name', placement_field='preferred placement')
 
 optparser.set_defaults(**defaults)
 
@@ -49,7 +52,7 @@ optparser.add_option('-p', '--places-file', dest='places_file',
                      help='Optional name of place points file to generate.')
 
 optparser.add_option('-r', '--registrations-file', dest='registrations_file',
-                     help='Optional name of registration points file to generate. This file will have an additional "justified" property with values "left", "center", or "right".')
+                     help='Optional name of registration points file to generate. This file will have an additional "justified" field with values "left", "center", or "right".')
 
 optparser.add_option('--min-temp', dest='temp_min',
                      type='float', help='Minimum annealing temperature, for more precise control than specifying --minutes.')
@@ -68,6 +71,9 @@ optparser.add_option('--output-projected', dest='output_projected',
 
 optparser.add_option('--projection', dest='projection',
                      help='Optional PROJ.4 string to use instead of default web spherical mercator.')
+
+optparser.add_option('--blobs', dest='load_inputs', action='store_const', const=load_blobs,
+                     help='Load input as blobs rather than points, placing labels on top of locations instead of near them.')
 
 optparser.add_option('--scale', dest='scale',
                      type='float', help='Optional scale to use with --projection. Equivalent to +to_meter PROJ.4 parameter, which is not used internally due to not quite working in pyproj. Conflicts with --zoom option. Default value is 1.')
@@ -127,25 +133,47 @@ if __name__ == '__main__':
     
     places = Places(bool(options.dump_file))
     
-    for place in load_places(input_files, geometry, options.name_field, options.placement_field):
+    for place in options.load_inputs(input_files, geometry, options.name_field, options.placement_field):
         places.add(place)
     
-    def state_energy(places):
-        return places.energy
+    #
+    # Do the annealing.
+    #
+    
+    annealer = Annealer(lambda p: p.energy, lambda p: p.move())
 
-    def state_move(places):
-        places.move()
-
-    try:
-        annealer = Annealer(state_energy, state_move)
+    if options.temp_min and options.temp_max and options.steps:
+        annealed, e = annealer.anneal(places, options.temp_max, options.temp_min, options.steps, 30)
+    
+    else:
+        annealed = [None] * places.count()
         
-        if options.temp_min and options.temp_max and options.steps:
-            places, e = annealer.anneal(places, options.temp_max, options.temp_min, options.steps, 30)
-        else:
-            places, e = annealer.auto(places, options.minutes, 500)
-
-    except NothingToDo:
-        pass
+        for (group, (places_local, indexes, weight, connections)) in enumerate(places.in_pieces()):
+            if len(indexes) > 1:
+                print 'Placing', ', '.join(sorted([place.name.encode('utf-8', 'replace') for place in places_local]))
+    
+            try:
+                start = time()
+                minutes = options.minutes * float(weight) / connections
+                places_local, e = annealer.auto(places_local, minutes, min(100, weight * 20), verbose=minutes>.3)
+    
+            except NothingToDo:
+                pass
+            
+            else:
+                if minutes > .3:
+                    elapsed = timedelta(seconds=time() - start)
+                    overtime = elapsed - timedelta(minutes=minutes)
+                    print '...done in', str(elapsed)[:-7], 'including', str(overtime)[:-7], 'overhead.'
+            
+            for (index_local, place) in enumerate(places_local):
+                index = indexes[index_local]
+                assert annealed[index] is None
+                annealed[index] = place
+            
+    #
+    # Output results.
+    #
     
     label_data = {'type': 'FeatureCollection', 'features': []}
     place_data = {'type': 'FeatureCollection', 'features': []}
@@ -153,7 +181,7 @@ if __name__ == '__main__':
     
     placed = FootprintIndex(geometry)
     
-    for place in places:
+    for place in annealed:
         blocker = placed.blocks(place)
         overlaps = bool(blocker)
         

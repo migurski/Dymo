@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 from distutils.core import setup
-
-version = open('VERSION', 'r').read().strip()
+from Dymo import __version__ as version
 
 setup(name='Dymo',
       version=version,

@@ -1,4 +1,4 @@
-VERSION:=$(shell cat VERSION)
+VERSION:=$(shell python -c 'from Dymo import __version__ as v; print v')
 PACKAGE=Dymo-$(VERSION)
 TARBALL=$(PACKAGE).tar.gz
 DATAPKG=Dymodata-$(VERSION)
@@ -23,15 +23,13 @@ all: $(TARBALL) $(DATATAR)
 $(TARBALL):
 	mkdir $(PACKAGE)
 	ln setup.py $(PACKAGE)/
-	ln VERSION $(PACKAGE)/
 	ln dymo-*.py $(PACKAGE)/
 
 	mkdir $(PACKAGE)/Dymo
 	ln Dymo/*.py $(PACKAGE)/Dymo/
 
 	rm $(PACKAGE)/Dymo/__init__.py
-	cp Dymo/__init__.py $(PACKAGE)/Dymo/__init__.py
-	perl -pi -e 's#\bN\.N\.N\b#$(VERSION)#' $(PACKAGE)/Dymo/__init__.py
+	ln Dymo/__init__.py $(PACKAGE)/Dymo/__init__.py
 
 	tar -czf $(TARBALL) $(PACKAGE)
 	rm -rf $(PACKAGE)

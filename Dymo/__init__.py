@@ -14,9 +14,9 @@ except ImportError:
     # don't worry about it until GeometryCustom is actually instantiated.
     pass
 
-from .places import Place
+from . import places
 
-__version__ = 'N.N.N'
+__version__ = '0.11.2'
 
 _osm = Provider()
 
@@ -142,7 +142,7 @@ def label_bbox(shape, zoom):
     """
     pass
 
-def load_places(input_files, geometry, name_field, placement_field):
+def load_inputs(input_files, geometry, name_field, placement_field):
     """
     """
     for input_file in input_files:
@@ -189,9 +189,26 @@ def load_places(input_files, geometry, name_field, placement_field):
                                for (key, value) in row.items()
                                if key not in ('latitude', 'longitude')])
             
-            kwargs = dict()
+            preferred = (placement_field in row and row[placement_field]) or None
             
-            if placement_field in row:
-                kwargs['preferred'] = row[placement_field]
-            
-            yield Place(name, fontfile, fontsize, location, point, radius, properties, **kwargs)
+            yield name, fontfile, fontsize, location, point, radius, properties, row, preferred
+
+def load_places(input_files, geometry, name_field, placement_field):
+    """
+    """
+    rows = load_inputs(input_files, geometry, name_field, placement_field)
+    
+    for (name, fontfile, fontsize, location, point, radius, properties, row, preferred) in rows:
+        #radius = int(row.get('point size', radius))
+
+        kwargs = dict(preferred=preferred)
+        
+        yield places.Point(name, fontfile, fontsize, location, point, radius, properties, **kwargs)
+
+def load_blobs(input_files, geometry):
+    """
+    """
+    rows = load_inputs(input_files, geometry)
+    
+    for (name, fontfile, fontsize, location, point, radius, properties, row, preferred) in rows:
+        yield places.Blob(name, fontfile, fontsize, location, point, radius, properties)
