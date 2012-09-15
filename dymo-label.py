@@ -24,7 +24,8 @@ Input fields:
 
   preferred placement
     Optional preference for point placement, one of "top right" (the default),
-    "top", "top left", "bottom left", "bottom", or "bottom right".
+    "top", "top left", "bottom left", "bottom", or "bottom right". The name of this
+    field can be changed using the --placement-field option.
 
 Examples:
 
@@ -34,7 +35,7 @@ Examples:
   Place U.S. city labels at zoom 5 over a 10000-iteration 10.0 - 0.01 temperature range:
   > python dymo-label.py -z 5 --steps 10000 --max-temp 10 --min-temp 0.01 -l labels.json -p points.json data/US-z5.csv""")
 
-defaults = dict(minutes=2, dump_skip=100, include_overlaps=False, output_projected=False, load_inputs=load_places)
+defaults = dict(minutes=2, dump_skip=100, include_overlaps=False, output_projected=False, load_inputs=load_places, name_field='name', placement_field='preferred placement')
 
 optparser.set_defaults(**defaults)
 
@@ -51,7 +52,7 @@ optparser.add_option('-p', '--places-file', dest='places_file',
                      help='Optional name of place points file to generate.')
 
 optparser.add_option('-r', '--registrations-file', dest='registrations_file',
-                     help='Optional name of registration points file to generate. This file will have an additional "justified" property with values "left", "center", or "right".')
+                     help='Optional name of registration points file to generate. This file will have an additional "justified" field with values "left", "center", or "right".')
 
 optparser.add_option('--min-temp', dest='temp_min',
                      type='float', help='Minimum annealing temperature, for more precise control than specifying --minutes.')
@@ -82,6 +83,13 @@ optparser.add_option('--dump-file', dest='dump_file',
 
 optparser.add_option('--dump-skip', dest='dump_skip',
                      type='int', help='Optional number of states to skip for each state in the dump file.')
+
+optparser.add_option('--name-field', dest='name_field',
+                     help='Optional name of column for labels to name themselves. Default value is "%(name_field)s".' % defaults)
+
+optparser.add_option('--placement-field', dest='placement_field',
+                     help='Optional name of column for point placement. Default value is "%(placement_field)s".' % defaults)
+
 
 if __name__ == '__main__':
     
@@ -125,7 +133,7 @@ if __name__ == '__main__':
     
     places = Places(bool(options.dump_file))
     
-    for place in options.load_inputs(input_files, geometry):
+    for place in options.load_inputs(input_files, geometry, options.name_field, options.placement_field):
         places.add(place)
     
     #
@@ -179,6 +187,7 @@ if __name__ == '__main__':
         
         if blocker:
             print place.name, 'blocked by', blocker.name
+            #print place[options.name_field], 'blocked by', blocker[options.name_field]
         else:
             placed.add(place)
         

@@ -142,7 +142,7 @@ def label_bbox(shape, zoom):
     """
     pass
 
-def load_inputs(input_files, geometry):
+def load_inputs(input_files, geometry, name_field, placement_field):
     """
     """
     for input_file in input_files:
@@ -177,7 +177,8 @@ def load_inputs(input_files, geometry):
                     types[key] = lambda s: s.decode('utf-8')
         
         for row in rows:
-            name = row['name'].decode('utf-8')
+            name = row[ name_field ].decode('utf-8')
+            radius = int(row.get('point size', 8))
             
             fontsize = int(row.get('font size', 12))
             fontfile = row.get('font file', 'fonts/DejaVuSans.ttf')
@@ -188,20 +189,19 @@ def load_inputs(input_files, geometry):
                                for (key, value) in row.items()
                                if key not in ('latitude', 'longitude')])
             
-            yield name, fontfile, fontsize, location, point, properties, row
+            preferred = (placement_field in row and row[placement_field]) or None
+            
+            yield name, fontfile, fontsize, location, point, radius, properties, row, preferred
 
-def load_places(input_files, geometry):
+def load_places(input_files, geometry, name_field, placement_field):
     """
     """
-    rows = load_inputs(input_files, geometry)
+    rows = load_inputs(input_files, geometry, name_field, placement_field)
     
-    for (name, fontfile, fontsize, location, point, properties, row) in rows:
-        radius = int(row.get('point size', 8))
+    for (name, fontfile, fontsize, location, point, radius, properties, row, preferred) in rows:
+        #radius = int(row.get('point size', radius))
 
-        kwargs = dict()
-        
-        if 'preferred placement' in row:
-            kwargs['preferred'] = row['preferred placement']
+        kwargs = dict(preferred=preferred)
         
         yield places.Point(name, fontfile, fontsize, location, point, radius, properties, **kwargs)
 
@@ -210,5 +210,5 @@ def load_blobs(input_files, geometry):
     """
     rows = load_inputs(input_files, geometry)
     
-    for (name, fontfile, fontsize, location, point, properties, row) in rows:
-        yield places.Blob(name, fontfile, fontsize, location, point, properties)
+    for (name, fontfile, fontsize, location, point, radius, properties, row, preferred) in rows:
+        yield places.Blob(name, fontfile, fontsize, location, point, radius, properties)

@@ -1,3 +1,9 @@
+2012-09-14: 0.12.0 (after the fact 2012-01-17)
+- Added support for arbitrary place label text in --name-field option.
+- Added support for arbitrary "zoom start" --zoom-field option.
+- Added support for variable townspot symbol point sizes with --symbol-size (universal) and --symbol-size-field (per feature) options.
+- Added support to limit results based on --filter-field value match.
+
 2012-06-18: 0.11.2
 - Modified partition weighting to actual instead of potential connectivity.
 
