@@ -29,7 +29,7 @@ Example output columns:
 Optional pixel buffer radius option (--radius) defines a minimum distance
 between places that can be used to cull the list prior to annealing.""")
 
-defaults = dict(fonts=[(-1, 'fonts/DejaVuSans.ttf', 12)], zoom=4, radius=0, font_field='population', zoom_field='zoom start', symbol_size=8)
+defaults = dict(fonts=[(-1, 'fonts/DejaVuSans.ttf', 12)], zoom=4, zoom_field='zoom start', population_field='population', symbol_sizes=[(-1, 8)], radius=0)
 
 optparser.set_defaults(**defaults)
 
@@ -40,25 +40,25 @@ optparser.add_option('--zoom-field', dest='zoom_field',
                      help='Field to use for limiting selection by zoom. Default field is %(zoom_field)s' % defaults)
 
 optparser.add_option('-f', '--font', dest='fonts', action='append', nargs=3,
-                     help='Additional font, in the form of three values: minimum population (or other font field), font file, font size. Can be specified multiple times.')
+                     help='Additional font, in the form of three values: minimum population (or other population field), font file, font size. Can be specified multiple times.')
+
+optparser.add_option('--population-field', '--font-field', dest='population_field',
+                     help='Field to use for font selection. Default field is %(population_field)s.' % defaults)
+
+optparser.add_option('--symbol-size', dest='symbol_sizes', action='append', nargs=2,
+                     type='int', help='Size in pixels for implied townspot symbol width/height in pixels with two values: minimum population (or other population field option), point size in whole pixels. Default size is (%d, %d). Can be specified multiple times.' % (defaults['symbol_sizes'][0][0], defaults['symbol_sizes'][0][1]))
+
+optparser.add_option('--symbol-size-field', dest='symbol_size_field',
+                     help='Field to use for sizing the implied townspot symbol width/height in pixels. No default.')
 
 optparser.add_option('-r', '--radius', dest='radius',
-                     type='float', help='Pixel buffer around each place. Default value is %(radius)d.' % defaults)
-
-optparser.add_option('--font-field', dest='font_field',
-                     help='Field to use for font selection. Default field is %(font_field)s.' % defaults)
+                     type='float', help='Pixel buffer around each place, a spatial filter that removes nearby towns of lesser importance. Default value is %(radius)d.' % defaults)
 
 optparser.add_option('--filter-field', dest='filter_field', action='append', nargs=2,
                      help='Field to use for limiting selection by theme and the value to limit by. Default is no filter.')
 
 optparser.add_option('--filter-bounding-box', dest='filter_bounding_box', action='append', nargs=4, type="float",
                      help='Field to use for limiting selection of feature longitude latitude by spatial extent and the bounding box in xmin ymin xmax ymax. Default is no filter. Tip: More than one filter can be applied, the union of the bbox is used.')
-
-optparser.add_option('--symbol-size', dest='symbol_size',
-                     type='int', help='Size in pixels for implied townspot symbol width/height in pixels. Default size is %(symbol_size)d' % defaults)
-
-optparser.add_option('--symbol-size-field', dest='symbol_size_field',
-                     help='Field to use for sizing the implied townspot symbol width/height in pixels. No default.')
 
 
 def prepare_file(name, mode):
@@ -89,11 +89,12 @@ def prepare_file(name, mode):
         return writer(file, dialect=dialect)
 
 if __name__ == '__main__':
-
     options, (input, output) = optparser.parse_args()
 
     fonts = [(int(min), font, size) for (min, font, size) in options.fonts]
     fonts.sort()
+    
+    options.symbol_sizes.sort()
     
     #
     # prepare input/output files
@@ -142,7 +143,11 @@ if __name__ == '__main__':
                 #if not (options.filter_bounding_box[0][0] <= options.filter_bounding_box[0][2] and options.filter_bounding_box[0][0] <= place[ 'long' ] and options.filter_bounding_box[0][2] >= place[ 'long' ]) or (options.filter_bounding_box[0][0] > options.filter_bounding_box[0][2] and options.filter_bounding_box[0][0] >= place[ 'long' ] and options.filter_bounding_box[0][2] <= place[ 'long' ]) and (options.filter_bounding_box[0][3] >= place[ 'lat' ] and options.filter_bounding_box[0][1] <= place[ 'lat' ]):
 
                 #basic bounding box in xmin ymin xmax ymax with point intersection test
-                if ( (float(place[ 'long' ]) >= bbox[0] and float(place[ 'long' ]) <= bbox[2]) and (float(place[ 'lat' ]) >= bbox[1] and float(place[ 'lat' ]) <= bbox[3])):
+                
+                lat = float( place.get('latitude', place.get('LATITUDE', place.get('lat', place.get('LAT')))))
+                long = float( place.get('longitude', place.get('LONGITUDE', place.get('long', place.get('LONG', place.get('lon', place.get('LON')))))))
+                
+                if ( (long >= bbox[0] and long <= bbox[2]) and (lat >= bbox[1] and lat <= bbox[3])):
                     matches = True
                     #if it matches 1 bbox, that's enough, break out of for loop
                     break
@@ -150,60 +155,40 @@ if __name__ == '__main__':
             #If place doesn't intersect with any bbox, skip it
             if not matches:
                 continue
-        
-            # TODO: allow flexible lat, long names, like in other parts of Dymo
-            #
-            #                             """ Return a floating point latitude, longitude pair from a row.
-            #                                """
-            #                                if 'latitude' in row:
-            #                                    lat = row['latitude']
-            #                                elif 'LATITUDE' in row:
-            #                                    lat = row['LATITUDE']
-            #                                elif 'lat' in row:
-            #                                    lat = row['lat']
-            #                                elif 'LAT' in row:
-            #                                    lat = row['LAT']
-            #                                else:
-            #                                    raise Exception('Missing "latitude" or "lat" field in row')
-            #                            
-            #                                if 'longitude' in row:
-            #                                    lon = row['longitude']
-            #                                elif 'LONGITUDE' in row:
-            #                                    lon = row['LONGITUDE']
-            #                                elif 'long' in row:
-            #                                    lon = row['long']
-            #                                elif 'LONG' in row:
-            #                                    lon = row['LONG']
-            #                                elif 'lon' in row:
-            #                                    lon = row['lon']
-            #                                elif 'LON' in row:
-            #                                    lon = row['LON']
-            #                                else:
-            #                                    raise Exception('Missing "longitude", "long", or "lon" field in row')                
 
         #
         # determine the point size using three pieces of information: the default size,
         # the user-specified value from options, and the value given in the data file.
         #
         
-        if options.symbol_size:
-            symbol_size = options.symbol_size
+        if options.symbol_sizes:
+            symbol_sizes = options.symbol_sizes
         
         if 'point size' in place:
-            symbol_size = int(place['symbol size']) or symbol_size
+            symbol_sizes = int(place['symbol size']) or symbol_sizes
         
         if options.symbol_size_field and options.symbol_size_field in place:
-            symbol_size = int(place[options.symbol_size_field]) or symbol_size
+            symbol_sizes = int(place[options.symbol_size_field]) or symbol_sizes
         
         #
         # internally Dymo uses "point size" to mean townspot "symbol size", 
         # as measured in points/pixels.
         #
         
-        place['point size'] = symbol_size
+        for (min_value, size) in symbol_sizes:
+            if value > min_value:
+                place['point size'] = size
+        
+        #
+        # suppress irrelevant compilations
+        #
         
         if int(place[ options.zoom_field ]) > options.zoom:
             continue
+        
+        #
+        # should we do a rough spatial filter where this town blows out other towns?
+        #
         
         if options.radius > 0:
             loc = Location(*row_location(place))
@@ -216,10 +201,10 @@ if __name__ == '__main__':
             others.add(place['name'], loc)
         
         try:
-            value = int(place[options.font_field.lower()])
+            value = int(place[options.population_field.lower()])
         except ValueError:
-            value = place[options.font_field.lower()]
-    
+            value = place[options.population_field.lower()]
+        
         for (min_value, font, size) in fonts:
             if value > min_value:
                 place['font file'] = font
