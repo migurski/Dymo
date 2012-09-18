@@ -137,105 +137,113 @@ if __name__ == '__main__':
         places.add(place)
     
     #
-    # Do the annealing.
-    #
-    
-    annealer = Annealer(lambda p: p.energy, lambda p: p.move())
-
-    if options.temp_min and options.temp_max and options.steps:
-        annealed, e = annealer.anneal(places, options.temp_max, options.temp_min, options.steps, 30)
-    
-    else:
-        annealed = [None] * places.count()
-        
-        for (group, (places_local, indexes, weight, connections)) in enumerate(places.in_pieces()):
-            if len(indexes) > 1:
-                print 'Placing', ', '.join(sorted([place.name.encode('utf-8', 'replace') for place in places_local]))
-    
-            try:
-                start = time()
-                minutes = options.minutes * float(weight) / connections
-                places_local, e = annealer.auto(places_local, minutes, min(100, weight * 20), verbose=minutes>.3)
-    
-            except NothingToDo:
-                pass
-            
-            else:
-                if minutes > .3:
-                    elapsed = timedelta(seconds=time() - start)
-                    overtime = elapsed - timedelta(minutes=minutes)
-                    print '...done in', str(elapsed)[:-7], 'including', str(overtime)[:-7], 'overhead.'
-            
-            for (index_local, place) in enumerate(places_local):
-                index = indexes[index_local]
-                assert annealed[index] is None
-                annealed[index] = place
-            
-    #
-    # Output results.
+    # Prepare result holders now so if there is no results, still outputs empty files
     #
     
     label_data = {'type': 'FeatureCollection', 'features': []}
     place_data = {'type': 'FeatureCollection', 'features': []}
     rgstr_data = {'type': 'FeatureCollection', 'features': []}
+
+    #
+    # Do the annealing.
+    #
     
-    placed = FootprintIndex(geometry)
-    
-    for place in annealed:
-        blocker = placed.blocks(place)
-        overlaps = bool(blocker)
+    try:
+        annealer = Annealer(lambda p: p.energy, lambda p: p.move())
+
+        if options.temp_min and options.temp_max and options.steps:
+            annealed, e = annealer.anneal(places, options.temp_max, options.temp_min, options.steps, 30)
         
-        if blocker:
-            print place.name, 'blocked by', blocker.name
-            #print place[options.name_field], 'blocked by', blocker[options.name_field]
         else:
-            placed.add(place)
+            annealed = [None] * places.count()
+            
+            for (group, (places_local, indexes, weight, connections)) in enumerate(places.in_pieces()):
+                if len(indexes) > 1:
+                    print 'Placing', ', '.join(sorted([place.name.encode('utf-8', 'replace') for place in places_local]))
         
-        properties = copy(place.properties)
+                try:
+                    start = time()
+                    minutes = options.minutes * float(weight) / connections
+                    places_local, e = annealer.auto(places_local, minutes, min(100, weight * 20), verbose=minutes>.3)
         
-        if options.include_overlaps:
-            properties['overlaps'] = int(overlaps) # 1 or 0
-        elif overlaps:
-            continue
-        
+                except NothingToDo:
+                    pass
+                
+                else:
+                    if minutes > .3:
+                        elapsed = timedelta(seconds=time() - start)
+                        overtime = elapsed - timedelta(minutes=minutes)
+                        print '...done in', str(elapsed)[:-7], 'including', str(overtime)[:-7], 'overhead.'
+                
+                for (index_local, place) in enumerate(places_local):
+                    index = indexes[index_local]
+                    assert annealed[index] is None
+                    annealed[index] = place
+                    
         #
-        # Output slightly different geometries depending
-        # on whether we want projected or geographic output.
+        # Output results.
         #
         
-        label_feature = {'type': 'Feature', 'properties': properties}
-        point_feature = {'type': 'Feature', 'properties': properties}
-
-        label_feature['geometry'] = {'type': 'Polygon', 'coordinates': None}
-        point_feature['geometry'] = {'type': 'Point', 'coordinates': None}
-
-        reg_point, justification = place.registration()
-
-        if options.output_projected:
-            label_coords = list(place.label().envelope.exterior.coords)
-    
-            label_feature['geometry']['coordinates'] = label_coords
-            label_data['features'].append(label_feature)
-    
-            point_feature['geometry']['coordinates'] = [place.position.x, place.position.y]
-            place_data['features'].append(deepcopy(point_feature))
+        placed = FootprintIndex(geometry)
+        
+        for place in annealed:
+            blocker = placed.blocks(place)
+            overlaps = bool(blocker)
             
-            point_feature['geometry']['coordinates'] = (reg_point.x, reg_point.y)
+            if blocker:
+                print place.name, 'blocked by', blocker.name
+                #print place[options.name_field], 'blocked by', blocker[options.name_field]
+            else:
+                placed.add(place)
             
-        else:
-            lonlat = lambda xy: geometry.point_lonlat(xy[0], xy[1])
-            label_coords = [map(lonlat, place.label().envelope.exterior.coords)]
-    
-            label_feature['geometry']['coordinates'] = label_coords
-            label_data['features'].append(label_feature)
-    
-            point_feature['geometry']['coordinates'] = [place.location.lon, place.location.lat]
-            place_data['features'].append(deepcopy(point_feature))
+            properties = copy(place.properties)
             
-            point_feature['geometry']['coordinates'] = lonlat((reg_point.x, reg_point.y))
-
-        point_feature['properties']['justified'] = justification
-        rgstr_data['features'].append(point_feature)
+            if options.include_overlaps:
+                properties['overlaps'] = int(overlaps) # 1 or 0
+            elif overlaps:
+                continue
+            
+            #
+            # Output slightly different geometries depending
+            # on whether we want projected or geographic output.
+            #
+            
+            label_feature = {'type': 'Feature', 'properties': properties}
+            point_feature = {'type': 'Feature', 'properties': properties}
+    
+            label_feature['geometry'] = {'type': 'Polygon', 'coordinates': None}
+            point_feature['geometry'] = {'type': 'Point', 'coordinates': None}
+    
+            reg_point, justification = place.registration()
+    
+            if options.output_projected:
+                label_coords = list(place.label().envelope.exterior.coords)
+        
+                label_feature['geometry']['coordinates'] = label_coords
+                label_data['features'].append(label_feature)
+        
+                point_feature['geometry']['coordinates'] = [place.position.x, place.position.y]
+                place_data['features'].append(deepcopy(point_feature))
+                
+                point_feature['geometry']['coordinates'] = (reg_point.x, reg_point.y)
+                
+            else:
+                lonlat = lambda xy: geometry.point_lonlat(xy[0], xy[1])
+                label_coords = [map(lonlat, place.label().envelope.exterior.coords)]
+        
+                label_feature['geometry']['coordinates'] = label_coords
+                label_data['features'].append(label_feature)
+        
+                point_feature['geometry']['coordinates'] = [place.location.lon, place.location.lat]
+                place_data['features'].append(deepcopy(point_feature))
+                
+                point_feature['geometry']['coordinates'] = lonlat((reg_point.x, reg_point.y))
+    
+            point_feature['properties']['justified'] = justification
+            rgstr_data['features'].append(point_feature)
+    
+    except NothingToDo:
+        print "Nothing to anneal here, move on..."
     
     if options.labels_file:
         json.dump(label_data, open(options.labels_file, 'w'), indent=2)
