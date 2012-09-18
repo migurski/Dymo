@@ -51,8 +51,8 @@ optparser.add_option('--font-field', dest='font_field',
 optparser.add_option('--filter-field', dest='filter_field', action='append', nargs=2,
                      help='Field to use for limiting selection by theme and the value to limit by. Default is no filter.')
 
-optparser.add_option('--filter-bounding-box', dest='filter_bounding_box', action='append', nargs=4,
-                     help='Field to use for limiting selection of feature longitude latitude by spatial extent and the bounding box in xmin ymin xmax ymax. Default is no filter.')
+optparser.add_option('--filter-bounding-box', dest='filter_bounding_box', action='append', nargs=4, type="float",
+                     help='Field to use for limiting selection of feature longitude latitude by spatial extent and the bounding box in xmin ymin xmax ymax. Default is no filter. Tip: More than one filter can be applied, the union of the bbox is used.')
 
 optparser.add_option('--symbol-size', dest='symbol_size',
                      type='int', help='Size in pixels for implied townspot symbol width/height in pixels. Default size is %(symbol_size)d' % defaults)
@@ -117,56 +117,69 @@ if __name__ == '__main__':
     
     if options.radius > 0:
         others = PointIndex(options.zoom, options.radius)
-    
-    if options.filter_bounding_box:
-        xmin = float( options.filter_bounding_box[0][0] )
-        xmax = float( options.filter_bounding_box[0][2] )
-        ymin = float( options.filter_bounding_box[0][1] )
-        ymax = float( options.filter_bounding_box[0][3] )
-    
+        
     for place in input:
         place = dict( [ ((key or '').lower(), value) for (key, value) in place.items() ] )
+        
+        #
+        # data filter
+        #
         
         if options.filter_field: 
             if place[ options.filter_field[0][0] ] != options.filter_field[0][1] :
                 continue
-        
-        print place
-        print options.filter_bounding_box
+                
+        #
+        # spatial filter
+        #
         
         if options.filter_bounding_box:
-            #bounding box in xmin ymin xmax ymax
-            if not ((float(place[ 'long' ]) >= xmin and float(place[ 'long' ]) <= xmax) and (float(place[ 'lat' ]) >= ymin or float(place[ 'lat' ]) <= ymax)):
-            #if not (options.filter_bounding_box[0][0] <= options.filter_bounding_box[0][2] and options.filter_bounding_box[0][0] <= place[ 'long' ] and options.filter_bounding_box[0][2] >= place[ 'long' ]) or (options.filter_bounding_box[0][0] > options.filter_bounding_box[0][2] and options.filter_bounding_box[0][0] >= place[ 'long' ] and options.filter_bounding_box[0][2] <= place[ 'long' ]) and (options.filter_bounding_box[0][3] >= place[ 'lat' ] and options.filter_bounding_box[0][1] <= place[ 'lat' ]):
+            matches = False
+            
+            #Test each bbox for place intersection
+            for bbox in options.filter_bounding_box:
+                #the wrapped bbox method (more expensive)
+                #if not (options.filter_bounding_box[0][0] <= options.filter_bounding_box[0][2] and options.filter_bounding_box[0][0] <= place[ 'long' ] and options.filter_bounding_box[0][2] >= place[ 'long' ]) or (options.filter_bounding_box[0][0] > options.filter_bounding_box[0][2] and options.filter_bounding_box[0][0] >= place[ 'long' ] and options.filter_bounding_box[0][2] <= place[ 'long' ]) and (options.filter_bounding_box[0][3] >= place[ 'lat' ] and options.filter_bounding_box[0][1] <= place[ 'lat' ]):
+
+                #basic bounding box in xmin ymin xmax ymax with point intersection test
+                if ( (float(place[ 'long' ]) >= bbox[0] and float(place[ 'long' ]) <= bbox[2]) and (float(place[ 'lat' ]) >= bbox[1] and float(place[ 'lat' ]) <= bbox[3])):
+                    matches = True
+                    #if it matches 1 bbox, that's enough, break out of for loop
+                    break
+            
+            #If place doesn't intersect with any bbox, skip it
+            if not matches:
                 continue
-                
-#                             """ Return a floating point latitude, longitude pair from a row.
-#                                """
-#                                if 'latitude' in row:
-#                                    lat = row['latitude']
-#                                elif 'LATITUDE' in row:
-#                                    lat = row['LATITUDE']
-#                                elif 'lat' in row:
-#                                    lat = row['lat']
-#                                elif 'LAT' in row:
-#                                    lat = row['LAT']
-#                                else:
-#                                    raise Exception('Missing "latitude" or "lat" field in row')
-#                            
-#                                if 'longitude' in row:
-#                                    lon = row['longitude']
-#                                elif 'LONGITUDE' in row:
-#                                    lon = row['LONGITUDE']
-#                                elif 'long' in row:
-#                                    lon = row['long']
-#                                elif 'LONG' in row:
-#                                    lon = row['LONG']
-#                                elif 'lon' in row:
-#                                    lon = row['lon']
-#                                elif 'LON' in row:
-#                                    lon = row['LON']
-#                                else:
-#                                    raise Exception('Missing "longitude", "long", or "lon" field in row')                
+        
+            # TODO: allow flexible lat, long names, like in other parts of Dymo
+            #
+            #                             """ Return a floating point latitude, longitude pair from a row.
+            #                                """
+            #                                if 'latitude' in row:
+            #                                    lat = row['latitude']
+            #                                elif 'LATITUDE' in row:
+            #                                    lat = row['LATITUDE']
+            #                                elif 'lat' in row:
+            #                                    lat = row['lat']
+            #                                elif 'LAT' in row:
+            #                                    lat = row['LAT']
+            #                                else:
+            #                                    raise Exception('Missing "latitude" or "lat" field in row')
+            #                            
+            #                                if 'longitude' in row:
+            #                                    lon = row['longitude']
+            #                                elif 'LONGITUDE' in row:
+            #                                    lon = row['LONGITUDE']
+            #                                elif 'long' in row:
+            #                                    lon = row['long']
+            #                                elif 'LONG' in row:
+            #                                    lon = row['LONG']
+            #                                elif 'lon' in row:
+            #                                    lon = row['lon']
+            #                                elif 'LON' in row:
+            #                                    lon = row['LON']
+            #                                else:
+            #                                    raise Exception('Missing "longitude", "long", or "lon" field in row')                
 
         #
         # determine the point size using three pieces of information: the default size,
