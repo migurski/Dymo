@@ -4,6 +4,7 @@ from optparse import OptionParser
 from copy import copy, deepcopy
 from datetime import timedelta
 from time import time
+import logging
 import cPickle
 import json
 
@@ -95,20 +96,22 @@ if __name__ == '__main__':
     
     options, input_files = optparser.parse_args()
     
+    logging.basicConfig(format='%(msg)s', level=logging.DEBUG)
+    
     #
     # Geographic projections
     #
     
     if options.zoom is not None and options.scale is not None:
-        print 'Conflicting input: --scale and --zoom can not be used together.\n'
+        logging.critical('Conflicting input: --scale and --zoom can not be used together.')
         exit(1)
     
     if options.zoom is not None and options.projection is not None:
-        print 'Conflicting input: --projection and --zoom can not be used together.\n'
+        logging.critical('Conflicting input: --projection and --zoom can not be used together.')
         exit(1)
     
     if options.zoom is None and options.projection is None and options.scale is None:
-        print 'Bad geometry input: need at least one of --zoom, --scale, or --projection.\n'
+        logging.critical('Bad geometry input: need at least one of --zoom, --scale, or --projection.')
         exit(1)
     
     geometry = get_geometry(options.projection, options.zoom, options.scale)
@@ -118,12 +121,12 @@ if __name__ == '__main__':
     #
     
     if not input_files:
-        print 'Missing input file(s).\n'
+        logging.critical('Missing input file(s).')
         optparser.print_usage()
         exit(1)
     
     if not (options.labels_file or options.places_file or options.registrations_file):
-        print 'Missing output file(s): labels, place points, or registration points.\n'
+        logging.critical('Missing output file(s): labels, place points, or registration points.')
         optparser.print_usage()
         exit(1)
     
@@ -150,12 +153,12 @@ if __name__ == '__main__':
         
         for (group, (places_local, indexes, weight, connections)) in enumerate(places.in_pieces()):
             if len(indexes) > 1:
-                print 'Placing', ', '.join(sorted([place.name.encode('utf-8', 'replace') for place in places_local]))
+                logging.info('Placing '+', '.join(sorted([place.name.encode('utf-8', 'replace') for place in places_local])))
     
             try:
                 start = time()
                 minutes = options.minutes * float(weight) / connections
-                places_local, e = annealer.auto(places_local, minutes, min(100, weight * 20), verbose=minutes>.3)
+                places_local, e = annealer.auto(places_local, minutes, min(100, weight * 20))
     
             except NothingToDo:
                 pass
@@ -164,7 +167,7 @@ if __name__ == '__main__':
                 if minutes > .3:
                     elapsed = timedelta(seconds=time() - start)
                     overtime = elapsed - timedelta(minutes=minutes)
-                    print '...done in', str(elapsed)[:-7], 'including', str(overtime)[:-7], 'overhead.'
+                    logging.info('...done in %s including %s overhead.' % (str(elapsed)[:-7], str(overtime)[:-7]))
             
             for (index_local, place) in enumerate(places_local):
                 index = indexes[index_local]
@@ -186,8 +189,7 @@ if __name__ == '__main__':
         overlaps = bool(blocker)
         
         if blocker:
-            print place.name, 'blocked by', blocker.name
-            #print place[options.name_field], 'blocked by', blocker[options.name_field]
+            logging.info('%s blocked by %s' % (place.name, blocker.name))
         else:
             placed.add(place)
         
@@ -257,6 +259,6 @@ if __name__ == '__main__':
         frames = [frames[i] for i in range(0, len(frames), options.dump_skip)]
         frames.reverse()
         
-        print 'Pickling', len(frames), 'states to', options.dump_file
+        logging.info('Pickling %d states to %s' % (len(frames), options.dump_file))
         
         cPickle.dump(frames, open(options.dump_file, 'w'))
