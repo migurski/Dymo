@@ -61,7 +61,7 @@ Examples:
   Place U.S. city labels at zoom 5 over a 10000-iteration 10.0 - 0.01 temperature range:
   > python dymo-label.py -z 5 --steps 10000 --max-temp 10 --min-temp 0.01 -l labels.json -p points.json data/US-z5.csv""")
 
-defaults = dict(minutes=2, dump_skip=100, include_overlaps=False, output_projected=False, load_inputs=load_places, name_field='name', placement_field='preferred placement', processes=1)
+defaults = dict(minutes=2, dump_skip=100, include_overlaps=False, output_projected=False, load_inputs=load_places, name_field='name', placement_field='preferred placement', processes=1, verbose=None)
 
 optparser.set_defaults(**defaults)
 
@@ -119,12 +119,25 @@ optparser.add_option('--placement-field', dest='placement_field',
 optparser.add_option('-P', '--processes', dest='processes',
                      type='int', help='Number of concurrent annealing processes to run. Default value is %(processes)d.' % defaults)
 
+optparser.add_option('-v', '--verbose', dest='verbose',
+                     action='store_true', help='Be extra chatty when running.' % defaults)
+
+optparser.add_option('-q', '--quiet', dest='verbose',
+                     action='store_false', help='Be extra quiet when running.' % defaults)
+
 
 if __name__ == '__main__':
     
     options, input_files = optparser.parse_args()
     
-    logging.basicConfig(format='%(msg)s', level=logging.INFO)
+    if options.verbose:
+        log_level = logging.DEBUG
+    elif options.verbose is False:
+        log_level = logging.WARNING
+    else:
+        log_level = logging.INFO
+    
+    logging.basicConfig(format='%(msg)s', level=log_level)
     
     #
     # Geographic projections
