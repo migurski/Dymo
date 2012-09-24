@@ -16,7 +16,7 @@ except ImportError:
 
 from . import places
 
-__version__ = '0.12.1'
+__version__ = '0.14.0'
 
 _osm = Provider()
 
@@ -205,10 +205,10 @@ def load_places(input_files, geometry, name_field, placement_field):
         
         yield places.Point(name, fontfile, fontsize, location, point, radius, properties, **kwargs)
 
-def load_blobs(input_files, geometry):
+def load_blobs(input_files, geometry, name_field, placement_field):
     """
     """
-    rows = load_inputs(input_files, geometry)
+    rows = load_inputs(input_files, geometry, name_field, placement_field)
     
     for (name, fontfile, fontsize, location, point, radius, properties, row, preferred) in rows:
-        yield places.Blob(name, fontfile, fontsize, location, point, radius, properties)
+        yield places.Blob(name, fontfile, fontsize, location, point, properties)

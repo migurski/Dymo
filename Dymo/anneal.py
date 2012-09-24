@@ -46,6 +46,7 @@ cities in the United States.
 # for maximum and minimum temperatures and then anneal for the allotted time.
 
 import copy, math, random, sys, time
+from logging import debug, critical
 
 def round_figures(x, n):
 	"""Returns x rounded to n significant figures."""
@@ -67,7 +68,7 @@ class Annealer:
 		self.energy = energy  # function to calculate energy of a state
 		self.move = move      # function to make a random change to a state
 	
-	def anneal(self, state, Tmax, Tmin, steps, updates=0, verbose=True):
+	def anneal(self, state, Tmax, Tmin, steps, updates=0, log_progress=False):
 		"""Minimizes the energy of a system by simulated annealing.
 		
 		Keyword arguments:
@@ -102,23 +103,24 @@ class Annealer:
 			thermally accessible."""
 			
 			elapsed = time.time() - start
-			if step == 0:
-				if verbose:
-					print ' Temperature        Energy    Accept   Improve     Elapsed   Remaining'
-					print '%12.2f  %12.2f                      %s            ' % \
-						(T, E, time_string(elapsed) )
-			else:
+
+			if step == 0 and log_progress:
+				debug(' Temperature        Energy    Accept   Improve     Elapsed   Remaining')
+				debug('%12.2f  %12.2f                      %s            ' 
+					  % (T, E, time_string(elapsed)))
+
+			elif step != 0:
 				remain = ( steps - step ) * ( elapsed / step )
-				if verbose:
-					print '%12.2f  %12.2f  %7.2f%%  %7.2f%%  %s  %s' % \
-						(T, E, 100.0*acceptance, 100.0*improvement,
-							time_string(elapsed), time_string(remain))
+
+				if log_progress:
+					debug('%12.2f  %12.2f  %7.2f%%  %7.2f%%  %s  %s'
+						  % (T, E, 100.0*acceptance, 100.0*improvement,
+						     time_string(elapsed), time_string(remain)))
 		
 		# Precompute factor for exponential cooling from Tmax to Tmin
 		if Tmin <= 0.0:
-			if verbose:
-				print 'Exponential cooling requires a minimum temperature greater than zero.'
-			sys.exit()
+			critical('Exponential cooling requires a minimum temperature greater than zero.')
+			sys.exit(1)
 		Tfactor = -math.log( float(Tmax) / Tmin )
 		
 		# Note initial state
@@ -163,7 +165,7 @@ class Annealer:
 		# Return best state and energy
 		return bestState, bestEnergy
 	
-	def auto(self, state, minutes, steps=2000, verbose=True):
+	def auto(self, state, minutes, steps=2000):
 		"""Minimizes the energy of a system by simulated annealing with
 		automatic selection of the temperature schedule.
 		
@@ -200,8 +202,7 @@ class Annealer:
 		step = 0
 		start = time.time()
 		
-		if verbose:
-			print 'Attempting automatic simulated anneal...'
+		debug('Attempting automatic simulated anneal...')
 		
 		# Find an initial guess for temperature
 		T = 0.0
@@ -211,16 +212,13 @@ class Annealer:
 			self.move(state)
 			T = abs( self.energy(state) - E )
 		
-		if verbose:
-			print 'Exploring temperature landscape:'
-			print ' Temperature        Energy    Accept   Improve     Elapsed'
+		debug('Exploring temperature landscape:')
+		debug(' Temperature        Energy    Accept   Improve     Elapsed')
 		def update(T, E, acceptance, improvement):
 			"""Prints the current temperature, energy, acceptance rate,
 			improvement rate, and elapsed time."""
 			elapsed = time.time() - start
-			if verbose:
-				print '%12.2f  %12.2f  %7.2f%%  %7.2f%%  %s' % \
-					(T, E, 100.0*acceptance, 100.0*improvement, time_string(elapsed))
+			debug('%12.2f  %12.2f  %7.2f%%  %7.2f%%  %s' % (T, E, 100.0*acceptance, 100.0*improvement, time_string(elapsed)))
 		
 		# Search for Tmax - a temperature that gives 98% acceptance
 		state, E, acceptance, improvement = run(state, T, steps)
@@ -250,9 +248,8 @@ class Annealer:
 		duration = round_figures(int(60.0 * minutes * step / elapsed), 2)
 		
 		# Perform anneal
-		if verbose:
-			print 'Annealing from %.3f to %.9f over %i steps:' % (Tmax, Tmin, duration)
-		return self.anneal(state, Tmax, Tmin, duration, 20, verbose)
+		debug('Annealing from %.3f to %.9f over %i steps.' % (Tmax, Tmin, duration))
+		return self.anneal(state, Tmax, Tmin, duration, 20, minutes>.3)
 
 if __name__ == '__main__':
 	"""Test annealer with a traveling salesman problem."""
