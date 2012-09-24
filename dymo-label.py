@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from optparse import OptionParser
+from multiprocessing import Pool
 from copy import copy, deepcopy
 from datetime import timedelta
 from time import time
@@ -12,6 +13,30 @@ from Dymo.anneal import Annealer
 from Dymo.index import FootprintIndex
 from Dymo.places import Places, NothingToDo
 from Dymo import load_places, load_blobs, get_geometry
+
+def anneal_places((places, indexes, weight, connections)):
+    ''' Anneal a list of places and return the results.
+    
+        Intended to be run under multiprocessing.Pool.map().
+    '''
+    if len(indexes) > 1:
+        logging.info('Placing '+', '.join(sorted([place.name.encode('utf-8', 'replace') for place in places])))
+
+    try:
+        start = time()
+        minutes = options.minutes * float(weight) / connections
+        places, e = annealer.auto(places, minutes, min(100, weight * 20))
+
+    except NothingToDo:
+        pass
+    
+    else:
+        if minutes > .3:
+            elapsed = timedelta(seconds=time() - start)
+            overtime = elapsed - timedelta(minutes=minutes)
+            logging.debug('...done in %s including %s overhead.' % (str(elapsed)[:-7], str(overtime)[:-7]))
+    
+    return [(indexes[i], place) for (i, place) in enumerate(places)]
 
 optparser = OptionParser(usage="""%prog [options] --labels-file <label output file> --places-file <point output file> --registrations-file <registration output file> <input file 1> [<input file 2>, ...]
 
@@ -36,7 +61,7 @@ Examples:
   Place U.S. city labels at zoom 5 over a 10000-iteration 10.0 - 0.01 temperature range:
   > python dymo-label.py -z 5 --steps 10000 --max-temp 10 --min-temp 0.01 -l labels.json -p points.json data/US-z5.csv""")
 
-defaults = dict(minutes=2, dump_skip=100, include_overlaps=False, output_projected=False, load_inputs=load_places, name_field='name', placement_field='preferred placement')
+defaults = dict(minutes=2, dump_skip=100, include_overlaps=False, output_projected=False, load_inputs=load_places, name_field='name', placement_field='preferred placement', processes=1)
 
 optparser.set_defaults(**defaults)
 
@@ -91,12 +116,15 @@ optparser.add_option('--name-field', dest='name_field',
 optparser.add_option('--placement-field', dest='placement_field',
                      help='Optional name of column for point placement. Default value is "%(placement_field)s".' % defaults)
 
+optparser.add_option('-P', '--processes', dest='processes',
+                     type='int', help='Number of concurrent annealing processes to run. Default value is %(processes)d.' % defaults)
+
 
 if __name__ == '__main__':
     
     options, input_files = optparser.parse_args()
     
-    logging.basicConfig(format='%(msg)s', level=logging.DEBUG)
+    logging.basicConfig(format='%(msg)s', level=logging.INFO)
     
     #
     # Geographic projections
@@ -151,26 +179,8 @@ if __name__ == '__main__':
     else:
         annealed = [None] * places.count()
         
-        for (group, (places_local, indexes, weight, connections)) in enumerate(places.in_pieces()):
-            if len(indexes) > 1:
-                logging.info('Placing '+', '.join(sorted([place.name.encode('utf-8', 'replace') for place in places_local])))
-    
-            try:
-                start = time()
-                minutes = options.minutes * float(weight) / connections
-                places_local, e = annealer.auto(places_local, minutes, min(100, weight * 20))
-    
-            except NothingToDo:
-                pass
-            
-            else:
-                if minutes > .3:
-                    elapsed = timedelta(seconds=time() - start)
-                    overtime = elapsed - timedelta(minutes=minutes)
-                    logging.info('...done in %s including %s overhead.' % (str(elapsed)[:-7], str(overtime)[:-7]))
-            
-            for (index_local, place) in enumerate(places_local):
-                index = indexes[index_local]
+        for annealed_places in Pool(4).map(anneal_places, places.in_pieces(), chunksize=1):
+            for (index, place) in annealed_places:
                 assert annealed[index] is None
                 annealed[index] = place
             
