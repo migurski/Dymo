@@ -194,8 +194,9 @@ if __name__ == '__main__':
     
     else:
         annealed = [None] * places.count()
+        pool = Pool(options.processes)
         
-        for annealed_places in Pool(4).map(anneal_places, places.in_pieces(), chunksize=1):
+        for annealed_places in pool.map(anneal_places, places.in_pieces(), chunksize=1):
             for (index, place) in annealed_places:
                 assert annealed[index] is None
                 annealed[index] = place
