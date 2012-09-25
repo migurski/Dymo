@@ -15,22 +15,8 @@ from Dymo.index import FootprintIndex
 from Dymo.places import Places, NothingToDo
 from Dymo import load_places, load_blobs, get_geometry
 
-def do_queue(src_queue, dst_queue):
-    '''
-    '''
-    while True:
-        places, indexes, weight, connections = src_queue.get(True)
-        annealed_places = anneal_places(places, indexes, weight, connections)
-        
-        for (index, place) in annealed_places:
-            dst_queue.put((index, place))
-
-        src_queue.task_done()
-
-def anneal_places(places, indexes, weight, connections):
+def anneal_placelist(places, indexes, weight, connections):
     ''' Anneal a list of places and return the results.
-    
-        Intended to be run under multiprocessing.Pool.map().
     '''
     if len(indexes) == 1:
         return [(indexes[i], place) for (i, place) in enumerate(places)]
@@ -52,6 +38,63 @@ def anneal_places(places, indexes, weight, connections):
             logging.debug('...done in %s including %s overhead.' % (str(elapsed)[:-7], str(overtime)[:-7]))
     
     return [(indexes[i], place) for (i, place) in enumerate(places)]
+
+def anneal_in_serial(places):
+    '''
+    '''
+    annealed = [None] * places.count()
+    
+    for piece in places.in_pieces():
+        for (index, place) in anneal_placelist(*piece):
+            assert annealed[index] is None
+            annealed[index] = place
+    
+    return annealed
+
+def anneal_in_parallel(places, processes):
+    '''
+    '''
+    def do_queue(src_queue, dst_queue):
+        ''' Pull tuples from src_queue, put results of anneal_placelist() onto dst_queue.
+        '''
+        while True:
+            places, indexes, weight, connections = src_queue.get(True)
+            annealed_places = anneal_placelist(places, indexes, weight, connections)
+            
+            for (index, place) in annealed_places:
+                dst_queue.put((index, place))
+    
+            src_queue.task_done()
+    
+    annealed = [None] * places.count()
+    
+    src_queue, dst_queue = JoinableQueue(), Queue()
+    processes = [Process(target=do_queue, args=(src_queue, dst_queue)) for i in range(processes)]
+    
+    # load up a source queue
+    for (places, indexes, weight, connections) in places.in_pieces():
+        src_queue.put((places, indexes, weight, connections))
+    
+    # start all the workers
+    for proc in processes:
+        proc.start()
+    
+    src_queue.join()
+    
+    # grab all the results
+    while True:
+        try:
+            index, place = dst_queue.get(True, .1)
+            assert annealed[index] is None
+            annealed[index] = place
+        except Empty:
+            break
+    
+    # stop all the workers
+    for proc in processes:
+        proc.terminate()
+    
+    return annealed
 
 optparser = OptionParser(usage="""%prog [options] --labels-file <label output file> --places-file <point output file> --registrations-file <registration output file> <input file 1> [<input file 2>, ...]
 
@@ -211,42 +254,11 @@ if __name__ == '__main__':
     
     elif options.processes == 1:
         # don't bother with multiprocessing when there's just the one
-        annealed = [None] * places.count()
-        
-        for piece in places.in_pieces():
-            for (index, place) in anneal_places(*piece):
-                assert annealed[index] is None
-                annealed[index] = place
+        annealed = anneal_in_serial(places)
     
     else:
-        # use multiprocessing.Process to work through pieces in parallel
-        annealed = [None] * places.count()
-        
-        src_queue, dst_queue = JoinableQueue(), Queue()
-        processes = [Process(target=do_queue, args=(src_queue, dst_queue)) for i in range(options.processes)]
-        
-        # load up a source queue
-        for (places, indexes, weight, connections) in places.in_pieces():
-            src_queue.put((places, indexes, weight, connections))
-        
-        # start all the workers
-        for proc in processes:
-            proc.start()
-        
-        src_queue.join()
-        
-        # grab all the results
-        while True:
-            try:
-                index, place = dst_queue.get(True, .5)
-                assert annealed[index] is None
-                annealed[index] = place
-            except Empty:
-                break
-        
-        # stop all the workers
-        for proc in processes:
-            proc.terminate()
+        # use multiprocessing to work through pieces in parallel
+        annealed = anneal_in_parallel(places, options.processes)
             
     #
     # Output results.
