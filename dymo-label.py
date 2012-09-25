@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 from optparse import OptionParser
-from multiprocessing import Pool
+from multiprocessing import Process, Queue, JoinableQueue
 from copy import copy, deepcopy
 from datetime import timedelta
+from Queue import Empty
 from time import time
 import logging
 import cPickle
@@ -14,7 +15,19 @@ from Dymo.index import FootprintIndex
 from Dymo.places import Places, NothingToDo
 from Dymo import load_places, load_blobs, get_geometry
 
-def anneal_places((places, indexes, weight, connections)):
+def do_queue(src_queue, dst_queue):
+    '''
+    '''
+    while True:
+        places, indexes, weight, connections = src_queue.get(True)
+        annealed_places = anneal_places(places, indexes, weight, connections)
+        
+        for (index, place) in annealed_places:
+            dst_queue.put((index, place))
+
+        src_queue.task_done()
+
+def anneal_places(places, indexes, weight, connections):
     ''' Anneal a list of places and return the results.
     
         Intended to be run under multiprocessing.Pool.map().
@@ -189,19 +202,51 @@ if __name__ == '__main__':
     annealer = Annealer(lambda p: p.energy, lambda p: p.move())
 
     if places.count() == 0:
+        # looks like there's nothing to actually do.
         annealed = []
         
     elif options.temp_min and options.temp_max and options.steps:
+        # soon-to-be-deprecated explicit temperatures-and-steps method
         annealed, e = annealer.anneal(places, options.temp_max, options.temp_min, options.steps, 30)
     
-    else:
+    elif options.processes == 1:
+        # don't bother with multiprocessing when there's just the one
         annealed = [None] * places.count()
-        pool = Pool(options.processes)
         
-        for annealed_places in pool.map(anneal_places, places.in_pieces(), chunksize=1):
-            for (index, place) in annealed_places:
+        for piece in places.in_pieces():
+            for (index, place) in anneal_places(*piece):
                 assert annealed[index] is None
                 annealed[index] = place
+    
+    else:
+        # use multiprocessing.Process to work through pieces in parallel
+        annealed = [None] * places.count()
+        
+        src_queue, dst_queue = JoinableQueue(), Queue()
+        processes = [Process(target=do_queue, args=(src_queue, dst_queue)) for i in range(options.processes)]
+        
+        # load up a source queue
+        for (places, indexes, weight, connections) in places.in_pieces():
+            src_queue.put((places, indexes, weight, connections))
+        
+        # start all the workers
+        for proc in processes:
+            proc.start()
+        
+        src_queue.join()
+        
+        # grab all the results
+        while True:
+            try:
+                index, place = dst_queue.get(True, .5)
+                assert annealed[index] is None
+                annealed[index] = place
+            except Empty:
+                break
+        
+        # stop all the workers
+        for proc in processes:
+            proc.terminate()
             
     #
     # Output results.
