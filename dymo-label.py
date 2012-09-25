@@ -19,8 +19,10 @@ def anneal_places((places, indexes, weight, connections)):
     
         Intended to be run under multiprocessing.Pool.map().
     '''
-    if len(indexes) > 1:
-        logging.info('Placing '+', '.join(sorted([place.name.encode('utf-8', 'replace') for place in places])))
+    if len(indexes) == 1:
+        return [(indexes[i], place) for (i, place) in enumerate(places)]
+    
+    logging.info('Placing '+', '.join(sorted([place.name.encode('utf-8', 'replace') for place in places])))
 
     try:
         start = time()

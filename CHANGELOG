@@ -1,3 +1,6 @@
+2012-09-24: 0.14.1
+- Fixed handling of dataets that require no annealing.
+
 2012-09-24: 0.14.0
 - Added spatial filtering for multiple bounding boxes in dymp-prepare-places.
 - Added wider variety of allowed lat/lon field names for spatial queries.
