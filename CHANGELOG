@@ -1,3 +1,6 @@
+2012-09-24: 0.14.2
+- Modified internal multiprocessing use so that ctrl-C correctly stops dymo-label.
+
 2012-09-24: 0.14.1
 - Fixed handling of dataets that require no annealing.
 

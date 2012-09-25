@@ -16,7 +16,7 @@ except ImportError:
 
 from . import places
 
-__version__ = '0.14.1'
+__version__ = '0.14.2'
 
 _osm = Provider()
 
