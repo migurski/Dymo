@@ -186,7 +186,10 @@ if __name__ == '__main__':
     
     annealer = Annealer(lambda p: p.energy, lambda p: p.move())
 
-    if options.temp_min and options.temp_max and options.steps:
+    if places.count() == 0:
+        annealed = []
+        
+    elif options.temp_min and options.temp_max and options.steps:
         annealed, e = annealer.anneal(places, options.temp_max, options.temp_min, options.steps, 30)
     
     else:
@@ -201,9 +204,9 @@ if __name__ == '__main__':
     # Output results.
     #
     
-    label_data = {'type': 'FeatureCollection', 'features': []}
-    place_data = {'type': 'FeatureCollection', 'features': []}
-    rgstr_data = {'type': 'FeatureCollection', 'features': []}
+    label_data = dict(type='FeatureCollection', features=[])
+    place_data = dict(type='FeatureCollection', features=[])
+    rgstr_data = dict(type='FeatureCollection', features=[])
     
     placed = FootprintIndex(geometry)
     
