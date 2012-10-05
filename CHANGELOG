@@ -1,3 +1,6 @@
+2012-10-05: 0.15.0
+- Added --append flag to dymo-label for appending to output files.
+
 2012-09-24: 0.14.2
 - Modified internal multiprocessing use so that ctrl-C correctly stops dymo-label.
 
