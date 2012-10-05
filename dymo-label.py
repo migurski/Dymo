@@ -4,6 +4,7 @@ from optparse import OptionParser
 from multiprocessing import Process, Queue, JoinableQueue
 from copy import copy, deepcopy
 from datetime import timedelta
+from os.path import exists
 from Queue import Empty
 from time import time
 import logging
@@ -119,7 +120,7 @@ Examples:
   Place U.S. city labels at zoom 5 over a 10000-iteration 10.0 - 0.01 temperature range:
   > python dymo-label.py -z 5 --steps 10000 --max-temp 10 --min-temp 0.01 -l labels.json -p points.json data/US-z5.csv""")
 
-defaults = dict(minutes=2, dump_skip=100, include_overlaps=False, output_projected=False, load_inputs=load_places, name_field='name', placement_field='preferred placement', processes=1, verbose=None)
+defaults = dict(minutes=2, dump_skip=100, include_overlaps=False, output_projected=False, load_inputs=load_places, name_field='name', placement_field='preferred placement', append=False, processes=1, verbose=None)
 
 optparser.set_defaults(**defaults)
 
@@ -174,14 +175,17 @@ optparser.add_option('--name-field', dest='name_field',
 optparser.add_option('--placement-field', dest='placement_field',
                      help='Optional name of column for point placement. Default value is "%(placement_field)s".' % defaults)
 
+optparser.add_option('--append', dest='append',
+                     action='store_true', help='Append to existing output files instead of overwriting them.')
+
 optparser.add_option('-P', '--processes', dest='processes',
                      type='int', help='Number of concurrent annealing processes to run. Default value is %(processes)d.' % defaults)
 
 optparser.add_option('-v', '--verbose', dest='verbose',
-                     action='store_true', help='Be extra chatty when running.' % defaults)
+                     action='store_true', help='Be extra chatty when running.')
 
 optparser.add_option('-q', '--quiet', dest='verbose',
-                     action='store_false', help='Be extra quiet when running.' % defaults)
+                     action='store_false', help='Be extra quiet when running.')
 
 
 if __name__ == '__main__':
@@ -325,14 +329,22 @@ if __name__ == '__main__':
         point_feature['properties']['justified'] = justification
         rgstr_data['features'].append(point_feature)
     
-    if options.labels_file:
-        json.dump(label_data, open(options.labels_file, 'w'), indent=2)
-
-    if options.places_file:
-        json.dump(place_data, open(options.places_file, 'w'), indent=2)
+    #
+    # Write to output files
+    #
     
-    if options.registrations_file:
-        json.dump(rgstr_data, open(options.registrations_file, 'w'), indent=2)
+    datas = label_data, place_data, place_data
+    files = options.labels_file, options.places_file, options.registrations_file
+    
+    for (data, filename) in zip(datas, files):
+        if not filename:
+            continue
+    
+        if options.append and exists(filename):
+            previous_data = json.load(open(filename))
+            data['features'] = previous_data['features'] + data['features']
+        
+        json.dump(data, open(filename, 'w'), indent=2)
     
     if options.dump_file:
         frames = []
