@@ -1,0 +1,105 @@
+zoom start	geonameid	name	asciiname	latitude	longitude	country code	capital	admin1 code	population	continent	point size	font size	font file
+4	1796236	Shanghai	Shanghai	31.22222	121.45806	CN	no		14608512	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	3435910	Buenos Aries	Buenos Aires	-34.61315	-58.37723	AR	yes		13076300	South America	7	16	fonts/MetaOffc-CondBold.ttf
+4	1275339	Mumbai	Mumbai	19.01441	72.84794	IN	no		12691836	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	3530597	Mexico City	Mexico City	19.42847	-99.12766	MX	yes		12294193	North America	7	16	fonts/MetaOffc-CondBold.ttf
+4	1174872	Karachi	Karachi	24.9056	67.0822	PK	no		11624219	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	745044	Istanbul	Istanbul	41.01384	28.94966	TR	no		11174257	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	1701668	Manila	Manila	14.58458	120.97063	PH	yes		10444527	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	524901	Moscow	Moscow	55.75222	37.61556	RU	yes		10381222	Europe	7	16	fonts/MetaOffc-CondBold.ttf
+4	1185241	Dhaka	Dhaka	23.7104	90.40744	BD	yes		10356500	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	1835848	Seoul	Seoul	37.56826	126.97783	KR	yes		10349312	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	3448439	Sao Paulo	Sao Paulo	-23.5475	-46.63611	BR	no		10021295	South America	7	16	fonts/MetaOffc-CondBold.ttf
+4	2332459	Lagos	Lagos	6.45306	3.39583	NG	no		9000000	Africa	7	16	fonts/MetaOffc-CondBold.ttf
+4	1642911	Jakarta	Jakarta	-6.21462	106.84513	ID	yes		8540121	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	1850147	Tokyo	Tokyo	35.61488	139.5813	JP	yes		8336599	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	5128581	New York	New York City	40.71427	-74.00597	US	no	NY	8008278	North America	7	16	fonts/MetaOffc-CondBold.ttf
+4	1668341	Taipei	Taipei	25.04776	121.53185	TW	yes		7871900	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	3936456	Lima	Lima	-12.04318	-77.02824	PE	yes		7737002	South America	7	16	fonts/MetaOffc-CondBold.ttf
+4	360630	Cairo	Cairo	30.06263	31.24967	EG	yes		7734614	Africa	7	16	fonts/MetaOffc-CondBold.ttf
+4	2643743	London	London	51.50853	-0.12574	GB	yes		7556900	Europe	7	16	fonts/MetaOffc-CondBold.ttf
+4	1816670	Beijing	Beijing	39.9075	116.39723	CN	yes		7480601	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	112931	Tehran	Tehran	35.69439	51.42151	IR	yes		7153309	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	3688689	Bogota	Bogota	4.60971	-74.08175	CO	yes		7102602	South America	7	16	fonts/MetaOffc-CondBold.ttf
+4	1819729	Hong Kong	Hong Kong	22.28552	114.15769	HK	yes		7012738	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	3451190	Rio de Janeiro	Rio de Janeiro	-22.90278	-43.2075	BR	no		6023699	South America	7	16	fonts/MetaOffc-CondBold.ttf
+4	98182	Baghdad	Baghdad	33.34058	44.40088	IQ	yes		5672513	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	1609350	Bangkok	Bangkok	13.75	100.51667	TH	yes		5104476	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	1277333	Bangalore	Bengaluru	12.97623	77.60329	IN	no		5104047	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	3871336	Santiago	Santiago	-33.42628	-70.56656	CL	yes		4837295	South America	7	16	fonts/MetaOffc-CondBold.ttf
+4	1275004	Kolkata	Calcutta	22.56972	88.36972	IN	no		4631392	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	6167865	Toronto	Toronto	43.70011	-79.4163	CA	no	ON	4612191	North America	7	16	fonts/MetaOffc-CondBold.ttf
+4	2147714	Sydney	Sydney	-33.86785	151.20732	AU	no		4394576	Oceania	7	16	fonts/MetaOffc-CondBold.ttf
+4	1264527	Chennai	Chennai	13.08784	80.27847	IN	no		4328063	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	108410	Riyadh	Riyadh	24.68773	46.72185	SA	yes		4205961	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	498817	St. Petersburg	Saint Petersburg	59.89444	30.26417	RU	no		4039745	Europe	7	16	fonts/MetaOffc-CondBold.ttf
+4	1814906	Chongqing	Chongqing	29.56278	106.55278	CN	no		3967028	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	2158177	Melbourne	Melbourne	-37.814	144.96332	AU	no		3730206	Oceania	7	16	fonts/MetaOffc-CondBold.ttf
+4	5368361	Los Angeles	Los Angeles	34.05223	-118.24368	US	no	CA	3694820	North America	7	16	fonts/MetaOffc-CondBold.ttf
+4	1269843	Hyderabad	Hyderabad	17.37528	78.47444	IN	no		3597816	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	1880252	Singapore	Singapore	1.28967	103.85007	SG	yes		3547809	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	1566083	Ho Chi Minh City	Thanh pho Ho Chi Minh	10.75	106.66667	VN	no		3467331	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	3369157	Cape Town	Cape Town	-33.91667	18.41667	ZA	no		3433441	Africa	7	16	fonts/MetaOffc-CondBold.ttf
+4	2950159	Berlin	Berlin	52.52437	13.41053	DE	yes		3426354	Europe	7	16	fonts/MetaOffc-CondBold.ttf
+4	6077243	Montréal	Montreal	45.50884	-73.58781	CA	no	QC	3268513	North America	7	16	fonts/MetaOffc-CondBold.ttf
+4	3117735	Madrid	Madrid	40.4165	-3.70256	ES	yes		3255944	Europe	7	16	fonts/MetaOffc-CondBold.ttf
+4	1809858	Guangzhou	Guangzhou	23.11667	113.25	CN	no		3152825	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	2553604	Casablanca	Casablanca	33.59	-7.61	MA	no		3144909	Africa	7	16	fonts/MetaOffc-CondBold.ttf
+4	3646738	Caracas	Caracas	10.5	-66.91667	VE	yes		3000000	South America	7	16	fonts/MetaOffc-CondBold.ttf
+4	4887398	Chicago	Chicago	41.85003	-87.65005	US	no	IL	2841952	North America	7	16	fonts/MetaOffc-CondBold.ttf
+4	344979	Addis Ababa	Addis Ababa	9.02497	38.74689	ET	yes		2757729	Africa	7	16	fonts/MetaOffc-CondBold.ttf
+4	184745	Nairobi	Nairobi	-1.28333	36.81667	KE	yes		2750547	Africa	7	16	fonts/MetaOffc-CondBold.ttf
+4	160263	Dar es Salaam	Dar es Salaam	-6.82349	39.26951	TZ	no		2698652	Africa	7	16	fonts/MetaOffc-CondBold.ttf
+4	1853909	Osaka	Osaka-shi	34.69374	135.50218	JP	no		2592413	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	3169070	Rome	Roma	41.89474	12.4839	IT	yes		2563241	Europe	7	16	fonts/MetaOffc-CondBold.ttf
+4	703448	Kiev	Kiev	50.45466	30.5238	UA	yes		2514227	Europe	7	16	fonts/MetaOffc-CondBold.ttf
+4	2253354	Dakar	Dakar	14.6937	-17.44406	SN	yes		2476400	Africa	7	16	fonts/MetaOffc-CondBold.ttf
+4	3469058	Brasilia	Brasilia	-15.77972	-47.92972	BR	yes		2207718	South America	7	16	fonts/MetaOffc-CondBold.ttf
+4	3553478	Havana	Havana	23.13302	-82.38304	CU	yes		2163824	North America	7	16	fonts/MetaOffc-CondBold.ttf
+4	2988507	Paris	Paris	48.85341	2.3488	FR	yes		2138551	Europe	7	16	fonts/MetaOffc-CondBold.ttf
+4	4699066	Houston	Houston	29.76328	-95.36327	US	no	TX	2027712	North America	7	16	fonts/MetaOffc-CondBold.ttf
+4	993800	Johannesburg	Johannesburg	-26.20227	28.04363	ZA	no		2026469	Africa	7	16	fonts/MetaOffc-CondBold.ttf
+4	1526384	Almaty	Almaty	43.25	76.95	KZ	no		2000900	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	2507480	Algiers	Algiers	36.7525	3.04197	DZ	yes		1977663	Africa	7	16	fonts/MetaOffc-CondBold.ttf
+4	2306104	Accra	Accra	5.55602	-0.1969	GH	yes		1963264	Africa	7	16	fonts/MetaOffc-CondBold.ttf
+4	276781	Beirut	Beirut	33.88894	35.49442	LB	yes		1916100	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	6173331	Vancouver	Vancouver	49.24966	-123.11934	CA	no	BC	1837969	North America	7	16	fonts/MetaOffc-CondBold.ttf
+4	756135	Warsaw	Warsaw	52.22977	21.01178	PL	yes		1702139	Europe	7	16	fonts/MetaOffc-CondBold.ttf
+4	2761369	Vienna	Vienna	48.20849	16.37208	AT	yes		1691468	Europe	7	16	fonts/MetaOffc-CondBold.ttf
+4	4005539	Guadalajara	Guadalajara	20.66667	-103.33333	MX	no		1640589	North America	7	16	fonts/MetaOffc-CondBold.ttf
+4	3128760	Barcelona	Barcelona	41.38879	2.15899	ES	no		1621537	Europe	7	16	fonts/MetaOffc-CondBold.ttf
+4	4560349	Philadelphia	Philadelphia	39.95234	-75.16379	US	no	PA	1517550	North America	7	16	fonts/MetaOffc-CondBold.ttf
+4	3439389	Asuncion	Asuncion	-25.30066	-57.63591	PY	yes		1482200	South America	7	16	fonts/MetaOffc-CondBold.ttf
+4	1735161	Kuala Lumpur	Kuala Lumpur	3.1412	101.68653	MY	yes		1453975	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	2063523	Perth	Perth	-31.93333	115.83333	AU	no		1446704	Oceania	7	16	fonts/MetaOffc-CondBold.ttf
+4	1496747	Novosibirsk	Novosibirsk	55.04111	82.93444	RU	no		1419007	Europe	7	16	fonts/MetaOffc-CondBold.ttf
+4	3652462	Quito	Quito	-0.22985	-78.52495	EC	yes		1399814	South America	7	16	fonts/MetaOffc-CondBold.ttf
+4	1070940	Antananarivo	Antananarivo	-18.91433	47.53098	MG	yes		1391433	Africa	7	16	fonts/MetaOffc-CondBold.ttf
+4	3173435	Milan	Milano	45.46427	9.18951	IT	no		1306661	Europe	7	16	fonts/MetaOffc-CondBold.ttf
+4	3441575	Montevideo	Montevideo	-34.83346	-56.16735	UY	yes		1270737	South America	7	16	fonts/MetaOffc-CondBold.ttf
+4	2673730	Stockholm	Stockholm	59.33258	18.0649	SE	yes		1253309	Europe	7	16	fonts/MetaOffc-CondBold.ttf
+4	4684888	Dallas	Dallas	32.78306	-96.80667	US	no	TX	1211704	North America	7	16	fonts/MetaOffc-CondBold.ttf
+4	2618425	Copenhagen	Copenhagen	55.67594	12.56553	DK	yes		1153615	Europe	7	16	fonts/MetaOffc-CondBold.ttf
+4	292223	Dubai	Dubai	25.25222	55.28	AE	no		1137347	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	587084	Baku	Baku	40.37767	49.89201	AZ	yes		1116513	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	2800866	Brussels	Brussels	50.8466	4.35277	BE	yes		1019022	Europe	7	16	fonts/MetaOffc-CondBold.ttf
+4	2174003	Brisbane	Brisbane	-27.46794	153.02809	AU	no		958504	Oceania	7	16	fonts/MetaOffc-CondBold.ttf
+4	3911925	La Paz	La Paz	-16.5	-68.15	BO	yes		812799	South America	7	16	fonts/MetaOffc-CondBold.ttf
+4	2759794	Amsterdam	Amsterdam	52.37403	4.88969	NL	yes		741636	Europe	7	16	fonts/MetaOffc-CondBold.ttf
+4	5391959	San Francisco	San Francisco	37.76746	-122.44151	US	no	CA	732072	North America	7	16	fonts/MetaOffc-CondBold.ttf
+4	264371	Athens	Athens	37.97945	23.71622	GR	yes		729137	Europe	7	16	fonts/MetaOffc-CondBold.ttf
+4	2464470	Tunis	Tunis	36.81897	10.16579	TN	yes		693210	Africa	7	16	fonts/MetaOffc-CondBold.ttf
+4	2925533	Frankfurt	Frankfurt am Main	50.11667	8.68333	DE	no		650000	Europe	7	16	fonts/MetaOffc-CondBold.ttf
+4	1176615	Islamabad	Islamabad	33.72148	73.04329	PK	yes		601600	Asia	7	16	fonts/MetaOffc-CondBold.ttf
+4	4930956	Boston	Boston	42.35843	-71.05977	US	no	MA	589141	North America	7	16	fonts/MetaOffc-CondBold.ttf
+4	5809844	Seattle	Seattle	47.60621	-122.33207	US	no	WA	569369	North America	7	16	fonts/MetaOffc-CondBold.ttf
+4	5419384	Denver	Denver	39.73915	-104.9847	US	no	CO	554636	North America	7	16	fonts/MetaOffc-CondBold.ttf
+4	4140963	Washington	Washington	38.89511	-77.03637	US	yes	DC	552433	North America	7	16	fonts/MetaOffc-CondBold.ttf
+4	4180439	Atlanta	Atlanta	33.749	-84.38798	US	no	GA	422908	North America	7	14	fonts/MetaOffc-CondBold.ttf
+4	2193733	Auckland	Auckland	-36.86667	174.76667	NZ	no		417910	Oceania	7	14	fonts/MetaOffc-CondBold.ttf
+4	4164138	Miami	Miami	25.77427	-80.19366	US	no	FL	382894	North America	7	14	fonts/MetaOffc-CondBold.ttf
+4	2179537	Wellington	Wellington	-41.28664	174.77557	NZ	yes		381900	Oceania	7	14	fonts/MetaOffc-CondBold.ttf
+4	1261481	New Delhi	New Delhi	28.63576	77.22445	IN	yes		317797	Asia	7	14	fonts/MetaOffc-CondBold.ttf
+4	2088122	Port Moresby	Port Moresby	-9.44314	147.17972	PG	yes		283733	Oceania	7	14	fonts/MetaOffc-CondBold.ttf
+4	293397	Tel Aviv	Tel Aviv	32.06667	34.76667	IL	no		250000	Africa	7	14	fonts/MetaOffc-CondBold.ttf
+4	934154	Port Louis	Port Louis	-20.16194	57.49889	MU	yes		155226	Africa	7	14	fonts/MetaOffc-CondBold.ttf
