@@ -119,6 +119,12 @@ $(DATATAR): data
 	mkdir $(DATAPKG)/data
 	ln data/World-*.* $(DATAPKG)/data/
 
+	mkdir $(DATAPKG)/geojson
+	ln data/World-*.* $(DATAPKG)/geojson/
+
+	mkdir $(DATAPKG)/shp
+	ln data/World-*.* $(DATAPKG)/shp/
+
 	mkdir $(DATAPKG)/fonts
 	ln fonts/*.ttf $(DATAPKG)/fonts/
 
