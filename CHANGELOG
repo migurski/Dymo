@@ -1,3 +1,12 @@
+2012-10-05: 0.16.0
+- Added new world data file with new continent attributes on places
+- Removed expired per continent data files
+- Updated Makefile to use new data files
+- Updated Makefile to use small sample data (San Francisco and Israel) via newer spatial filter on prepare places.
+- Updated Makefile to also convert GeoJSON output to SHP files (optional make target)
+- Added GeoJSON demo output (San Francisco and Israel)
+- Added SHP shapefile demo output (San Francisco and Israel)
+
 2012-10-05: 0.15.0
 - Added --append flag to dymo-label for appending to output files.
 
