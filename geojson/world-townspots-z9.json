@@ -3509,6 +3509,30 @@
       "geometry": {
         "type": "Point", 
         "coordinates": [
+          35.857500000000002, 
+          32.507219999999997
+        ]
+      }, 
+      "type": "Feature", 
+      "properties": {
+        "point_size": 7, 
+        "name": "Ayd\u016bn", 
+        "asciiname": "Aydun", 
+        "geonameid": 250152, 
+        "font_file": "fonts/DejaVuSans.ttf", 
+        "zoom_start": 8, 
+        "font_size": 14, 
+        "country_code": "JO", 
+        "capital": "no", 
+        "admin1_code": "18", 
+        "continent": "Asia", 
+        "population": 18376
+      }
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
           35.850000000000001, 
           31.883330000000001
         ]
@@ -3821,6 +3845,30 @@
       "geometry": {
         "type": "Point", 
         "coordinates": [
+          35.933329999999998, 
+          32.649999999999999
+        ]
+      }, 
+      "type": "Feature", 
+      "properties": {
+        "point_size": 7, 
+        "name": "Ash Shajarah", 
+        "asciiname": "Ash Shajarah", 
+        "geonameid": 250294, 
+        "font_file": "fonts/DejaVuSans.ttf", 
+        "zoom_start": 9, 
+        "font_size": 14, 
+        "country_code": "JO", 
+        "capital": "no", 
+        "admin1_code": "18", 
+        "continent": "Asia", 
+        "population": 11243
+      }
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
           35.658059999999999, 
           34.255279999999999
         ]
@@ -3989,30 +4037,6 @@
       "geometry": {
         "type": "Point", 
         "coordinates": [
-          35.716670000000001, 
-          32.600000000000001
-        ]
-      }, 
-      "type": "Feature", 
-      "properties": {
-        "point_size": 7, 
-        "name": "Kafr Asad", 
-        "asciiname": "Kafr Asad", 
-        "geonameid": 248734, 
-        "font_file": "fonts/DejaVuSans.ttf", 
-        "zoom_start": 9, 
-        "font_size": 14, 
-        "country_code": "JO", 
-        "capital": "no", 
-        "admin1_code": "18", 
-        "continent": "Asia", 
-        "population": 8203
-      }
-    }, 
-    {
-      "geometry": {
-        "type": "Point", 
-        "coordinates": [
           35.311599999999999, 
           29.800450000000001
         ]
@@ -4109,16 +4133,16 @@
       "geometry": {
         "type": "Point", 
         "coordinates": [
-          35.886110000000002, 
-          32.594999999999999
+          35.911940000000001, 
+          32.56944
         ]
       }, 
       "type": "Feature", 
       "properties": {
         "point_size": 7, 
-        "name": "\u1e28akam\u0101", 
-        "asciiname": "Hakama", 
-        "geonameid": 249318, 
+        "name": "S\u0101l", 
+        "asciiname": "Sal", 
+        "geonameid": 247061, 
         "font_file": "fonts/DejaVuSans.ttf", 
         "zoom_start": 9, 
         "font_size": 14, 
@@ -4126,7 +4150,7 @@
         "capital": "no", 
         "admin1_code": "18", 
         "continent": "Asia", 
-        "population": 7075
+        "population": 6896
       }
     }, 
     {
@@ -4229,54 +4253,6 @@
       "geometry": {
         "type": "Point", 
         "coordinates": [
-          35.776110000000003, 
-          32.698329999999999
-        ]
-      }, 
-      "type": "Feature", 
-      "properties": {
-        "point_size": 7, 
-        "name": "Sa\u1e29am", 
-        "asciiname": "Saham", 
-        "geonameid": 247103, 
-        "font_file": "fonts/DejaVuSans.ttf", 
-        "zoom_start": 9, 
-        "font_size": 14, 
-        "country_code": "JO", 
-        "capital": "no", 
-        "admin1_code": "18", 
-        "continent": "Asia", 
-        "population": 6203
-      }
-    }, 
-    {
-      "geometry": {
-        "type": "Point", 
-        "coordinates": [
-          35.600000000000001, 
-          32.549999999999997
-        ]
-      }, 
-      "type": "Feature", 
-      "properties": {
-        "point_size": 7, 
-        "name": "Waqq\u0101\u015f", 
-        "asciiname": "Waqqas", 
-        "geonameid": 245989, 
-        "font_file": "fonts/DejaVuSans.ttf", 
-        "zoom_start": 9, 
-        "font_size": 14, 
-        "country_code": "JO", 
-        "capital": "no", 
-        "admin1_code": "18", 
-        "continent": "Asia", 
-        "population": 5678
-      }
-    }, 
-    {
-      "geometry": {
-        "type": "Point", 
-        "coordinates": [
           35.883330000000001, 
           31.899999999999999
         ]
@@ -4295,30 +4271,6 @@
         "admin1_code": "16", 
         "continent": "Asia", 
         "population": 5579
-      }
-    }, 
-    {
-      "geometry": {
-        "type": "Point", 
-        "coordinates": [
-          35.778329999999997, 
-          32.64528
-        ]
-      }, 
-      "type": "Feature", 
-      "properties": {
-        "point_size": 7, 
-        "name": "\u1e28\u0101tim", 
-        "asciiname": "Hatim", 
-        "geonameid": 249184, 
-        "font_file": "fonts/DejaVuSans.ttf", 
-        "zoom_start": 9, 
-        "font_size": 14, 
-        "country_code": "JO", 
-        "capital": "no", 
-        "admin1_code": "18", 
-        "continent": "Asia", 
-        "population": 5542
       }
     }, 
     {
@@ -4799,6 +4751,30 @@
         "asciiname": "Herzliyya", 
         "continent": "Africa", 
         "population": 83600
+      }
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          34.906939999999999, 
+          32.174999999999997
+        ]
+      }, 
+      "type": "Feature", 
+      "properties": {
+        "admin1_code": "2", 
+        "point_size": 7, 
+        "name": "Kefar Sava", 
+        "geonameid": 294514, 
+        "font_file": "fonts/DejaVuSans.ttf", 
+        "zoom_start": 7, 
+        "font_size": 16, 
+        "country_code": "IL", 
+        "capital": "no", 
+        "asciiname": "Kefar Sava", 
+        "continent": "Africa", 
+        "population": 80773
       }
     }, 
     {
@@ -5999,30 +5975,6 @@
         "asciiname": "Bene 'Ayish", 
         "continent": "Africa", 
         "population": 7763
-      }
-    }, 
-    {
-      "geometry": {
-        "type": "Point", 
-        "coordinates": [
-          34.952779999999997, 
-          32.155830000000002
-        ]
-      }, 
-      "type": "Feature", 
-      "properties": {
-        "admin1_code": "2", 
-        "point_size": 7, 
-        "name": "Jalj\u016blya", 
-        "geonameid": 294634, 
-        "font_file": "fonts/DejaVuSans.ttf", 
-        "zoom_start": 9, 
-        "font_size": 14, 
-        "country_code": "IL", 
-        "capital": "no", 
-        "asciiname": "Jaljulya", 
-        "continent": "Africa", 
-        "population": 7505
       }
     }, 
     {

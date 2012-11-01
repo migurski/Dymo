@@ -7853,30 +7853,6 @@
       "geometry": {
         "type": "Point", 
         "coordinates": [
-          34.888330000000003, 
-          32.150829999999999
-        ]
-      }, 
-      "type": "Feature", 
-      "properties": {
-        "admin1_code": "2", 
-        "point_size": 7, 
-        "name": "Hod HaSharon", 
-        "geonameid": 294760, 
-        "font_file": "fonts/DejaVuSans.ttf", 
-        "zoom_start": 8, 
-        "font_size": 16, 
-        "country_code": "IL", 
-        "capital": "no", 
-        "asciiname": "Hod HaSharon", 
-        "continent": "Africa", 
-        "population": 43185
-      }
-    }, 
-    {
-      "geometry": {
-        "type": "Point", 
-        "coordinates": [
           35.152500000000003, 
           32.515830000000001
         ]
@@ -7991,6 +7967,30 @@
         "asciiname": "Qiryat Yam", 
         "continent": "Africa", 
         "population": 37639
+      }
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          34.841670000000001, 
+          32.147219999999997
+        ]
+      }, 
+      "type": "Feature", 
+      "properties": {
+        "admin1_code": "5", 
+        "point_size": 7, 
+        "name": "Ramat HaSharon", 
+        "geonameid": 293783, 
+        "font_file": "fonts/DejaVuSans.ttf", 
+        "zoom_start": 8, 
+        "font_size": 16, 
+        "country_code": "IL", 
+        "capital": "no", 
+        "asciiname": "Ramat HaSharon", 
+        "continent": "Africa", 
+        "population": 36137
       }
     }, 
     {
