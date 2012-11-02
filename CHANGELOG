@@ -6,6 +6,7 @@
 - Updated Makefile to also convert GeoJSON output to SHP files (optional make target)
 - Added GeoJSON demo output (San Francisco and Israel)
 - Added SHP shapefile demo output (San Francisco and Israel)
+- Added Quick Start section to Readme with instructions on `make geojson` and `make shp` targets.
 
 2012-10-05: 0.15.0
 - Added --append flag to dymo-label for appending to output files.
