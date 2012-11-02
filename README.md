@@ -17,6 +17,20 @@ videos of U.S. and European place names:
     <a href="http://vimeo.com/migurski/dymo-europe"><img src="https://github.com/migurski/Dymo/raw/master/images/europe-video-still.jpg" width="440" height="219"></a>
 </p>
 
+QUICK START
+----------
+
+**Demo area:** Run `make geojson` to anneal labels for San Francisco and Israel sample areas from zooms 4 to 10. This will automatically build the data files, too (eg: `make data`). Should run in less than an hour.
+
+**World:** Annealing the entire world will take several days to several weeks and will require lots of RAM and many processor cores. Modify the `Makefile` to remove the spatial filter as below:
+
+    # COMPOSITE FILTER (fast!)
+    # SPATIAL_FILTER=  --filter-bounding-box $(FILTER_SANFRANCISCO) --filter-bounding-box $(FILTER_JERUSALEM)
+    # NO FILTER (slow! If no filter is desired, uncomment line below, comment out line above.)
+    SPATIAL_FILTER=
+
+You can change the fonts and population steps in the Makefile, too.
+
 DETAILS
 ----------
 
@@ -177,9 +191,11 @@ Advanced Options
 Tips
 ----
 
-* **Converting to Esri Shapefile format:** Use [GDAL/OGR's]() `ogr2ogr` tool to convert the GeoJSON Dymo output. [QGIS](), a free desktop GIS application, will also convert the files to SHP.
+* **Converting to Esri Shapefile format:** Use [GDAL/OGR's]() `ogr2ogr` tool to convert the GeoJSON Dymo output. [QGIS](), a free desktop GIS application, will also convert the files to SHP. 
 
-		ogr2ogr -f 'Esri Shapefile' points.shp points.json
+		ogr2ogr -f 'Esri Shapefile' -lco=UTF8 output.shp input.json
+		
+    If you have OGR 1.9+ (for the UTF8 layer creation option to preserve the unicode place names), run `make shp` from the Dymo directory and the SHP versions will be automatically created.
 
 * **Reduce the file size** of the GeoJSON output using [Lil'JSON](https://github.com/migurski/LilJSON/):
 
