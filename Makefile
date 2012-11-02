@@ -338,3 +338,15 @@ shp: geojson
 	ogr2ogr -f "ESRI Shapefile" -overwrite -lco ENCODING=UTF8 shp/world_city_townspots_z10.shp geojson/world-townspots-z10.json
 
 	touch shp
+	
+
+#
+# Asummes you have admin for the Dymo package on PyPi
+# Assumes you've registered this access previously by credentially as:
+# python setup.py register
+# Best practice is to also upload the latest tarballs of Dymo and Dymodata to (as admin):
+# https://github.com/migurski/Dymo/downloads
+#
+
+live:
+	python setup.py sdist upload
