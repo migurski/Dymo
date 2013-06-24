@@ -187,6 +187,15 @@ Advanced Options
 
         python dymo-label.py --projection "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=38.0 +lon_0=-98.0 +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs" --output-projected --scale 2377 --steps 50000 --max-temp 230 --min-temp 0.0001 --labels-file northeast-labels.json east-labels-z3.txt --name-field "label" --placement-field "preferred_z3"
 
+Dependencies
+-----------
+Some of the advanced options, such as custom map projections, will require the following libraries: 
+
+* Modest Maps
+* Shapely
+* Pyproj
+
+For projection-specific inputs, see this [projections transform list](http://www.remotesensing.org/geotiff/proj_list/).
 
 Tips
 ----
