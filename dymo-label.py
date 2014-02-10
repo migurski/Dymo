@@ -333,7 +333,7 @@ if __name__ == '__main__':
     # Write to output files
     #
     
-    datas = label_data, place_data, place_data
+    datas = label_data, place_data, rgstr_data
     files = options.labels_file, options.places_file, options.registrations_file
     
     for (data, filename) in zip(datas, files):
